@@ -19,6 +19,8 @@ const HiGlassCase = (props) => {
   const hgcRef = useRef();
   const notify = useRef(true);
   const notifyTimer = useRef();
+  const [activateSelect, setActivateSelect] = useState(props.selectMode);
+  // const [viewConfig, setViewConfig] = useState(props.viewConfig);
 
   /* 
   listen to location changes for the main view
@@ -85,11 +87,27 @@ const HiGlassCase = (props) => {
     }, DISABLE_NOTIFY_TIME);
   }, [props.mainLocation]);
 
+  useEffect(() => {
+    if (props.selectMode) {
+      // setActivateSelect(true);
+      hgcRef.current.api.activateTool("select");
+      console.log("enable select");
+      setActivateSelect(true); // seems work without state update here
+    } else {
+      // setActivateSelect(false);
+      hgcRef.current.api.activateTool("move");
+      console.log("disable select");
+      setActivateSelect(false); // seems work without state update here
+    }
+  }, [props.selectMode]);
+
   return (
     <HiGlassWrapper
       onRef={hgcRef}
       options={props.options}
       viewConfig={props.viewConfig}
+      activateSelect={activateSelect}
+      // activateSelect={props.selectMode}
     />
   );
 };

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 
 import { HiGlassComponent } from "higlass";
 import "higlass/dist/hglib.css";
@@ -11,6 +11,24 @@ such as props change
 
 const HiGlassWrapper = (props) => {
   console.log("HiGlassWrapper render");
+
+  // const [isSelectEnabled, setIsSelectEnabled] = useState(false);
+  const [activate, setActivate] = useState();
+
+  /*
+  force this component re-evaluate after mouseTool changed
+  by calling api.activateTool(...)
+  */
+  useEffect(() => {
+    // if (props.activateSelect) {
+    //   props.onRef.current.api.activateTool("select");
+    //   setIsSelectEnabled(true);
+    // } else {
+    //   props.onRef.current.api.activateTool("move");
+    //   setIsSelectEnabled(false);
+    // }
+    setActivate({activate: true});
+  }, [props.activateSelect]);
 
   return (
     <HiGlassComponent
