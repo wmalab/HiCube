@@ -9,26 +9,29 @@ so it only re-evaluate under certain conditions
 such as props change
 */
 
+const MOUSE_TOOL_MOVE = "move";
+const MOUSE_TOOL_SELECT = "select";
+
 const HiGlassWrapper = (props) => {
   console.log("HiGlassWrapper render");
 
-  // const [isSelectEnabled, setIsSelectEnabled] = useState(false);
-  const [activate, setActivate] = useState();
+  const [isSelectEnabled, setIsSelectEnabled] = useState(false);
 
   /*
   force this component re-evaluate after mouseTool changed
   by calling api.activateTool(...)
   */
+  const { mouseTool } = props;
+
   useEffect(() => {
-    // if (props.activateSelect) {
-    //   props.onRef.current.api.activateTool("select");
-    //   setIsSelectEnabled(true);
-    // } else {
-    //   props.onRef.current.api.activateTool("move");
-    //   setIsSelectEnabled(false);
-    // }
-    setActivate({activate: true});
-  }, [props.activateSelect]);
+    if (mouseTool === "select") {
+      props.onRef.current.api.activateTool(MOUSE_TOOL_SELECT);
+      setIsSelectEnabled(true);
+    } else {
+      props.onRef.current.api.activateTool(MOUSE_TOOL_MOVE);
+      setIsSelectEnabled(false);
+    }
+  }, [mouseTool]);
 
   return (
     <HiGlassComponent

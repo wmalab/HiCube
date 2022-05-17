@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import HiGlassCase from "./components/HiGlass/HiGlassCase";
 import {
   defaultOptions as options,
-  defaultViewConfig as viewConfig
+  defaultViewConfig as viewConfig,
 } from "./components/Config/default-config";
 
 export default function App() {
@@ -11,13 +11,28 @@ export default function App() {
   const [mainLocation, setMainLocation] = useState({
     xDomain: null,
     yDomain: null,
-    fromId: null
+    fromId: null,
   });
+
+  // const [selectMode, setSelectMode] = useState(false);
+  const [mouseTool, setMouseTool] = useState("move");
 
   const locationChangeHandler = (location, id) => {
     console.log(id, "location change");
 
     setMainLocation({ ...location, fromId: id });
+  };
+
+  // const toggleSelectModeHandler = () => {
+  //   setSelectMode((prevSelectMode) => !prevSelectMode);
+  // };
+  const toggleMouseToolHandler = () => {
+    setMouseTool((prevMouseTool) => {
+      if (prevMouseTool === "move") {
+        return "select";
+      }
+      return "move";
+    });
   };
 
   return (
@@ -30,12 +45,18 @@ export default function App() {
         {mainLocation.yDomain &&
           `yDomain: ${mainLocation.yDomain[0]}--${mainLocation.yDomain[1]}`}
       </p>
+      {/* <button onClick={toggleSelectModeHandler}>
+        {selectMode ? "Select" : "Move"}
+      </button> */}
+      <button onClick={toggleMouseToolHandler}>{mouseTool}</button>
       <HiGlassCase
         id="hgc1"
         options={options}
         viewConfig={viewConfig}
         mainLocation={mainLocation}
         onMainLocationChange={locationChangeHandler}
+        // selectMode={selectMode}
+        mouseTool={mouseTool}
       />
       <HiGlassCase
         id="hgc2"
@@ -43,6 +64,8 @@ export default function App() {
         viewConfig={viewConfig}
         mainLocation={mainLocation}
         onMainLocationChange={locationChangeHandler}
+        // selectMode={selectMode}
+        mouseTool={mouseTool}
       />
     </div>
   );
