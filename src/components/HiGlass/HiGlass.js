@@ -281,7 +281,7 @@ class HiGlass extends PureComponent {
   }
 
   render() {
-    console.log("render");
+    console.log("HiGlass render");
     return (
       <HiGlassComponent
         ref={(c) => {

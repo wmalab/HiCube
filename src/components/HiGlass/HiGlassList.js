@@ -93,6 +93,15 @@ class HiGlassList extends Component {
     this.hgcApis.hgc2.activateTool("select");
   }
 
+  handleCancel() {
+    this.setState({
+      mouseTool: "move",
+      zoomView: null
+    });
+    this.hgcApis.hgc1.activateTool("move");
+    this.hgcApis.hgc2.activateTool("move");
+  }
+
   handleZoom() {
     if (this.state.mouseTool === "move" || !this.state.selectRange) {
       return;
@@ -215,6 +224,7 @@ class HiGlassList extends Component {
           </p>
           <button onClick={this.handleSelect}>select</button>
           <button onClick={this.handleZoom}>zoom</button>
+          <button onClick={this.handleCancel.bind(this)}>cancel</button>
         </div>
         {/* <h1>demo plot</h1> */}
         {/* <div>
