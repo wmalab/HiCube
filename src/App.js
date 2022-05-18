@@ -14,8 +14,13 @@ export default function App() {
     fromId: null,
   });
 
-  // const [selectMode, setSelectMode] = useState(false);
   const [mouseTool, setMouseTool] = useState("move");
+  const [rangeSelection, setRangeSelection] = useState({
+    type: null,
+    xDomain: null,
+    yDomain: null,
+    fromId: null,
+  });
 
   const locationChangeHandler = (location, id) => {
     console.log(id, "location change");
@@ -23,16 +28,24 @@ export default function App() {
     setMainLocation({ ...location, fromId: id });
   };
 
-  // const toggleSelectModeHandler = () => {
-  //   setSelectMode((prevSelectMode) => !prevSelectMode);
-  // };
-  const toggleMouseToolHandler = () => {
-    setMouseTool((prevMouseTool) => {
-      if (prevMouseTool === "move") {
-        return "select";
-      }
-      return "move";
-    });
+  const activateSelectHandler = () => {
+    setMouseTool("select");
+  };
+
+  const createZoomInHandler = () => {
+    setMouseTool("move_create");
+  };
+
+  const cancelSelectHandler = () => {
+    setMouseTool("move_cancel");
+  };
+
+  const clearSelectHandler = () => {
+    setMouseTool("move_clear");
+  };
+
+  const rangeSelectionChangeHandler = (type, location, id) => {
+    setRangeSelection({ ...location, fromId: id, type: type });
   };
 
   return (
@@ -45,18 +58,27 @@ export default function App() {
         {mainLocation.yDomain &&
           `yDomain: ${mainLocation.yDomain[0]}--${mainLocation.yDomain[1]}`}
       </p>
-      {/* <button onClick={toggleSelectModeHandler}>
-        {selectMode ? "Select" : "Move"}
-      </button> */}
-      <button onClick={toggleMouseToolHandler}>{mouseTool}</button>
+      <p>
+        {rangeSelection.xDomain &&
+          `select xDomain: ${rangeSelection.xDomain[0]}--${rangeSelection.xDomain[1]}`}
+      </p>
+      <p>
+        {rangeSelection.yDomain &&
+          `select yDomain: ${rangeSelection.yDomain[0]}--${rangeSelection.yDomain[1]}`}
+      </p>
+      <button onClick={activateSelectHandler}>Select</button>
+      <button onClick={createZoomInHandler}>Create Zoom-In View</button>
+      <button onClick={cancelSelectHandler}>Cancel</button>
+      <button onClick={clearSelectHandler}>Clear</button>
       <HiGlassCase
         id="hgc1"
         options={options}
         viewConfig={viewConfig}
         mainLocation={mainLocation}
         onMainLocationChange={locationChangeHandler}
-        // selectMode={selectMode}
         mouseTool={mouseTool}
+        rangeSelection={rangeSelection}
+        onRangeSelection={rangeSelectionChangeHandler}
       />
       <HiGlassCase
         id="hgc2"
@@ -64,8 +86,9 @@ export default function App() {
         viewConfig={viewConfig}
         mainLocation={mainLocation}
         onMainLocationChange={locationChangeHandler}
-        // selectMode={selectMode}
         mouseTool={mouseTool}
+        rangeSelection={rangeSelection}
+        onRangeSelection={rangeSelectionChangeHandler}
       />
     </div>
   );
