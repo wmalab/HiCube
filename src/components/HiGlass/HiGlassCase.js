@@ -161,6 +161,18 @@ const HiGlassCase = (props) => {
         { xDomain: [null, null], yDomain: [null, null] },
         props.id
       );
+    } else if (props.mouseTool === "add_overlay") {
+      const { dataRange } = hgcRef.current.api.getRangeSelection();
+      if (!dataRange || dataRange.every((e) => e === null)) {
+        return;
+      }
+      // FIXME: the length of dataRange will still be 2
+      // but one of them (the second one) will be null
+      if (dataRange[1] === null) {
+        props.onCreateOverlay("1D", dataRange, props.id);
+      } else {
+        props.onCreateOverlay("2D", dataRange, props.id);
+      }
     }
   }, [props.mouseTool]);
 
@@ -229,12 +241,14 @@ const HiGlassCase = (props) => {
     };
   }, [zoomLocation]);
 
+  const mouseTool = props.mouseTool === "select" ? "select" : "move";
+
   return (
     <HiGlassWrapper
       onRef={hgcRef}
       options={props.options}
       viewConfig={viewConfig}
-      mouseTool={props.mouseTool}
+      mouseTool={mouseTool}
     />
   );
 };
