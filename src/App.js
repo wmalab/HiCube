@@ -5,17 +5,25 @@ import {
   defaultViewConfig as viewConfig,
 } from "./components/Config/default-config";
 
+const uid = () =>
+  String(Date.now().toString(32) + Math.random().toString(16)).replace(
+    /\./g,
+    ""
+  );
+
 const overlaysReducer = (state, action) => {
   if (action.type === "ADD_1D") {
     return state.concat({
-      uid: "overlay-1d-" + Date.now().toString(),
+      uid: "overlay-1d-" + uid(),
       extent: action.extent,
     });
   } else if (action.type === "ADD_2D") {
     return state.concat({
-      uid: "overlay-2d-" + Date.now().toString(),
+      uid: "overlay-2d-" + uid(),
       extent: action.extent,
     });
+  } else if (action.type === "CLEAR") {
+    return [];
   }
 };
 
@@ -69,7 +77,7 @@ export default function App() {
   };
 
   const clearOverlaysHandler = () => {
-    setMouseTool("clear_overlays");
+    dispatchOverlaysAction({ type: "CLEAR" });
   };
 
   const rangeSelectionChangeHandler = (type, location, id) => {
@@ -117,13 +125,21 @@ export default function App() {
       <br />
       <button onClick={addOverlayHandler}>+ Add Overlay</button>
       <button onClick={clearOverlaysHandler}>- Clear Overlays</button>
-      <ul>{overlays.map(overlay => {
-        return (<li key={overlay.uid}>
-          <span><strong>{overlay.uid}: </strong></span>
-          <span>{`${overlay.extent[0]}-${overlay.extent[1]}`}</span>
-          {overlay.extent.length > 2 && <span>{`, ${overlay.extent[2]}-${overlay.extent[3]}`}</span>}
-        </li>);
-      })}</ul>
+      <ul>
+        {overlays.map((overlay) => {
+          return (
+            <li key={overlay.uid}>
+              <span>
+                <strong>{overlay.uid}: </strong>
+              </span>
+              <span>{`${overlay.extent[0]}-${overlay.extent[1]}`}</span>
+              {overlay.extent.length > 2 && (
+                <span>{`, ${overlay.extent[2]}-${overlay.extent[3]}`}</span>
+              )}
+            </li>
+          );
+        })}
+      </ul>
       <HiGlassCase
         id="hgc1"
         options={options}
@@ -134,6 +150,7 @@ export default function App() {
         rangeSelection={rangeSelection}
         onRangeSelection={rangeSelectionChangeHandler}
         onCreateOverlay={createOverlayHandler}
+        overlays={overlays}
       />
       <HiGlassCase
         id="hgc2"
@@ -145,6 +162,7 @@ export default function App() {
         rangeSelection={rangeSelection}
         onRangeSelection={rangeSelectionChangeHandler}
         onCreateOverlay={createOverlayHandler}
+        overlays={overlays}
       />
     </div>
   );

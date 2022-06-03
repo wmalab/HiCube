@@ -23,8 +23,9 @@ const HiGlassCase = (props) => {
   const zoomLocationListener = useRef();
 
   const viewConfigReducer = (state, action) => {
+    let vcf = hgcRef.current.api.getViewConfig();
+
     if (action.type === "CREATE_ZOOM_VIEW") {
-      let vcf = hgcRef.current.api.getViewConfig();
       if (vcf.views.length === 2) {
         vcf.views.pop();
         vcf.views[0].tracks.center[0].contents.pop();
@@ -60,16 +61,33 @@ const HiGlassCase = (props) => {
           strokeWidth: 1,
         },
       });
-      return vcf;
     } else if (action.type === "CLEAR_ZOOM_VIEW") {
-      let vcf = hgcRef.current.api.getViewConfig();
       vcf.views.pop();
       vcf.views[0].tracks.center[0].contents.pop();
-      return vcf;
+    } else if (action.type === "CLEAR_OVERLAYS") {
+      for (const view of vcf.views) {
+        view.overlays = [];
+      }
+    } else if (action.type === "CHANGE_OVERLAYS") {
+      for (const view of vcf.views) {
+        view.overlays = [];
+        for (const overlay of action.overlays) {
+          view.overlays.push({
+            uid: overlay.uid,
+            includes: ["c1"],
+            options: {
+              extent: [
+                overlay.extent
+              ]
+            }
+          });
+        }
+      }
     }
+    return vcf;
   };
 
-  const [viewConfig, dispatchViewConfig] = useReducer(
+  const [viewConfig, dispatchViewConfigAction] = useReducer(
     viewConfigReducer,
     props.viewConfig
   );
@@ -184,13 +202,13 @@ const HiGlassCase = (props) => {
     }
 
     if (props.rangeSelection.type === "CREATE") {
-      dispatchViewConfig({
+      dispatchViewConfigAction({
         type: "CREATE_ZOOM_VIEW",
         xDomain: props.rangeSelection.xDomain,
         yDomain: props.rangeSelection.yDomain,
       });
     } else if (props.rangeSelection.type === "CLEAR") {
-      dispatchViewConfig({ type: "CLEAR_ZOOM_VIEW" });
+      dispatchViewConfigAction({ type: "CLEAR_ZOOM_VIEW" });
     } else if (props.rangeSelection.type === "UPDATE") {
       const { xDomain, yDomain, fromId } = props.rangeSelection;
       if (!fromId || fromId === props.id || !xDomain || !yDomain) {
@@ -207,6 +225,17 @@ const HiGlassCase = (props) => {
       }, DISABLE_NOTIFY_TIME);
     }
   }, [props.rangeSelection]);
+
+  useEffect(() => {
+    if (props.overlays.length === 0) {
+      dispatchViewConfigAction({ type: "CLEAR_OVERLAYS" });
+    } else {
+      dispatchViewConfigAction({
+        type: "CHANGE_OVERLAYS",
+        overlays: props.overlays,
+      });
+    }
+  }, [props.overlays]);
 
   useEffect(() => {
     if (viewConfig.views.length === 2 && !zoomLocationListener.current) {
