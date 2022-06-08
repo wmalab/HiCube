@@ -1,10 +1,15 @@
 import React, { useState, useReducer } from "react";
 import HiGlassCase from "./components/HiGlass/HiGlassCase";
+import TrackSourceManager from "./components/SideDrawer/TrackSourceManager";
 import {
   defaultOptions as options,
   defaultViewConfig as viewConfig,
 } from "./components/Config/default-config";
+import GridLayout from "react-grid-layout";
+import "../node_modules/react-grid-layout/css/styles.css";
+import "../node_modules/react-resizable/css/styles.css";
 
+// source: https://dev.to/roblevintennis/comment/1ol48
 const uid = () =>
   String(Date.now().toString(32) + Math.random().toString(16)).replace(
     /\./g,
@@ -29,6 +34,14 @@ const overlaysReducer = (state, action) => {
 
 const configsReducer = (state, action) => {};
 
+// TODO: add HGC dynamically with button click
+// HGCs should have diff viewconfig and id otherwise same props
+// TODO: hold a list of viewconfig as state to pass to HGC
+// TODO: need an index for all the tracks
+// TODO: if move create zoom view here,
+// need to change initialXDomain to current location
+// TODO: add case need to set initialXDomain to current location
+
 export default function App() {
   console.log("App render");
 
@@ -48,7 +61,9 @@ export default function App() {
 
   const [overlays, dispatchOverlaysAction] = useReducer(overlaysReducer, []);
 
-  const [configs, dispatchConfigsAction] = useReducer(configsReducer, []);
+  // const [configs, dispatchConfigsAction] = useReducer(configsReducer, []);
+  const [trackSourceServers, setTrackSourceServers] = useState([]);
+  const [configs, setConfigs] = useState([]);
 
   const locationChangeHandler = (location, id) => {
     console.log(id, "location change");
@@ -99,8 +114,50 @@ export default function App() {
     }
   };
 
+  const addCaseHandler = () => {
+    setConfigs((prevConfigs) => {
+      return [...prevConfigs, [uid(), viewConfig]];
+    });
+  };
+
+  const nViews =
+    !rangeSelection.xDomain || rangeSelection.xDomain.every((e) => e === null)
+      ? 1
+      : 2;
+
+  const layout = configs.map((config, idx) => {
+    return {
+      i: config[0],
+      x: 0,
+      y: 3 * idx,
+      w: 4 * nViews,
+      h: 3,
+      static: true,
+    };
+  });
+
+  const addServerHandler = (serverURL) => {
+    setTrackSourceServers((prevTrackSourceServers) => {
+      return prevTrackSourceServers.concat({ uuid: uid(), url: serverURL });
+    });
+  };
+
+  const removeServerHandler = (serverUid) => {
+    setTrackSourceServers((prevTrackSourceServers) => {
+      return prevTrackSourceServers.filter(
+        (trackSourceServer) => trackSourceServer.uuid !== serverUid
+      );
+    });
+  };
+
   return (
-    <div style={{ width: "400px", height: "800px" }}>
+    <div>
+      <TrackSourceManager
+        trackSourceServers={trackSourceServers}
+        onAddServer={addServerHandler}
+        onRemoveServer={removeServerHandler}
+      />
+      <button onClick={addCaseHandler}>+ Case</button>
       <p>
         {mainLocation.xDomain &&
           `xDomain: ${mainLocation.xDomain[0]}--${mainLocation.xDomain[1]}`}
@@ -140,30 +197,33 @@ export default function App() {
           );
         })}
       </ul>
-      <HiGlassCase
-        id="hgc1"
-        options={options}
-        viewConfig={viewConfig}
-        mainLocation={mainLocation}
-        onMainLocationChange={locationChangeHandler}
-        mouseTool={mouseTool}
-        rangeSelection={rangeSelection}
-        onRangeSelection={rangeSelectionChangeHandler}
-        onCreateOverlay={createOverlayHandler}
-        overlays={overlays}
-      />
-      <HiGlassCase
-        id="hgc2"
-        options={options}
-        viewConfig={viewConfig}
-        mainLocation={mainLocation}
-        onMainLocationChange={locationChangeHandler}
-        mouseTool={mouseTool}
-        rangeSelection={rangeSelection}
-        onRangeSelection={rangeSelectionChangeHandler}
-        onCreateOverlay={createOverlayHandler}
-        overlays={overlays}
-      />
+      <GridLayout
+        className="layout"
+        layout={layout}
+        cols={12}
+        rowHeight={100}
+        width={1200}
+      >
+        {configs.map((config) => {
+          return (
+            <div key={config[0]}>
+              <HiGlassCase
+                key={config[0]}
+                id={config[0]}
+                options={options}
+                viewConfig={config[1]}
+                mainLocation={mainLocation}
+                onMainLocationChange={locationChangeHandler}
+                mouseTool={mouseTool}
+                rangeSelection={rangeSelection}
+                onRangeSelection={rangeSelectionChangeHandler}
+                onCreateOverlay={createOverlayHandler}
+                overlays={overlays}
+              />
+            </div>
+          );
+        })}
+      </GridLayout>
     </div>
   );
 }
