@@ -1,20 +1,16 @@
 import React, { useState, useReducer } from "react";
 import HiGlassCase from "./components/HiGlass/HiGlassCase";
 import TrackSourceManager from "./components/SideDrawer/TrackSourceManager";
+import AddCase from "./components/SideDrawer/AddCase";
+import ToolBar from "./components/SideDrawer/ToolBar";
 import {
   defaultOptions as options,
   defaultViewConfig as viewConfig,
 } from "./components/Config/default-config";
 import GridLayout from "react-grid-layout";
+import { uid } from "./utils";
 import "../node_modules/react-grid-layout/css/styles.css";
 import "../node_modules/react-resizable/css/styles.css";
-
-// source: https://dev.to/roblevintennis/comment/1ol48
-const uid = () =>
-  String(Date.now().toString(32) + Math.random().toString(16)).replace(
-    /\./g,
-    ""
-  );
 
 const overlaysReducer = (state, action) => {
   if (action.type === "ADD_1D") {
@@ -29,6 +25,8 @@ const overlaysReducer = (state, action) => {
     });
   } else if (action.type === "CLEAR") {
     return [];
+  } else if (action.type === "REMOVE") {
+    return state.filter(overlay => overlay.uid !== action.uuid);
   }
 };
 
@@ -114,8 +112,13 @@ export default function App() {
     }
   };
 
-  const addCaseHandler = () => {
+  const removeOverlayHandler = (overlayUid) => {
+    dispatchOverlaysAction({ type: "REMOVE", uuid: overlayUid });
+  };
+
+  const addCaseHandler = (hgcViewConfig) => {
     setConfigs((prevConfigs) => {
+      // FIXME: cannot select on 1D tracks
       return [...prevConfigs, [uid(), viewConfig]];
     });
   };
@@ -157,7 +160,20 @@ export default function App() {
         onAddServer={addServerHandler}
         onRemoveServer={removeServerHandler}
       />
-      <button onClick={addCaseHandler}>+ Case</button>
+      <AddCase
+        trackSourceServers={trackSourceServers}
+        onAddCase={addCaseHandler}
+      />
+      <ToolBar
+        onSelect={activateSelectHandler}
+        onCancel={cancelSelectHandler}
+        onAddZoomIn={createZoomInHandler}
+        onRemoveZoomIn={clearSelectHandler}
+        overlays={overlays}
+        onAddOverlay={addOverlayHandler}
+        onRemoveOverlays={clearOverlaysHandler}
+        onRemoveOverlay={removeOverlayHandler}
+      />
       <p>
         {mainLocation.xDomain &&
           `xDomain: ${mainLocation.xDomain[0]}--${mainLocation.xDomain[1]}`}
@@ -174,15 +190,7 @@ export default function App() {
         {rangeSelection.yDomain &&
           `select yDomain: ${rangeSelection.yDomain[0]}--${rangeSelection.yDomain[1]}`}
       </p>
-      <button onClick={activateSelectHandler}>Select</button>
-      <button onClick={cancelSelectHandler}>Cancel</button>
-      <br />
-      <button onClick={createZoomInHandler}>+ Create Zoom-In View</button>
-      <button onClick={clearSelectHandler}>- Clear Zoom-In View</button>
-      <br />
-      <button onClick={addOverlayHandler}>+ Add Overlay</button>
-      <button onClick={clearOverlaysHandler}>- Clear Overlays</button>
-      <ul>
+      {/* <ul>
         {overlays.map((overlay) => {
           return (
             <li key={overlay.uid}>
@@ -196,7 +204,7 @@ export default function App() {
             </li>
           );
         })}
-      </ul>
+      </ul> */}
       <GridLayout
         className="layout"
         layout={layout}

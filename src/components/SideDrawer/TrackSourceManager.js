@@ -1,7 +1,9 @@
 import React, { useState } from "react";
 
 const TrackSourceManager = (props) => {
-  const [enteredServer, setEnteredServer] = useState();
+  const [enteredServer, setEnteredServer] = useState(
+    "http://higlass.io/api/v1"
+  );
 
   const serverInputChangeHandler = (event) => {
     setEnteredServer(event.target.value);
@@ -21,26 +23,32 @@ const TrackSourceManager = (props) => {
           props.trackSourceServers.map((trackSourceServer) => {
             return (
               <li key={trackSourceServer.uuid}>
+                {trackSourceServer.url}
                 <button
                   onClick={props.onRemoveServer.bind(
                     null,
                     trackSourceServer.uuid
                   )}
                 >
-                  -
+                  <ion-icon name="trash-outline"></ion-icon>
                 </button>
-                {trackSourceServer.url}
               </li>
             );
           })}
       </ul>
       <div>
-        <button onClick={addServerHandler}>+ Server</button>
+        <label>Server URL:</label>
         <input
           type="text"
           value={enteredServer}
           onChange={serverInputChangeHandler}
         ></input>
+        <button onClick={addServerHandler}>
+          <span>
+            <ion-icon name="add-circle-outline"></ion-icon>
+          </span>
+          <span>Server</span>
+        </button>
       </div>
     </div>
   );
