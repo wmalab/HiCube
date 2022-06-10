@@ -1,8 +1,7 @@
 import React, { useState, useReducer } from "react";
 import HiGlassCase from "./components/HiGlass/HiGlassCase";
-import TrackSourceManager from "./components/SideDrawer/TrackSourceManager";
-import AddCase from "./components/SideDrawer/AddCase";
-import ToolBar from "./components/SideDrawer/ToolBar";
+import ControlPanel from "./components/SideDrawer/ControlPanel";
+import GenomePositionBar from "./components/GenomePositionSearch/GenomePositionBar";
 import {
   defaultOptions as options,
   defaultViewConfig as viewConfig,
@@ -26,7 +25,7 @@ const overlaysReducer = (state, action) => {
   } else if (action.type === "CLEAR") {
     return [];
   } else if (action.type === "REMOVE") {
-    return state.filter(overlay => overlay.uid !== action.uuid);
+    return state.filter((overlay) => overlay.uid !== action.uuid);
   }
 };
 
@@ -39,6 +38,7 @@ const configsReducer = (state, action) => {};
 // TODO: if move create zoom view here,
 // need to change initialXDomain to current location
 // TODO: add case need to set initialXDomain to current location
+// TODO: genome position search bar
 
 export default function App() {
   console.log("App render");
@@ -119,7 +119,7 @@ export default function App() {
   const addCaseHandler = (hgcViewConfig) => {
     setConfigs((prevConfigs) => {
       // FIXME: cannot select on 1D tracks
-      return [...prevConfigs, [uid(), viewConfig]];
+      return [...prevConfigs, [uid(), hgcViewConfig]];
     });
   };
 
@@ -155,18 +155,13 @@ export default function App() {
 
   return (
     <div>
-      <TrackSourceManager
+      <ControlPanel
         trackSourceServers={trackSourceServers}
         onAddServer={addServerHandler}
         onRemoveServer={removeServerHandler}
-      />
-      <AddCase
-        trackSourceServers={trackSourceServers}
         onAddCase={addCaseHandler}
-      />
-      <ToolBar
         onSelect={activateSelectHandler}
-        onCancel={cancelSelectHandler}
+        onCancelSelect={cancelSelectHandler}
         onAddZoomIn={createZoomInHandler}
         onRemoveZoomIn={clearSelectHandler}
         overlays={overlays}
@@ -174,64 +169,37 @@ export default function App() {
         onRemoveOverlays={clearOverlaysHandler}
         onRemoveOverlay={removeOverlayHandler}
       />
-      <p>
-        {mainLocation.xDomain &&
-          `xDomain: ${mainLocation.xDomain[0]}--${mainLocation.xDomain[1]}`}
-      </p>
-      <p>
-        {mainLocation.yDomain &&
-          `yDomain: ${mainLocation.yDomain[0]}--${mainLocation.yDomain[1]}`}
-      </p>
-      <p>
-        {rangeSelection.xDomain &&
-          `select xDomain: ${rangeSelection.xDomain[0]}--${rangeSelection.xDomain[1]}`}
-      </p>
-      <p>
-        {rangeSelection.yDomain &&
-          `select yDomain: ${rangeSelection.yDomain[0]}--${rangeSelection.yDomain[1]}`}
-      </p>
-      {/* <ul>
-        {overlays.map((overlay) => {
-          return (
-            <li key={overlay.uid}>
-              <span>
-                <strong>{overlay.uid}: </strong>
-              </span>
-              <span>{`${overlay.extent[0]}-${overlay.extent[1]}`}</span>
-              {overlay.extent.length > 2 && (
-                <span>{`, ${overlay.extent[2]}-${overlay.extent[3]}`}</span>
-              )}
-            </li>
-          );
-        })}
-      </ul> */}
-      <GridLayout
-        className="layout"
-        layout={layout}
-        cols={12}
-        rowHeight={100}
-        width={1200}
-      >
-        {configs.map((config) => {
-          return (
-            <div key={config[0]}>
-              <HiGlassCase
-                key={config[0]}
-                id={config[0]}
-                options={options}
-                viewConfig={config[1]}
-                mainLocation={mainLocation}
-                onMainLocationChange={locationChangeHandler}
-                mouseTool={mouseTool}
-                rangeSelection={rangeSelection}
-                onRangeSelection={rangeSelectionChangeHandler}
-                onCreateOverlay={createOverlayHandler}
-                overlays={overlays}
-              />
-            </div>
-          );
-        })}
-      </GridLayout>
+      <div style={{ position: "absolute", left: "330px", paddingLeft: "10px" }}>
+        <GenomePositionBar absPositions={mainLocation} name="Main" />
+        <GenomePositionBar absPositions={rangeSelection} name="ZoomIn" />
+        <GridLayout
+          className="layout"
+          layout={layout}
+          cols={12}
+          rowHeight={100}
+          width={1200}
+        >
+          {configs.map((config) => {
+            return (
+              <div key={config[0]}>
+                <HiGlassCase
+                  key={config[0]}
+                  id={config[0]}
+                  options={options}
+                  viewConfig={config[1]}
+                  mainLocation={mainLocation}
+                  onMainLocationChange={locationChangeHandler}
+                  mouseTool={mouseTool}
+                  rangeSelection={rangeSelection}
+                  onRangeSelection={rangeSelectionChangeHandler}
+                  onCreateOverlay={createOverlayHandler}
+                  overlays={overlays}
+                />
+              </div>
+            );
+          })}
+        </GridLayout>
+      </div>
     </div>
   );
 }

@@ -139,6 +139,7 @@ const AddCaseForm = (props) => {
             )}
           </FieldArray>
           <div>
+            <button type="button" onClick={props.onClose}>Cancel</button>
             <button type="submit">
               <span>
                 <ion-icon name="add-circle-outline"></ion-icon>

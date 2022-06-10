@@ -16,7 +16,7 @@ const TrackSourceManager = (props) => {
 
   return (
     <div>
-      <p>Track source servers:</p>
+      <p><strong>Track source servers:</strong></p>
       <ul>
         {props.trackSourceServers.length === 0 && <p>No server found.</p>}
         {props.trackSourceServers.length > 0 &&

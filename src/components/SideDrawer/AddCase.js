@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import TrackSourceManager from "./TrackSourceManager";
 import AddCaseForm from "./AddCaseForm";
 import { uid } from "../../utils";
 
@@ -35,7 +36,8 @@ const getHgcViewConfig = (formVals) => {
       if (track.type !== "chromosome-labels") {
         view.tracks[position].push({
           uid: uid(),
-          type: track.type,
+          // FIXME: add prefix "horizontal-" solve not selectable
+          type: "horizontal-" + track.type,
           server: track.server,
           tilesetUid: track.tilesetUid,
           height: 60,
@@ -84,9 +86,14 @@ const AddCase = (props) => {
   };
 
   const disableAddCase = props.trackSourceServers.length === 0;
-
+  // FIXME: if already start add new case, delete all servers throw error
   return (
     <>
+      <TrackSourceManager
+        trackSourceServers={props.trackSourceServers}
+        onAddServer={props.onAddServer}
+        onRemoveServer={props.onRemoveServer}
+      />
       {!show && (
         <button onClick={handleShow} disabled={disableAddCase}>
           Add A New Case

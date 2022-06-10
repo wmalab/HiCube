@@ -1,0 +1,47 @@
+.sidedrawer {
+  position: absolute;
+  width: 330px;
+  height: 100%;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  padding-top: 10px;
+}
+
+.sidedrawer-control-buttons {
+  position: absolute;
+  width: 32px;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  padding-top: 10px;
+  background: #F5F5F5;
+  border-right: 1px solid #EEEEEE;
+}
+
+.sidedrawer-control-buttons button {
+  background-color: transparent;
+  font-size: 20px;
+  justify-content: space-around;
+  align-items: center;
+  width: 100%;
+  padding-left: 0;
+  padding-right: 0;
+}
+
+.sidedrawer-config-panel {
+  position: absolute;
+  left: 32px;
+  top: 0;
+  bottom: 0;
+  padding-left: 10px;
+  overflow-y: auto;
+  border-right: 1px solid #EEEEEE;
+}
+
+.sidedrawer-config-panel button.back {
+  font-size: 20px;
+  background-color: transparent;
+  float: right;
+  padding-right: 5px;
+}
