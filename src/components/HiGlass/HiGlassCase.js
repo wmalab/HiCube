@@ -29,23 +29,44 @@ const HiGlassCase = (props) => {
       if (vcf.views.length === 2) {
         vcf.views.pop();
         vcf.views[0].tracks.center[0].contents.pop();
-        // FIXME create zoom view when exist zoom view not working
+        // FIXME: create zoom view when exist zoom view not working
         // possibly zoomLocation triggered so the new zoom view
         // revert back to the old location
       }
+      vcf.views[0].layout = {
+        w: 6,
+        h: 12,
+        x: 0,
+        y: 0,
+        static: true,
+      };
       const tempView = JSON.parse(JSON.stringify(vcf.views[0]));
+      tempView.tracks.top.push({
+        ...tempView.tracks.center[0].contents[0],
+        uid: Math.random().toString(),
+        type: "horizontal-heatmap",
+        height: 50,
+        options: {labelPosition: "hidden"}
+      });
+      tempView.tracks.left.push({
+        ...tempView.tracks.center[0].contents[0],
+        uid: Math.random().toString(),
+        type: "vertical-heatmap",
+        width: 50,
+        options: {labelPosition: "hidden"}
+      });
       const newView = {
         ...tempView,
         uid: "bb",
         initialXDomain: action.xDomain,
         initialYDomain: action.yDomain,
         layout: {
-          w: 12,
+          w: 6,
           h: 12,
-          x: 0,
+          x: 6,
           y: 0,
-          moved: false,
-          static: false,
+          // moved: false,
+          static: true,
         },
       };
       vcf.views.push(newView);
@@ -62,24 +83,36 @@ const HiGlassCase = (props) => {
         },
       });
     } else if (action.type === "CLEAR_ZOOM_VIEW") {
+      // FIXME: after add one case -> create zoom-in -> clear zoom-in
+      // then add another case will throw an error
       vcf.views.pop();
       vcf.views[0].tracks.center[0].contents.pop();
+      vcf.views[0].layout = {
+        w: 12,
+        h: 12,
+        x: 0,
+        y: 0,
+        static: true,
+      };
     } else if (action.type === "CLEAR_OVERLAYS") {
       for (const view of vcf.views) {
         view.overlays = [];
       }
     } else if (action.type === "CHANGE_OVERLAYS") {
+      // TODO: includes all tracks
       for (const view of vcf.views) {
         view.overlays = [];
         for (const overlay of action.overlays) {
           view.overlays.push({
             uid: overlay.uid,
-            includes: ["c1"],
+            includes: [
+              "c1",
+              "OHJakQICQD6gTD7skx4EWA",
+              "dqBTMH78Rn6DeSyDBoAEXw",
+            ],
             options: {
-              extent: [
-                overlay.extent
-              ]
-            }
+              extent: [overlay.extent],
+            },
           });
         }
       }
@@ -150,7 +183,13 @@ const HiGlassCase = (props) => {
       clearTimeout(notifyTimer.current);
     }
     notify.current = false;
-    hgcRef.current.api.zoomTo("aa", ...xDomain, ...yDomain, 1);
+    // FIXME: invalid viewUid, current viewUids is empty
+    try {
+      hgcRef.current.api.zoomTo("aa", ...xDomain, ...yDomain, 1);
+    } catch (error) {
+      console.log(error);
+      notify.current = true;
+    }
     notifyTimer.current = setTimeout(() => {
       notify.current = true;
       notifyTimer.current = null;
