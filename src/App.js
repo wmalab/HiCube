@@ -119,7 +119,7 @@ export default function App() {
   const addCaseHandler = (hgcViewConfig) => {
     setConfigs((prevConfigs) => {
       // FIXME: cannot select on 1D tracks
-      return [...prevConfigs, [uid(), hgcViewConfig]];
+      return [...prevConfigs, { uuid: uid(), hgcViewConfig: hgcViewConfig }];
     });
   };
 
@@ -130,7 +130,7 @@ export default function App() {
 
   const layout = configs.map((config, idx) => {
     return {
-      i: config[0],
+      i: config.uuid,
       x: 0,
       y: 3 * idx,
       w: 4 * nViews,
@@ -160,6 +160,7 @@ export default function App() {
         onAddServer={addServerHandler}
         onRemoveServer={removeServerHandler}
         onAddCase={addCaseHandler}
+        configs={configs}
         onSelect={activateSelectHandler}
         onCancelSelect={cancelSelectHandler}
         onAddZoomIn={createZoomInHandler}
@@ -181,12 +182,11 @@ export default function App() {
         >
           {configs.map((config) => {
             return (
-              <div key={config[0]}>
+              <div key={config.uuid}>
                 <HiGlassCase
-                  key={config[0]}
-                  id={config[0]}
+                  id={config.uuid}
                   options={options}
-                  viewConfig={config[1]}
+                  viewConfig={config.hgcViewConfig}
                   mainLocation={mainLocation}
                   onMainLocationChange={locationChangeHandler}
                   mouseTool={mouseTool}
