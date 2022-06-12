@@ -3,7 +3,8 @@ import React from "react";
 import ReactDOM from "react-dom";
 
 import App from "./App";
-import Viewer from "./components/Viewer";
+
+import "./index.css";
 
 const rootElement = document.getElementById("root");
 
