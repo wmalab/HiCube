@@ -21,7 +21,7 @@ const ControlPanel = (props) => {
           onAddCase={props.onAddCase}
         />
       )}
-      {panel === "EditOptions" && <EditOptions />}
+      {panel === "EditOptions" && <EditOptions configs={props.configs} />}
       {panel === "ToolBar" && (
         <ToolBar
           onSelect={props.onSelect}
