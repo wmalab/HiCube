@@ -1,11 +1,9 @@
-import React, { useState, useReducer } from "react";
+import React, { useState, useReducer, useContext } from "react";
+import ConfigContext from "./store/config-context";
 import HiGlassCase from "./components/HiGlass/HiGlassCase";
 import ControlPanel from "./components/SideDrawer/ControlPanel";
 import GenomePositionBar from "./components/GenomePositionSearch/GenomePositionBar";
-import {
-  defaultOptions as options,
-  defaultViewConfig as viewConfig,
-} from "./components/Config/default-config";
+import { defaultOptions as options } from "./configs/default-config";
 import GridLayout from "react-grid-layout";
 import { uid } from "./utils";
 import "../node_modules/react-grid-layout/css/styles.css";
@@ -29,8 +27,6 @@ const overlaysReducer = (state, action) => {
   }
 };
 
-const configsReducer = (state, action) => {};
-
 // TODO: add HGC dynamically with button click
 // HGCs should have diff viewconfig and id otherwise same props
 // TODO: hold a list of viewconfig as state to pass to HGC
@@ -42,6 +38,8 @@ const configsReducer = (state, action) => {};
 
 export default function App() {
   console.log("App render");
+
+  const configCtx = useContext(ConfigContext);
 
   const [mainLocation, setMainLocation] = useState({
     xDomain: null,
@@ -59,9 +57,7 @@ export default function App() {
 
   const [overlays, dispatchOverlaysAction] = useReducer(overlaysReducer, []);
 
-  // const [configs, dispatchConfigsAction] = useReducer(configsReducer, []);
   const [trackSourceServers, setTrackSourceServers] = useState([]);
-  const [configs, setConfigs] = useState([]);
 
   const locationChangeHandler = (location, id) => {
     console.log(id, "location change");
@@ -116,21 +112,14 @@ export default function App() {
     dispatchOverlaysAction({ type: "REMOVE", uuid: overlayUid });
   };
 
-  const addCaseHandler = (hgcViewConfig) => {
-    setConfigs((prevConfigs) => {
-      // FIXME: cannot select on 1D tracks
-      return [...prevConfigs, { uuid: uid(), hgcViewConfig: hgcViewConfig }];
-    });
-  };
-
   const nViews =
     !rangeSelection.xDomain || rangeSelection.xDomain.every((e) => e === null)
       ? 1
       : 2;
 
-  const layout = configs.map((config, idx) => {
+  const layout = configCtx.cases.map((caseUids, idx) => {
     return {
-      i: config.uuid,
+      i: caseUids.uid,
       x: 0,
       y: 3 * idx,
       w: 4 * nViews,
@@ -159,8 +148,8 @@ export default function App() {
         trackSourceServers={trackSourceServers}
         onAddServer={addServerHandler}
         onRemoveServer={removeServerHandler}
-        onAddCase={addCaseHandler}
-        configs={configs}
+        // onAddCase={addCaseHandler}
+        // configs={configs}
         onSelect={activateSelectHandler}
         onCancelSelect={cancelSelectHandler}
         onAddZoomIn={createZoomInHandler}
@@ -180,13 +169,13 @@ export default function App() {
           rowHeight={100}
           width={1200}
         >
-          {configs.map((config) => {
+          {configCtx.cases.map((caseUids) => {
             return (
-              <div key={config.uuid}>
+              <div key={caseUids.uid}>
                 <HiGlassCase
-                  id={config.uuid}
+                  id={caseUids.uid}
                   options={options}
-                  viewConfig={config.hgcViewConfig}
+                  viewConfig={configCtx.viewConfigs[caseUids.uid]}
                   mainLocation={mainLocation}
                   onMainLocationChange={locationChangeHandler}
                   mouseTool={mouseTool}
