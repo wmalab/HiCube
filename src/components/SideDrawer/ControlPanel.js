@@ -18,10 +18,12 @@ const ControlPanel = (props) => {
           trackSourceServers={props.trackSourceServers}
           onAddServer={props.onAddServer}
           onRemoveServer={props.onRemoveServer}
-          onAddCase={props.onAddCase}
+          // onAddCase={props.onAddCase}
         />
       )}
-      {panel === "EditOptions" && <EditOptions configs={props.configs} />}
+      {panel === "EditOptions" && (
+        <EditOptions mainLocation={props.mainLocation} />
+      )}
       {panel === "ToolBar" && (
         <ToolBar
           onSelect={props.onSelect}
