@@ -112,10 +112,11 @@ export default function App() {
     dispatchOverlaysAction({ type: "REMOVE", uuid: overlayUid });
   };
 
-  const nViews =
-    !rangeSelection.xDomain || rangeSelection.xDomain.every((e) => e === null)
-      ? 1
-      : 2;
+  // const nViews =
+  //   !rangeSelection.xDomain || rangeSelection.xDomain.every((e) => e === null)
+  //     ? 1
+  //     : 2;
+  const nViews = configCtx.numViews > 1 ? 2 : 1;
 
   const layout = configCtx.cases.map((caseUids, idx) => {
     return {
@@ -148,6 +149,7 @@ export default function App() {
         trackSourceServers={trackSourceServers}
         onAddServer={addServerHandler}
         onRemoveServer={removeServerHandler}
+        mainLocation={mainLocation}
         // onAddCase={addCaseHandler}
         // configs={configs}
         onSelect={activateSelectHandler}

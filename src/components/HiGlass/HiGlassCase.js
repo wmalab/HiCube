@@ -1,4 +1,11 @@
-import React, { useState, useEffect, useRef, useReducer } from "react";
+import React, {
+  useState,
+  useEffect,
+  useRef,
+  useReducer,
+  useContext,
+} from "react";
+import ConfigContext from "../../store/config-context";
 
 import HiGlassWrapper from "./HiGlassWrapper";
 
@@ -14,6 +21,8 @@ const DISABLE_NOTIFY_TIME = 100;
 
 const HiGlassCase = (props) => {
   console.log("HiGlassCase render");
+
+  const configCtx = useContext(ConfigContext);
 
   const [mainLocation, setMainLocation] = useState();
   const [zoomLocation, setZoomLocation] = useState();
@@ -46,14 +55,14 @@ const HiGlassCase = (props) => {
         uid: Math.random().toString(),
         type: "horizontal-heatmap",
         height: 50,
-        options: {labelPosition: "hidden"}
+        options: { labelPosition: "hidden" },
       });
       tempView.tracks.left.push({
         ...tempView.tracks.center[0].contents[0],
         uid: Math.random().toString(),
         type: "vertical-heatmap",
         width: 50,
-        options: {labelPosition: "hidden"}
+        options: { labelPosition: "hidden" },
       });
       const newView = {
         ...tempView,
@@ -203,21 +212,28 @@ const HiGlassCase = (props) => {
         return;
       }
       if (dataRange.length === 2) {
-        props.onRangeSelection(
-          "CREATE",
-          {
-            xDomain: [...dataRange[0]],
-            yDomain: [...dataRange[1]],
-          },
-          props.id
-        );
+        // props.onRangeSelection(
+        //   "CREATE",
+        //   {
+        //     xDomain: [...dataRange[0]],
+        //     yDomain: [...dataRange[1]],
+        //   },
+        //   props.id
+        // );
+        configCtx.addZoomView([
+          { xDomain: mainLocation.xDomain, yDomain: mainLocation.yDomain },
+          { xDomain: [...dataRange[0]], yDomain: [...dataRange[1]] },
+        ]);
       }
     } else if (props.mouseTool === "move_clear") {
-      props.onRangeSelection(
-        "CLEAR",
-        { xDomain: [null, null], yDomain: [null, null] },
-        props.id
-      );
+      // props.onRangeSelection(
+      //   "CLEAR",
+      //   { xDomain: [null, null], yDomain: [null, null] },
+      //   props.id
+      // );
+      configCtx.removeZoomView([
+        { xDomain: mainLocation.xDomain, yDomain: mainLocation.yDomain },
+      ]);
     } else if (props.mouseTool === "add_overlay") {
       const { dataRange } = hgcRef.current.api.getRangeSelection();
       if (!dataRange || dataRange.every((e) => e === null)) {
@@ -267,15 +283,33 @@ const HiGlassCase = (props) => {
 
   useEffect(() => {
     if (props.overlays.length === 0) {
-      dispatchViewConfigAction({ type: "CLEAR_OVERLAYS" });
+      // dispatchViewConfigAction({ type: "CLEAR_OVERLAYS" });
+      // configCtx.removeOverlays([
+      //   {
+      //     xDomain: mainLocation && mainLocation.xDomain,
+      //     yDomain: mainLocation && mainLocation.yDomain,
+      //   },
+      //   {
+      //     xDomain: zoomLocation && zoomLocation.xDomain,
+      //     yDomain: zoomLocation && zoomLocation.yDomain,
+      //   },
+      // ]);
     } else {
-      dispatchViewConfigAction({
-        type: "CHANGE_OVERLAYS",
-        overlays: props.overlays,
-      });
+      // dispatchViewConfigAction({
+      //   type: "CHANGE_OVERLAYS",
+      //   overlays: props.overlays,
+      // });
+      configCtx.updateOverlays(props.overlays, [
+        { xDomain: mainLocation.xDomain, yDomain: mainLocation.yDomain },
+        {
+          xDomain: zoomLocation && zoomLocation.xDomain,
+          yDomain: zoomLocation && zoomLocation.yDomain,
+        },
+      ]);
     }
   }, [props.overlays]);
 
+  // FIXME: add listener to zoom view
   useEffect(() => {
     if (viewConfig.views.length === 2 && !zoomLocationListener.current) {
       zoomLocationListener.current = hgcRef.current.api.on(
@@ -311,11 +345,19 @@ const HiGlassCase = (props) => {
 
   const mouseTool = props.mouseTool === "select" ? "select" : "move";
 
+  console.log(props.viewConfig);
+
+  // FIXME: use viewConfig from context cause reloading Tileset info
+  // trigger TrackRenderer -> UNSAFE_componentWillReceiveProps
+  // where `if (this.prevPropsStr === nextPropsStr) return;` is false
+  // -> syncTrackObjects -> addNewTracks
+  // combined track Uid does not generated it's undefined
   return (
     <HiGlassWrapper
+      id={props.id}
       onRef={hgcRef}
       options={props.options}
-      viewConfig={viewConfig}
+      viewConfig={props.viewConfig}
       mouseTool={mouseTool}
     />
   );

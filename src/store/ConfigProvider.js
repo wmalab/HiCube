@@ -343,6 +343,48 @@ const configsReducer = (state, action) => {
       numViews: state.numViews,
     };
     return updatedConfigs;
+  } else if (action.type === "UPDATE_TRACKS") {
+    const { updatedTracks, xyDomains } = action;
+    const { cases, positionedTracks, chromInfoPath } = state;
+
+    const updatedCases = [];
+    const updatedPositionedTracks = deepCopy(positionedTracks);
+    const updatedViewConfigs = {};
+
+    for (const track of updatedTracks) {
+      for (const option of track.options) {
+        if (option.value !== undefined) {
+          updatedPositionedTracks[track.uid].options[option.name] =
+            option.value;
+        }
+      }
+    }
+
+    for (const prevCase of cases) {
+      const newCase = deepCopy(prevCase);
+      const views = newCase.views;
+      for (let i = 0; i < views.length; i++) {
+        const view = views[i];
+        view.initialXDomain = [...xyDomains[i].xDomain];
+        view.initialYDomain = [...xyDomains[i].yDomain];
+      }
+      updatedCases.push(newCase);
+      const viewConfig = viewsToViewConfig(
+        views,
+        updatedPositionedTracks,
+        chromInfoPath
+      );
+      updatedViewConfigs[newCase.uid] = viewConfig;
+    }
+
+    const updatedConfigs = {
+      cases: updatedCases,
+      positionedTracks: updatedPositionedTracks,
+      chromInfoPath: chromInfoPath,
+      viewConfigs: updatedViewConfigs,
+      numViews: state.numViews,
+    };
+    return updatedConfigs;
   }
   return defaultConfigs;
 };
@@ -383,7 +425,12 @@ const ConfigProvider = (props) => {
     dispatchConfigsAction({ type: "REMOVE_OVERLAYS", xyDomains: xyDomains });
   };
 
-  const updateTrackOptionsHandler = (xyDomains) => {};
+  const updateTrackOptionsHandler = (updatedTracks, xyDomains) => {
+    // updatedTracks is a list of object with the format
+    // uid: trackUid
+    // options: [{name: optionName, value: optionValue}]
+    dispatchConfigsAction({ type: "UPDATE_TRACKS", updatedTracks, xyDomains });
+  };
 
   const configContext = {
     cases: configs.cases,
