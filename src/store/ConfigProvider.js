@@ -18,20 +18,28 @@ const defaultConfigs = {
   positionedTracks: {}, // uid indexed track config
   chromInfoPath: "",
   viewConfigs: {},
+  numViews: 0,
 };
 
-const addUids = (hic, tracks) => {
-  const caseUids = {
-    uid: uid(),
-    // put hic track to center
-    hic: {
+const deepCopy = (view) => JSON.parse(JSON.stringify(view));
+
+// TODO: need main/zoom/3d views, contents for combined track, overlays
+const addView = (hic, tracks) => {
+  const view = {
+    "2d": {
       uid: uid(),
-      heatmapUid: uid(),
-      tilesetUid: hic.tilesetUid,
-      server: hic.server,
+      type: "combined",
+      contents: [
+        {
+          uid: uid(),
+          tilesetUid: hic.tilesetUid,
+          server: hic.server,
+          type: "heatmap",
+        },
+      ],
     },
-    tracks: tracks.map((track) => ({
-      uid: uid(),
+    "1d": tracks.map((track) => ({
+      dataUid: uid(),
       type: track.type,
       tilesetUid: track.tilesetUid,
       server: track.server,
@@ -40,9 +48,17 @@ const addUids = (hic, tracks) => {
         return prev;
       }, {}),
     })),
+    layout: { w: 12, h: 12, x: 0, y: 0, static: true },
+    overlays: [],
+    "3d": {
+      uid: uid(),
+    },
   };
-  return caseUids;
+  return view;
 };
+
+const addDefaultOptions = (trackType) =>
+  TRACKS_INFO_BY_TYPE[trackType].defaultOptions;
 
 const positionToOrientation = (position) => {
   const orientations = {
@@ -54,78 +70,87 @@ const positionToOrientation = (position) => {
   return orientations[position];
 };
 
-const configToViewConfig = (
-  caseUids,
-  positionedTracks,
-  chromInfoPath,
-  initialXDomain,
-  initialYDomain
-) => {
-  const view = {
-    initialXDomain: [...initialXDomain],
-    initialYDomain: [...initialYDomain],
-    chromInfoPath: chromInfoPath,
-    tracks: { top: [], left: [], center: [], right: [], bottom: [] },
-  };
-  view.tracks.center.push(positionedTracks[caseUids.hic.uid]);
-  for (const track of caseUids.tracks) {
+const allTrackUids = (view) => {
+  const trackUids = [];
+  trackUids.push(view["2d"].uid);
+  for (const track of view["1d"]) {
     for (const position in track.positions) {
-      const trackUid = track.positions[position];
-      view.tracks[position].push(positionedTracks[trackUid]);
+      trackUids.push(track.positions[position]);
     }
   }
+  return trackUids;
+};
+
+const viewsToViewConfig = (views, positionedTracks, chromInfoPath) => {
   const viewConfig = {
     editable: false,
     zoomFixed: false,
-    views: [
-      {
-        ...view,
-        uid: "aa",
-        layout: {
-          w: 12,
-          h: 12,
-          x: 0,
-          y: 0,
-          static: true,
-        },
-      },
-    ],
+    views: [],
   };
+  for (const view of views) {
+    const newView = {
+      uid: view.uid,
+      initialXDomain: [...view.initialXDomain],
+      initialYDomain: [...view.initialYDomain],
+      chromInfoPath: chromInfoPath,
+      tracks: { top: [], left: [], center: [], right: [], bottom: [] },
+      layout: { ...view.layout },
+      overlays: [],
+    };
+    newView.tracks.center.push({
+      uid: view["2d"].uid, // FIXED: undefined cause re-generate uid
+      type: "combined",
+      contents: view["2d"].contents.map(
+        (content) => positionedTracks[content.uid]
+      ),
+    });
+    for (const track of view["1d"]) {
+      for (const position in track.positions) {
+        const trackUid = track.positions[position];
+        newView.tracks[position].push(positionedTracks[trackUid]);
+      }
+    }
+    for (const overlayUid of view.overlays) {
+      newView.overlays.push({
+        ...positionedTracks[overlayUid],
+        includes: allTrackUids(view),
+      });
+    }
+    viewConfig.views.push(newView);
+  }
   return viewConfig;
 };
 
 const configsReducer = (state, action) => {
+  console.log("config reduce");
   if (action.type === "ADD_CASE") {
     const { chromInfoPath, heatmap, tracks } = action.config;
     const { initialXDomainStart, initialXDomainEnd } = action.config;
     const initialXDomain = [+initialXDomainStart, +initialXDomainEnd];
     const initialYDomain = [+initialXDomainStart, +initialXDomainEnd];
 
-    const caseUids = addUids(heatmap, tracks);
+    const caseUid = uid();
+    const view = addView(heatmap, tracks);
     const positionedTracks = {};
     // create default track options for heatmap track
-    positionedTracks[caseUids.hic.uid] = {
-      uid: caseUids.hic.uid,
-      type: "combined",
-      contents: [
-        {
-          uid: caseUids.hic.heatmapUid,
-          type: "heatmap",
-          server: caseUids.hic.server,
-          tilesetUid: caseUids.hic.tilesetUid,
-          options: { ...TRACKS_INFO_BY_TYPE["heatmap"].defaultOptions },
-        },
-      ],
+    positionedTracks[view["2d"].contents[0].uid] = {
+      uid: view["2d"].contents[0].uid,
+      type: view["2d"].contents[0].type,
+      server: view["2d"].contents[0].server,
+      tilesetUid: view["2d"].contents[0].tilesetUid,
+      options: {
+        ...addDefaultOptions(view["2d"].contents[0].type),
+      },
     };
 
     // create default track options for 1d tracks
-    for (const track of caseUids.tracks) {
+    for (const track of view["1d"]) {
       for (const position in track.positions) {
         const trackUid = track.positions[position];
         positionedTracks[trackUid] = {
           uid: trackUid,
           type: positionToOrientation(position) + "-" + track.type,
-          options: { ...TRACKS_INFO_BY_TYPE[track.type].defaultOptions },
+          options: { ...addDefaultOptions(track.type) },
         };
         if (track.type !== "chromosome-labels") {
           positionedTracks[trackUid].server = track.server;
@@ -135,22 +160,189 @@ const configsReducer = (state, action) => {
         }
       }
     }
-    const viewConfig = configToViewConfig(
-      caseUids,
+    const views = [
+      {
+        ...view,
+        uid: "aa",
+        initialXDomain: initialXDomain,
+        initialYDomain: initialYDomain,
+      },
+    ];
+    const viewConfig = viewsToViewConfig(
+      views,
       positionedTracks,
-      chromInfoPath,
-      initialXDomain,
-      initialYDomain
+      chromInfoPath
     );
 
     const updatedConfigs = {
-      cases: state.cases.concat(caseUids),
+      cases: state.cases.concat({ uid: caseUid, views: views }),
       positionedTracks: { ...state.positionedTracks, ...positionedTracks },
       chromInfoPath: chromInfoPath,
-      viewConfigs: { ...state.viewConfigs, [caseUids.uid]: viewConfig },
+      viewConfigs: { ...state.viewConfigs, [caseUid]: viewConfig },
+      numViews: 1,
     };
     return updatedConfigs;
   } else if (action.type === "ADD_ZOOMVIEW") {
+    const [initialXYDomains, selectedXYDomains] = action.xyDomains;
+    const { cases, positionedTracks, chromInfoPath } = state;
+
+    const updatedCases = [];
+    const updatedPositionedTracks = deepCopy(positionedTracks);
+    const updatedViewConfigs = {};
+
+    for (const prevCase of cases) {
+      const newCase = deepCopy(prevCase);
+      const views = newCase.views;
+      // if already exist selected view, clear it
+      if (views.length === 2) {
+        views.pop();
+        views[0]["2d"].contents.pop();
+      }
+      views[0].initialXDomain = [...initialXYDomains.xDomain];
+      views[0].initialYDomain = [...initialXYDomains.yDomain];
+      views[0].layout.w = 6;
+      const newView = deepCopy(views[0]);
+      newView.uid = "bb";
+      newView.initialXDomain = [...selectedXYDomains.xDomain];
+      newView.initialYDomain = [...selectedXYDomains.yDomain];
+      newView.layout.x = 6;
+      views.push(newView);
+      const viewportUid = uid();
+      const viewportType = "viewport-projection-center";
+      views[0]["2d"].contents.push({
+        type: viewportType,
+        uid: viewportUid,
+        fromViewUid: "bb",
+      });
+      updatedPositionedTracks[viewportUid] = {
+        type: viewportType,
+        uid: viewportUid,
+        fromViewUid: "bb",
+        options: addDefaultOptions(viewportType),
+      };
+      updatedCases.push(newCase);
+      const viewConfig = viewsToViewConfig(
+        views,
+        updatedPositionedTracks,
+        chromInfoPath
+      );
+      updatedViewConfigs[newCase.uid] = viewConfig;
+    }
+    const updatedConfigs = {
+      cases: updatedCases,
+      positionedTracks: updatedPositionedTracks,
+      chromInfoPath: chromInfoPath,
+      viewConfigs: updatedViewConfigs,
+      numViews: 2,
+    };
+    return updatedConfigs;
+  } else if (action.type === "REMOVE_ZOOMVIEW") {
+    const [initialXYDomains] = action.xyDomains;
+    const { cases, positionedTracks, chromInfoPath } = state;
+
+    const updatedCases = [];
+    const updatedPositionedTracks = deepCopy(positionedTracks);
+    const updatedViewConfigs = {};
+
+    for (const prevCase of cases) {
+      const newCase = deepCopy(prevCase);
+      const views = newCase.views;
+      if (views.length === 2) {
+        views.pop();
+        views[0]["2d"].contents.pop();
+        // TODO: delete trackOptions in positionedTracks
+        views[0].layout.w = 12;
+      }
+      views[0].initialXDomain = [...initialXYDomains.xDomain];
+      views[0].initialYDomain = [...initialXYDomains.yDomain];
+      updatedCases.push(newCase);
+      const viewConfig = viewsToViewConfig(
+        views,
+        updatedPositionedTracks,
+        chromInfoPath
+      );
+      updatedViewConfigs[newCase.uid] = viewConfig;
+    }
+
+    const updatedConfigs = {
+      cases: updatedCases,
+      positionedTracks: updatedPositionedTracks,
+      chromInfoPath: chromInfoPath,
+      viewConfigs: updatedViewConfigs,
+      numViews: 1,
+    };
+    return updatedConfigs;
+  } else if (action.type === "UPDATE_OVERLAYS") {
+    const { overlays, xyDomains } = action;
+    const { cases, positionedTracks, chromInfoPath } = state;
+    const updatedCases = [];
+    const updatedPositionedTracks = deepCopy(positionedTracks);
+    const updatedViewConfigs = {};
+    for (const overlay of overlays) {
+      updatedPositionedTracks[overlay.uid] = {
+        uid: overlay.uid,
+        options: {
+          extent: [overlay.extent],
+        },
+      };
+    }
+    for (const prevCase of cases) {
+      const newCase = deepCopy(prevCase);
+      const views = newCase.views;
+      for (let i = 0; i < views.length; i++) {
+        const view = views[i];
+        view.initialXDomain = [...xyDomains[i].xDomain];
+        view.initialYDomain = [...xyDomains[i].yDomain];
+        view.overlays = overlays.map((overlay) => overlay.uid);
+      }
+      updatedCases.push(newCase);
+      const viewConfig = viewsToViewConfig(
+        views,
+        updatedPositionedTracks,
+        chromInfoPath
+      );
+      updatedViewConfigs[newCase.uid] = viewConfig;
+    }
+    const updatedConfigs = {
+      cases: updatedCases,
+      positionedTracks: updatedPositionedTracks,
+      chromInfoPath: chromInfoPath,
+      viewConfigs: updatedViewConfigs,
+      numViews: state.numViews,
+    };
+    return updatedConfigs;
+  } else if (action.type === "REMOVE_OVERLAYS") {
+    const { xyDomains } = action;
+    const { cases, positionedTracks, chromInfoPath } = state;
+    const updatedCases = [];
+    const updatedPositionedTracks = deepCopy(positionedTracks);
+    const updatedViewConfigs = {};
+    // TODO: delete overlay in positionedTracks
+    for (const prevCase of cases) {
+      const newCase = deepCopy(prevCase);
+      const views = newCase.views;
+      for (let i = 0; i < views.length; i++) {
+        const view = views[i];
+        view.initialXDomain = [...xyDomains[i].xDomain];
+        view.initialYDomain = [...xyDomains[i].yDomain];
+        view.overlays = [];
+      }
+      updatedCases.push(newCase);
+      const viewConfig = viewsToViewConfig(
+        views,
+        updatedPositionedTracks,
+        chromInfoPath
+      );
+      updatedViewConfigs[newCase.uid] = viewConfig;
+    }
+    const updatedConfigs = {
+      cases: updatedCases,
+      positionedTracks: updatedPositionedTracks,
+      chromInfoPath: chromInfoPath,
+      viewConfigs: updatedViewConfigs,
+      numViews: state.numViews,
+    };
+    return updatedConfigs;
   }
   return defaultConfigs;
 };
@@ -198,6 +390,7 @@ const ConfigProvider = (props) => {
     positionedTracks: configs.positionedTracks,
     chromInfoPath: configs.chromInfoPath,
     viewConfigs: configs.viewConfigs,
+    numViews: configs.numViews,
     addCase: addCaseHandler,
     addZoomView: addZoomViewHandler,
     removeZoomView: removeZoomViewHandler,

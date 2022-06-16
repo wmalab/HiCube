@@ -5,6 +5,7 @@ const ConfigContext = React.createContext({
   positionedTracks: {},
   chromInfoPath: "",
   viewConfigs: {},
+  numViews: 0,
   addCase: () => {},
   addZoomView: () => {},
   removeZoomView: () => {},
