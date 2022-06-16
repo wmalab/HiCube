@@ -1,4 +1,4 @@
-export const defaultOptions = { bounded: false, mouseTool: "move" };
+export const defaultOptions = { bounded: true, mouseTool: "move" };
 export const defaultView = {
   initialXDomain: [1, 3200000000],
   autocompleteSource: "/api/v1/suggest/?d=OHJakQICQD6gTD7skx4EWA&",
@@ -9,7 +9,7 @@ export const defaultView = {
         type: "horizontal-gene-annotations",
         height: 60,
         tilesetUid: "OHJakQICQD6gTD7skx4EWA",
-        server: "https://higlass.io/api/v1",
+        server: "http://higlass.io/api/v1",
         uid: "OHJakQICQD6gTD7skx4EWA",
         options: {
           name: "Gene Annotations (hg19)",
@@ -55,7 +55,7 @@ export const defaultView = {
         type: "vertical-gene-annotations",
         width: 60,
         tilesetUid: "OHJakQICQD6gTD7skx4EWA",
-        server: "https://higlass.io/api/v1",
+        server: "http://higlass.io/api/v1",
         options: {
           labelPosition: "bottomRight",
           name: "Gene Annotations (hg19)",
@@ -103,7 +103,7 @@ export const defaultView = {
         // "height": 660,
         contents: [
           {
-            server: "https://higlass.io/api/v1",
+            server: "http://higlass.io/api/v1",
             tilesetUid: "CQMd6V_cRw6iCI_-Unl3PQ",
             type: "heatmap",
             options: {
@@ -173,9 +173,21 @@ export const defaultViewConfig = {
         h: 12,
         x: 0,
         y: 0,
-        moved: false,
-        static: false
-      }
+        // moved: false,
+        static: true
+      },
+      // overlays: [
+      //   {
+      //     "uid": "overlay",
+      //     "includes": ["c1"],
+      //     "options": {
+      //       "extent": [
+      //         [1000000000, 1100000000],
+      //         [1400000000, 1500000000, 1600000000, 1700000000],
+      //       ],
+      //     }
+      //   }
+      // ]
     }
   ],
   zoomLocks: {
@@ -190,4 +202,65 @@ export const defaultViewConfig = {
     locksByViewUid: {},
     locksDict: {}
   }
+};
+
+const overlayTracks = {
+  "editable": false,
+  "zoomFixed": false,
+  "views": [
+    {
+      "uid": "aa",
+      "initialXDomain": [-128227010, 3227095876],
+      "tracks": {
+        "top": [
+          {
+            "server": "http://higlass.io/api/v1",
+            "tilesetUid": "OHJakQICQD6gTD7skx4EWA",
+            "uid": "genes-top",
+            "type": "horizontal-gene-annotations"
+          },
+          {
+            "chromInfoPath": "//s3.amazonaws.com/pkerp/data/hg19/chromSizes.tsv",
+            "type": "horizontal-chromosome-labels",
+            "uid": "chroms-top"
+          }
+        ],
+        "left": [
+          {
+            "server": "http://higlass.io/api/v1",
+            "tilesetUid": "OHJakQICQD6gTD7skx4EWA",
+            "uid": "genes-left",
+            "type": "vertical-gene-annotations"
+          },
+          {
+            "chromInfoPath": "//s3.amazonaws.com/pkerp/data/hg19/chromSizes.tsv",
+            "type": "vertical-chromosome-labels",
+            "uid": "chroms-left"
+          }
+        ],
+        "center": [],
+        "right": [],
+        "bottom": []
+      },
+      "layout": {
+        "w": 12,
+        "h": 12,
+        "x": 0,
+        "y": 0
+      },
+      "overlays": [
+        {
+          "uid": "overlay",
+          "type": "",
+          "includes": ["chroms-top", "chroms-left", "genes-top", "genes-left"],
+          "options": {
+            "extent": [
+              [1000000000, 1100000000],
+              [1400000000, 1500000000, 1600000000, 1700000000]
+            ]
+          }
+        }
+      ]
+    }
+  ]
 };
