@@ -4,3 +4,32 @@ export const uid = () =>
     /\./g,
     ""
   );
+
+const RGB2Color = (r, g, b) => {
+  return (
+    "rgb(" + Math.round(r) + "," + Math.round(g) + "," + Math.round(b) + ")"
+  );
+};
+
+export const makeColorGradient = (
+  frequency1 = 0.3,
+  frequency2 = 0.3,
+  frequency3 = 0.3,
+  phase1 = 0,
+  phase2 = 2,
+  phase3 = 4,
+  center = 128,
+  width = 127,
+  len = 50
+) => {
+  const colors = [];
+
+  for (let i = 0; i < len; i++) {
+    const red = Math.sin(frequency1 * i + phase1) * width + center;
+    const grn = Math.sin(frequency2 * i + phase2) * width + center;
+    const blu = Math.sin(frequency3 * i + phase3) * width + center;
+    // colors.push(RGB2Color(red, grn, blu));
+    colors.push([Math.random(), Math.random(), Math.random()]);
+  }
+  return colors;
+};

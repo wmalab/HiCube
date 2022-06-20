@@ -35,7 +35,9 @@ class DemoStructure {
     this.chromInfo = chromInfo;
     this.chrom3d = {};
     this.baseNumBins = 0;
+    this.baseResolution = baseResolution;
     this.chroms = [];
+    this.chromsBins = {};
     for (const chrom in this.chromInfo.chromLengths) {
       this.chroms.push(chrom);
       const chromLength = this.chromInfo.chromLengths[chrom];
@@ -44,14 +46,21 @@ class DemoStructure {
         baseResolution,
         Number(chromLength)
       );
-      this.baseNumBins += this.chrom3d[chrom].length;
+      const bins = this.chrom3d[chrom].length;
+      this.chromsBins[chrom] = bins;
+      this.baseNumBins += bins;
     }
+    console.log(this.chromsBins);
     console.log(this.baseNumBins);
     console.log(Object.keys(this.chromInfo));
   }
 
   points(chrom) {
     return this.chrom3d[chrom];
+  }
+
+  get numChroms() {
+    return this.chroms.length;
   }
 
   chromRange(absDomain) {
@@ -65,13 +74,39 @@ class DemoStructure {
       const chromEnd = this.chromInfo.cumPositions.findIndex(
         (cumPos) => cumPos.chr === chrom2
       );
-      const chroms = this.chromInfo.cumPositions
-        .slice(chromStart, chromEnd + 1)
-        .map((cumPos) => cumPos.chr);
+      const chroms = this.chroms.slice(chromStart, chromEnd + 1);
       console.log(chroms);
       return chroms;
     }
     return [];
+  }
+
+  binRange(absDomain) {
+    if (absDomain) {
+      const range = {};
+      const [chrom1, pos1] = this.chromInfo.absToChr(absDomain[0]);
+      const [chrom2, pos2] = this.chromInfo.absToChr(absDomain[1]);
+      const chromStart = this.chroms.findIndex((chrom) => chrom === chrom1);
+      const chromEnd = this.chroms.findIndex((chrom) => chrom === chrom2);
+      if (chromStart === chromEnd) {
+        range[chrom1] = [
+          Math.floor(pos1 / this.baseResolution),
+          Math.floor(pos2 / this.baseResolution) + 1,
+        ];
+      } else {
+        range[chrom1] = [
+          Math.floor(pos1 / this.baseResolution),
+          this.chromsBins[chrom1],
+        ];
+        range[chrom2] = [0, Math.floor(pos2 / this.baseResolution) + 1];
+        const otherChroms = this.chroms.slice(chromStart + 1, chromEnd);
+        for (const chrom of otherChroms) {
+          range[chrom] = [0, this.chromsBins[chrom]];
+        }
+      }
+      return range;
+    }
+    return {};
   }
 }
 
