@@ -311,7 +311,7 @@ const HiGlassCase = (props) => {
 
   // FIXME: add listener to zoom view
   useEffect(() => {
-    if (viewConfig.views.length === 2 && !zoomLocationListener.current) {
+    if (props.viewConfig.views.length === 2 && !zoomLocationListener.current) {
       zoomLocationListener.current = hgcRef.current.api.on(
         "location",
         (location) => {
@@ -319,11 +319,11 @@ const HiGlassCase = (props) => {
         },
         "bb"
       );
-    } else if (viewConfig.views.length === 1 && zoomLocationListener.current) {
+    } else if (props.viewConfig.views.length === 1 && zoomLocationListener.current) {
       hgcRef.current.api.off("location", zoomLocationListener.current, "bb");
       zoomLocationListener.current = null;
     }
-  }, [viewConfig]);
+  }, [props.viewConfig]);
 
   useEffect(() => {
     console.log(props.id, notify.current);
