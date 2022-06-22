@@ -28,20 +28,14 @@ const OptionsForm = (props) => {
       {({ values }) => (
         <Form>
           <div>
-            <FieldArray name="options">
-              {(arrayHelpers) => (
-                <div>
-                  {values.options &&
-                    values.options.length > 0 &&
-                    values.options.map((option, index) => (
-                      <div key={index}>
-                        <label>{option.name}</label>
-                        <Field name={`options.${index}.value`} />
-                      </div>
-                    ))}
+            {values.options &&
+              values.options.length > 0 &&
+              values.options.map((option, index) => (
+                <div key={index}>
+                  <label>{option.name}</label>
+                  <Field name={`options.${index}.value`} />
                 </div>
-              )}
-            </FieldArray>
+              ))}
           </div>
           <div>
             <button type="submit">Apply</button>
@@ -56,11 +50,54 @@ const TrackOptions = (props) => {
   return <div></div>;
 };
 
+const TrackForm = (props) => {
+  console.log(props.tracks);
+  return (
+    <Formik
+      initialValues={{
+        tracks: props.tracks,
+      }}
+      onSubmit={(values, { setSubmitting }) => {
+        setTimeout(() => {
+          props.onSubmit(values);
+          setSubmitting(false);
+        }, 400);
+      }}
+    >
+      {({ values }) => (
+        <Form>
+          <FieldArray name="tracks">
+            {(arrayHelpers) => (
+              <div>
+                {values.tracks &&
+                  values.tracks.length > 0 &&
+                  values.tracks.map((track, index) => (
+                    <div key={index}>
+                      <h4>{track.dataUid}</h4>
+                      <label>11</label>
+                      <input />
+                    </div>
+                  ))}
+              </div>
+            )}
+          </FieldArray>
+          <div>
+            <button type="submit">Apply</button>
+          </div>
+        </Form>
+      )}
+    </Formik>
+  );
+};
+
 const TrackList = (props) => {
+  const configCtx = useContext(ConfigContext);
+  // configCtx.positionedTracks[];
+
   return (
     <div>
       <h3>1D Tracks</h3>
-      <TrackOptions />
+      <TrackForm tracks={props.config} />
     </div>
   );
 };
