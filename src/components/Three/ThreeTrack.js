@@ -7,6 +7,49 @@ import { makeColorGradient } from "../../utils";
 
 const chromInfoPath = "https://s3.amazonaws.com/pkerp/data/hg19/chromSizes.tsv";
 
+// TODO: add overlays
+
+// a single sphere
+const Overlay1DTrack = (props) => {
+  const { points } = props;
+  // FIXME: flash when rotate, may change to Tube?
+  return (
+    <group>
+      <Line
+        points={points}
+        lineWidth={20}
+        color="hotpink"
+        transparent
+        opacity={0.5}
+      />
+    </group>
+  );
+};
+
+// two sphere each end and connected by a line
+const Overlay2DTrack = (props) => {
+  const { anchor1, anchor2 } = props;
+
+  return (
+    <group>
+      <mesh position={anchor1}>
+        <sphereGeometry args={[0.5, 16, 16]} />
+        <meshBasicMaterial color="hotpink" />
+      </mesh>
+      <mesh position={anchor2}>
+        <sphereGeometry args={[0.5, 16, 16]} />
+        <meshBasicMaterial color="hotpink" />
+      </mesh>
+      <Line
+        points={[anchor1, anchor2]}
+        lineWidth={5}
+        dashed={true}
+        color="hotpink"
+      />
+    </group>
+  );
+};
+
 const ThreeTrack = (props) => {
   const [chromInfo, setChromInfo] = useState();
   const [demo3d, setDemo3d] = useState();
@@ -110,6 +153,34 @@ const ThreeTrack = (props) => {
     }
   }
 
+  const overlays1d = useMemo(() => {
+    if (demo3d && props.overlays.length > 0) {
+      return props.overlays
+        .filter((overlay) => overlay.extent.length === 2)
+        .map((overlay) => {
+          const points = demo3d.absToPoints(
+            overlay.extent[0],
+            overlay.extent[1]
+          );
+          return { points, uid: overlay.uid };
+        });
+    }
+    return [];
+  }, [props.overlays, demo3d]);
+
+  const overlays2d = useMemo(() => {
+    if (demo3d && props.overlays.length > 0) {
+      return props.overlays
+        .filter((overlay) => overlay.extent.length > 2)
+        .map((overlay) => {
+          const anchor1 = demo3d.absToPoint(overlay.extent[0]);
+          const anchor2 = demo3d.absToPoint(overlay.extent[2]);
+          return { anchor1, anchor2, uid: overlay.uid };
+        });
+    }
+    return [];
+  }, [props.overlays, demo3d]);
+
   // TODO: set default camera position so all extent are visible
   return (
     <Canvas>
@@ -125,7 +196,7 @@ const ThreeTrack = (props) => {
                     points={demo3d.chrom3d[chrom]}
                     color="white"
                     vertexColors={maskedColors[chrom]}
-                    lineWidth={5}
+                    lineWidth={8}
                     dashed={false}
                     transparent={false}
                     // FIXED: need to set opacity to 1.0 or it will be a white line
@@ -140,10 +211,10 @@ const ThreeTrack = (props) => {
                     points={demo3d.chrom3d[chrom]}
                     color="white"
                     vertexColors={false}
-                    lineWidth={5}
+                    lineWidth={8}
                     dashed={false}
                     transparent={true}
-                    opacity={0.02}
+                    opacity={0.01}
                     // visible={false}
                   />
                 );
@@ -151,6 +222,20 @@ const ThreeTrack = (props) => {
             })}
         </group>
       )}
+      {demo3d &&
+        overlays2d.length > 0 &&
+        overlays2d.map((overlay) => (
+          <Overlay2DTrack
+            key={overlay.uid}
+            anchor1={overlay.anchor1}
+            anchor2={overlay.anchor2}
+          />
+        ))}
+      {demo3d &&
+        overlays1d.length > 0 &&
+        overlays1d.map((overlay) => (
+          <Overlay1DTrack key={overlay.uid} points={overlay.points} />
+        ))}
       <OrbitControls zoomSpeed={0.5} />
     </Canvas>
   );

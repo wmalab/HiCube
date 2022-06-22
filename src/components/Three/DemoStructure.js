@@ -81,6 +81,25 @@ class DemoStructure {
     return [];
   }
 
+  absToPoint(absPos) {
+    // get the chrom & position
+    const [chrom, pos] = this.chromInfo.absToChr(absPos);
+    // get bin index
+    const bin = Math.floor(pos / this.baseResolution);
+    // return the 3d point of the bin
+    return this.chrom3d[chrom][bin];
+  }
+
+  absToPoints(absPos1, absPos2) {
+    // get all points between absPos1 and absPos2
+    // TODO: make sure 1d overlay not include multiple chroms
+    const [chrom1, pos1] = this.chromInfo.absToChr(absPos1);
+    const [chrom2, pos2] = this.chromInfo.absToChr(absPos2);
+    const bin1 = Math.floor(pos1 / this.baseResolution);
+    const bin2 = Math.floor(pos2 / this.baseResolution);
+    return this.chrom3d[chrom1].slice(bin1, bin2 + 1);
+  }
+
   binRange(absDomain) {
     if (absDomain) {
       const range = {};
