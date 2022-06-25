@@ -2,6 +2,7 @@ import React, { useContext } from "react";
 import { Formik, Field, FieldArray, Form, useField } from "formik";
 import ConfigContext from "../../store/config-context";
 import TRACKS_INFO_BY_TYPE from "../../configs/tracks-info-by-type";
+import FormItem from "../UI/FormItem";
 
 // TODO: group by cases, then the main heatmap options
 // then list of other tracks
@@ -32,8 +33,11 @@ const OptionsForm = (props) => {
               values.options.length > 0 &&
               values.options.map((option, index) => (
                 <div key={index}>
-                  <label>{option.name}</label>
-                  <Field name={`options.${index}.value`} />
+                  <FormItem
+                    type={typeof option.value}
+                    label={option.name}
+                    name={`options.${index}.value`}
+                  />
                 </div>
               ))}
           </div>
@@ -47,11 +51,27 @@ const OptionsForm = (props) => {
 };
 
 const TrackOptions = (props) => {
-  return <div></div>;
+  return (
+    <>
+      <h4>{props.uid}</h4>
+      {props.options &&
+        props.options.length > 0 &&
+        props.options.map((option, index) => (
+          <div key={index}>
+            <FormItem
+              type={typeof option.value}
+              label={option.name}
+              name={`tracks.${props.index}.options.${index}.value`}
+            />
+            {/* <label>{option.name}</label>
+            <Field name={`tracks.${props.index}.options.${index}.value`} /> */}
+          </div>
+        ))}
+    </>
+  );
 };
 
 const TrackForm = (props) => {
-  console.log(props.tracks);
   return (
     <Formik
       initialValues={{
@@ -73,9 +93,11 @@ const TrackForm = (props) => {
                   values.tracks.length > 0 &&
                   values.tracks.map((track, index) => (
                     <div key={index}>
-                      <h4>{track.dataUid}</h4>
-                      <label>11</label>
-                      <input />
+                      <TrackOptions
+                        uid={track.uid}
+                        options={track.options}
+                        index={index}
+                      />
                     </div>
                   ))}
               </div>
@@ -93,11 +115,42 @@ const TrackForm = (props) => {
 const TrackList = (props) => {
   const configCtx = useContext(ConfigContext);
   // configCtx.positionedTracks[];
+  // TODO: convert 1d tracks to form options
+  // how to deal with positions show/hide
+
+  const allOptions = props.config.map((track) => {
+    const { dataUid, type, positions } = track;
+    const pos = Object.keys(positions);
+    const trackUid = positions[pos[0]];
+    const { options } = configCtx.positionedTracks[trackUid];
+    return {
+      uid: dataUid,
+      options: getAvailableOptions(type).map((optionName) => ({
+        name: optionName,
+        value: options[optionName],
+      })),
+    };
+  });
+
+  const submitHandler = (values) => {
+    const updatedTracks = [];
+    for (let i = 0; i < values.tracks.length; i++) {
+      const { positions } = props.config[i];
+      for (const pos in positions) {
+        updatedTracks.push({
+          uid: positions[pos],
+          options: values.tracks[i].options,
+        });
+      }
+    }
+
+    configCtx.updateTrackOptions(updatedTracks, [props.mainLocation]);
+  };
 
   return (
     <div>
       <h3>1D Tracks</h3>
-      <TrackForm tracks={props.config} />
+      <TrackForm tracks={allOptions} onSubmit={submitHandler} />
     </div>
   );
 };
