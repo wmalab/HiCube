@@ -18,6 +18,8 @@ const ControlPanel = (props) => {
           trackSourceServers={props.trackSourceServers}
           onAddServer={props.onAddServer}
           onRemoveServer={props.onRemoveServer}
+          genomeAssembly={props.genomeAssembly}
+          onGenomeAssemblyChange={props.onGenomeAssemblyChange}
           // onAddCase={props.onAddCase}
         />
       )}

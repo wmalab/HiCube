@@ -55,9 +55,24 @@ const AssemblySelector = (props) => {
     setSelectedAssembly(event.target.value);
   };
 
+  useEffect(() => {
+    if (!selectedAssembly) {
+      return;
+    }
+    const chromSize = availChromSizes[selectedAssembly][0];
+    // chromInfoPath format
+    // 'http://higlass.io/api/v1/chrom-sizes/?id=Ajn_ttUUQbqgtOD4nOt-IA'
+    props.onGenomeAssemblyChange({
+      assemblyName: selectedAssembly,
+      chromInfoPath: `${chromSize.server}/chrom-sizes/?id=${chromSize.uuid}`,
+    });
+  }, [selectedAssembly]);
+
   return (
-    <div>
-      <p>Assembly:</p>
+    <div className="control-section">
+      <label>
+        <strong>Genome assembly:</strong>
+      </label>
       {isLoading && <p>Loading assembly...</p>}
       {error && <p>Error: {error}</p>}
       {!isLoading && !error && availAssembly.length > 0 && (
@@ -68,14 +83,6 @@ const AssemblySelector = (props) => {
             </option>
           ))}
         </select>
-      )}
-      {selectedAssembly && (
-        <div>
-          <p>{selectedAssembly}</p>
-          <code>
-            {JSON.stringify(availChromSizes[selectedAssembly][0], null, 2)}
-          </code>
-        </div>
       )}
     </div>
   );

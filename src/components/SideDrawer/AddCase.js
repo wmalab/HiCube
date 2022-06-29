@@ -1,6 +1,7 @@
 import React, { useState, useContext } from "react";
 import ConfigContext from "../../store/config-context";
 import TrackSourceManager from "./TrackSourceManager";
+import AssemblySelector from "../UI/AssemblySelector";
 import AddCaseForm from "./AddCaseForm";
 import { uid } from "../../utils";
 
@@ -98,6 +99,10 @@ const AddCase = (props) => {
         onAddServer={props.onAddServer}
         onRemoveServer={props.onRemoveServer}
       />
+      <AssemblySelector
+        trackSourceServers={props.trackSourceServers}
+        onGenomeAssemblyChange={props.onGenomeAssemblyChange}
+      />
       {!show && (
         <button onClick={handleShow} disabled={disableAddCase}>
           Add A New Case
@@ -106,6 +111,7 @@ const AddCase = (props) => {
       {show && (
         <AddCaseForm
           trackSourceServers={props.trackSourceServers}
+          genomeAssembly={props.genomeAssembly}
           onSubmit={submitHandler}
           onClose={handleClose}
         />

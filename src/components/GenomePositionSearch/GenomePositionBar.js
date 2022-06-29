@@ -55,14 +55,14 @@ const GenomePositionBar = (props) => {
     setYPositionText(convertScaleToPositionText(yScale));
   };
 
-  const { chromInfoPath } = props;
+  const { genomeAssembly } = props;
   useEffect(() => {
-    ChromosomeInfo(chromInfoPath, (newChromInfo) => {
+    ChromosomeInfo(genomeAssembly.chromInfoPath, (newChromInfo) => {
       chromInfo.current = newChromInfo;
       // set chr position text
       setPositionText();
     });
-  }, [chromInfoPath]);
+  }, [genomeAssembly]);
 
   useEffect(() => {
     setPositionText();
