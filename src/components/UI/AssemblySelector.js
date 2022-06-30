@@ -64,6 +64,9 @@ const AssemblySelector = (props) => {
     // 'http://higlass.io/api/v1/chrom-sizes/?id=Ajn_ttUUQbqgtOD4nOt-IA'
     props.onGenomeAssemblyChange({
       assemblyName: selectedAssembly,
+      name: chromSize.name,
+      server: chromSize.server,
+      tilesetUid: chromSize.uuid,
       chromInfoPath: `${chromSize.server}/chrom-sizes/?id=${chromSize.uuid}`,
     });
   }, [selectedAssembly]);

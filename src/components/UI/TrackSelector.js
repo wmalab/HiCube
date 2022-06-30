@@ -22,14 +22,21 @@ const TrackSelector = (props) => {
   }, [datasets, assembly]);
 
   useEffect(() => {
-    if (!selectedUuid && filteredDatasets.length > 0) {
-      setSelectedUuid(filteredDatasets[0]);
+    // if (!selectedUuid && filteredDatasets.length > 0) {
+    //   setSelectedUuid(filteredDatasets[0]);
+    // }
+    if (filteredDatasets.length > 0) {
+      if (!selectedUuid || !filteredDatasets.includes(selectedUuid)) {
+        setSelectedUuid(filteredDatasets[0]);
+      }
+    } else {
+      setSelectedUuid(null);
     }
   }, [filteredDatasets]);
 
   const { isLoading, error, sendRequest: fetchDatasets } = useHttp();
 
-  const transformDatasets = useCallback((sourceServer, data) => {
+  const transformDatasets = useCallback((sourceServer, datatype, data) => {
     const newDatasets = data.results.map((dataset) => ({
       ...dataset,
       server: sourceServer,
@@ -38,7 +45,12 @@ const TrackSelector = (props) => {
     }));
 
     setDatasets((prevDatasets) => {
-      const updatedDatasets = { ...prevDatasets };
+      let updatedDatasets = {};
+      // FIXED: clean up prev datasets that have different datatype than current
+      const prevKeys = Object.keys(prevDatasets);
+      if (prevKeys.length > 0 && prevDatasets[prevKeys[0]].datatype === datatype) {
+        updatedDatasets = { ...prevDatasets };
+      }
       newDatasets.forEach((dataset) => {
         updatedDatasets[dataset.serverUidKey] = dataset;
       });
@@ -55,7 +67,7 @@ const TrackSelector = (props) => {
       console.log("fetch datasets");
       fetchDatasets(
         { url: `${sourceServer.url}/tilesets/?limit=10000&${query}` },
-        transformDatasets.bind(null, sourceServer.url)
+        transformDatasets.bind(null, sourceServer.url, datatype)
       );
     });
   }, [trackSourceServers, datatype, fetchDatasets, transformDatasets]);
@@ -64,9 +76,21 @@ const TrackSelector = (props) => {
     setSelectedUuid(event.target.value);
   };
 
+  useEffect(() => {
+    if (!selectedUuid) {
+      return;
+    }
+    const selectedDataset = datasets[selectedUuid];
+    const { server, tilesetUid, name } = selectedDataset;
+    props.onDatasetChange({
+      server,
+      tilesetUid,
+      name,
+    });
+  }, [selectedUuid]);
+
   return (
     <div>
-      <p>Track datasets:</p>
       {isLoading && <p>Loading datasets...</p>}
       {error && <p>Error: {error}</p>}
       {!isLoading && !error && filteredDatasets.length > 0 && (
@@ -78,7 +102,6 @@ const TrackSelector = (props) => {
           ))}
         </select>
       )}
-      {selectedUuid && <p>{datasets[selectedUuid].name}</p>}
     </div>
   );
 };
