@@ -138,6 +138,8 @@ const configsReducer = (state, action) => {
       type: view["2d"].contents[0].type,
       server: view["2d"].contents[0].server,
       tilesetUid: view["2d"].contents[0].tilesetUid,
+      // TODO: dynamically calculate the height so the heatmap is square
+      height: 150,
       options: {
         ...addDefaultOptions(view["2d"].contents[0].type),
       },
@@ -155,6 +157,11 @@ const configsReducer = (state, action) => {
         if (track.type !== "chromosome-labels") {
           positionedTracks[trackUid].server = track.server;
           positionedTracks[trackUid].tilesetUid = track.tilesetUid;
+          if (positionToOrientation(position) === "horizontal") {
+            positionedTracks[trackUid].height = 60;
+          } else {
+            positionedTracks[trackUid].width = 60;
+          }
         } else {
           positionedTracks[trackUid].chromInfoPath = chromInfoPath;
         }
@@ -200,12 +207,13 @@ const configsReducer = (state, action) => {
       }
       views[0].initialXDomain = [...initialXYDomains.xDomain];
       views[0].initialYDomain = [...initialXYDomains.yDomain];
-      views[0].layout.w = 6;
+      // views[0].layout.w = 6;
       const newView = deepCopy(views[0]);
       newView.uid = "bb";
       newView.initialXDomain = [...selectedXYDomains.xDomain];
       newView.initialYDomain = [...selectedXYDomains.yDomain];
-      newView.layout.x = 6;
+      // newView.layout.x = 6;
+      // newView.layout.y = 12;
       views.push(newView);
       const viewportUid = uid();
       const viewportType = "viewport-projection-center";
@@ -251,7 +259,7 @@ const configsReducer = (state, action) => {
         views.pop();
         views[0]["2d"].contents.pop();
         // TODO: delete trackOptions in positionedTracks
-        views[0].layout.w = 12;
+        // views[0].layout.w = 12;
       }
       views[0].initialXDomain = [...initialXYDomains.xDomain];
       views[0].initialYDomain = [...initialXYDomains.yDomain];
@@ -429,6 +437,8 @@ const ConfigProvider = (props) => {
     // updatedTracks is a list of object with the format
     // uid: trackUid
     // options: [{name: optionName, value: optionValue}]
+    console.log(updatedTracks);
+    // FIXME: bool type option need to convert 'false' to false
     dispatchConfigsAction({ type: "UPDATE_TRACKS", updatedTracks, xyDomains });
   };
 
