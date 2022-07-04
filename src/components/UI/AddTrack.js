@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Field } from "formik";
+import { Field, useField, useFormikContext } from "formik";
 import TrackSelector from "./TrackSelector";
 
 // for datatype `chromsizes` we don't need select dataset
@@ -21,6 +21,33 @@ const DATA_TYPES = {
   },
 };
 
+const TRACK_ORIENTATION = {
+  "gene-annotation": "1d",
+  "linear-heatmap": "1d",
+  "2d-rectangle-domains": "2d",
+  "linear-2d-rectangle-domains": "1d",
+  line: "1d",
+  bar: "1d",
+  point: "1d",
+  "1d-heatmap": "1d",
+  "chromosome-labels": "1d",
+  "2d-chromosome-grid": "2d",
+};
+
+const findTracktypes = (datatype) => {
+  if (datatype in DATA_TYPES) {
+    return DATA_TYPES[datatype]["track-type"];
+  }
+  return [];
+};
+
+const findTrackOrientation = (tracktype) => {
+  if (tracktype in TRACK_ORIENTATION) {
+    return TRACK_ORIENTATION[tracktype];
+  }
+  return null;
+};
+
 const TrackSelectComponent = ({ field, form, ...props }) => {
   const datasetChangeHandler = (dataset) => {
     for (const key in dataset) {
@@ -29,19 +56,81 @@ const TrackSelectComponent = ({ field, form, ...props }) => {
   };
 
   return (
-    <div>
-      <TrackSelector
-        datatype={props.datatype}
-        assembly={props.assemblyName}
-        trackSourceServers={props.trackSourceServers}
-        onDatasetChange={datasetChangeHandler}
-      />
-    </div>
+    <TrackSelector
+      datatype={props.datatype}
+      assembly={props.assemblyName}
+      trackSourceServers={props.trackSourceServers}
+      onDatasetChange={datasetChangeHandler}
+    />
   );
 };
 
-const findTracktypes = (datatype) => {
-  return DATA_TYPES[datatype]["track-type"];
+const TracktypeSelectComponent = ({ field, form, ...props }) => {
+  const { datatype } = props;
+  const availTracktypes = findTracktypes(datatype);
+  const firstAvailType = availTracktypes.length > 0 ? availTracktypes[0] : null;
+
+  useEffect(() => {
+    if (firstAvailType) {
+      form.setFieldValue(field.name, firstAvailType);
+    }
+  }, [firstAvailType]);
+
+  return (
+    <>
+      {firstAvailType && (
+        <select {...field}>
+          {availTracktypes.map((tracktype) => (
+            <option value={tracktype} key={tracktype}>
+              {tracktype}
+            </option>
+          ))}
+        </select>
+      )}
+    </>
+  );
+};
+
+const TrackPositionItem = (props) => {
+  const { label, name } = props;
+  return (
+    <label>
+      <Field type="checkbox" name={name} />
+      {label}
+    </label>
+  );
+};
+
+const TrackPositionsComponent = (props) => {
+  const { name, orientation } = props;
+  const { setFieldValue } = useFormikContext();
+
+  useEffect(() => {
+    if (orientation === "1d") {
+      setFieldValue(`${name}.center`, false);
+    } else if (orientation === "2d") {
+      for (const pos of ["top", "bottom", "left", "right"]) {
+        setFieldValue(`${name}.${pos}`, false);
+      }
+    }
+  }, [orientation, name, setFieldValue]);
+
+  return (
+    <div>
+      {!orientation && <span></span>}
+      {orientation === "1d" && (
+        <>
+          <TrackPositionItem label="top" name={`${name}.top`} />
+          <TrackPositionItem label="bottom" name={`${name}.bottom`} />
+          <TrackPositionItem label="left" name={`${name}.left`} />
+          <TrackPositionItem label="right" name={`${name}.right`} />
+        </>
+      )}
+      {orientation === "2d" && (
+        <TrackPositionItem label="center" name={`${name}.center`} />
+      )}
+    </div>
+  );
 };
 
 // Select track datatype
@@ -83,52 +172,18 @@ const AddTrack = (props) => {
       </div>
       <div className="addtrack__tracktype">
         <label>Track type:</label>
-        <Field as="select" name={`${props.name}.tracktype`}>
-          <option value=""></option>
-          {props.track.datatype &&
-            findTracktypes(props.track.datatype).map((tracktype) => (
-              <option value={tracktype} key={tracktype}>
-                {tracktype}
-              </option>
-            ))}
-        </Field>
+        <Field
+          name={`${props.name}.tracktype`}
+          datatype={props.track.datatype}
+          component={TracktypeSelectComponent}
+        />
       </div>
       <div className="addtrack__positions">
         <label>Track positions:</label>
-        <div role="group" aria-labelledby={`${props.name}.positions.group`}>
-          <label>
-            <Field
-              type="checkbox"
-              name={`${props.name}.positions`}
-              value="top"
-            />
-            top
-          </label>
-          <label>
-            <Field
-              type="checkbox"
-              name={`${props.name}.positions`}
-              value="bottom"
-            />
-            bottom
-          </label>
-          <label>
-            <Field
-              type="checkbox"
-              name={`${props.name}.positions`}
-              value="left"
-            />
-            left
-          </label>
-          <label>
-            <Field
-              type="checkbox"
-              name={`${props.name}.positions`}
-              value="right"
-            />
-            right
-          </label>
-        </div>
+        <TrackPositionsComponent
+          name={`${props.name}.positions`}
+          orientation={findTrackOrientation(props.track.tracktype)}
+        />
       </div>
     </div>
   );
