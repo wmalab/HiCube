@@ -8,6 +8,7 @@ import { makeColorGradient } from "../../utils";
 const chromInfoPath = "https://s3.amazonaws.com/pkerp/data/hg19/chromSizes.tsv";
 
 // TODO: add overlays
+// TODO: add zoom view
 
 // a single sphere
 const Overlay1DTrack = (props) => {
@@ -43,7 +44,7 @@ const Overlay2DTrack = (props) => {
       <Line
         points={[anchor1, anchor2]}
         lineWidth={5}
-        dashed={true}
+        // dashed={true}
         color="hotpink"
       />
     </group>
@@ -94,10 +95,53 @@ const ThreeTrack = (props) => {
 
   let maskedColors = {};
 
+  // const locationToBinRange = (location) => {
+  //   const xBinRange = demo3d.binRange(location.xDomain);
+  //   const yBinRange = demo3d.binRange(location.yDomain);
+
+  //   const range = {};
+  //   for (const chrom in xBinRange) {
+  //     range[chrom] = [xBinRange[chrom]];
+  //   }
+  //   for (const chrom in yBinRange) {
+  //     if (chrom in range) {
+  //       const prevR = range[chrom][0];
+  //       const newR = yBinRange[chrom];
+  //       // no overlap
+  //       if (prevR[1] < newR[0]) {
+  //         range[chrom].push(newR);
+  //       } else if (newR[1] < prevR[0]) {
+  //         range[chrom].unshift(newR);
+  //       } else {
+  //         // merge two intervals
+  //         range[chrom] = [
+  //           [Math.min(prevR[0], newR[0]), Math.max(prevR[1], newR[1])],
+  //         ];
+  //       }
+  //     } else {
+  //       range[chrom] = [yBinRange[chrom]];
+  //     }
+  //   }
+  //   return range;
+  // };
+
+  // let zoomPoints = [];
+
+  // if (demo3d && props.zoomLocation.xDomain && props.zoomLocation.yDomain) {
+  //   const range = locationToBinRange(props.zoomLocation);
+  //   for (const chrom in range) {
+  //     for (const interval of range[chrom]) {
+  //       zoomPoints = zoomPoints.concat(
+  //         demo3d.chrom3d[chrom].slice(interval[0], interval[1])
+  //       );
+  //     }
+  //   }
+  // }
+
   if (colorsByChrom && chroms) {
     const xBinRange = demo3d.binRange(props.mainLocation.xDomain);
     const yBinRange = demo3d.binRange(props.mainLocation.yDomain);
-    console.log(xBinRange, yBinRange);
+
     const range = {};
     for (const chrom in xBinRange) {
       range[chrom] = [xBinRange[chrom]];
@@ -121,6 +165,9 @@ const ThreeTrack = (props) => {
         range[chrom] = [yBinRange[chrom]];
       }
     }
+
+    // const range = locationToBinRange(props.mainLocation);
+
     for (const chrom in range) {
       const fill = range[chrom];
       console.log(fill);
@@ -182,7 +229,25 @@ const ThreeTrack = (props) => {
   }, [props.overlays, demo3d]);
 
   // TODO: set default camera position so all extent are visible
+  // FIXME: seems add one more div wrapper make the canvas not a direct child in flex item
+  // and cause random line not coloring right
   return (
+    // <div>
+    // {zoomPoints.length > 0 && (
+    //   <div style={{height: "350px"}}>
+    //   <Canvas>
+    //     <group>
+    //       <Line 
+    //         points={zoomPoints}
+    //         lineWidth={8}
+    //       />
+    //     </group>
+    //     <OrbitControls zoomSpeed={0.5} />
+    //   </Canvas>
+    //   </div>
+    // )}
+    // <div>
+    <div style={{ height: 350, width: 350 }}>
     <Canvas>
       {/* <color attach="background" args={["black"]} /> */}
       {demo3d && (
@@ -238,6 +303,7 @@ const ThreeTrack = (props) => {
         ))}
       <OrbitControls zoomSpeed={0.5} />
     </Canvas>
+    </div>
   );
 };
 
