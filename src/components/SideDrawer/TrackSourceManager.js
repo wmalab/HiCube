@@ -15,10 +15,14 @@ const TrackSourceManager = (props) => {
   };
 
   return (
-    <div>
-      <p><strong>Track source servers:</strong></p>
+    <div className="control-section">
+      <p>
+        <strong>Track source servers:</strong>
+      </p>
+      {props.trackSourceServers.length === 0 && (
+        <p>Please add HiGlass server.</p>
+      )}
       <ul>
-        {props.trackSourceServers.length === 0 && <p>No server found.</p>}
         {props.trackSourceServers.length > 0 &&
           props.trackSourceServers.map((trackSourceServer) => {
             return (
@@ -37,17 +41,16 @@ const TrackSourceManager = (props) => {
           })}
       </ul>
       <div>
-        <label>Server URL:</label>
         <input
           type="text"
           value={enteredServer}
           onChange={serverInputChangeHandler}
+          placeholder="Enter HiGlass server url"
         ></input>
         <button onClick={addServerHandler}>
           <span>
-            <ion-icon name="add-circle-outline"></ion-icon>
+            <ion-icon name="add-outline"></ion-icon>
           </span>
-          <span>Server</span>
         </button>
       </div>
     </div>
