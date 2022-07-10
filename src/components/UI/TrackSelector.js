@@ -90,7 +90,7 @@ const TrackSelector = (props) => {
   }, [selectedUuid]);
 
   return (
-    <div>
+    <>
       {isLoading && <p>Loading datasets...</p>}
       {error && <p>Error: {error}</p>}
       {!isLoading && !error && filteredDatasets.length > 0 && (
@@ -102,7 +102,7 @@ const TrackSelector = (props) => {
           ))}
         </select>
       )}
-    </div>
+    </>
   );
 };
 

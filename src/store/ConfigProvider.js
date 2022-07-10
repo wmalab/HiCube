@@ -32,19 +32,25 @@ const addView = (hic, tracks) => {
       contents: [
         {
           uid: uid(),
+          datatype: hic.datatype,
           tilesetUid: hic.tilesetUid,
           server: hic.server,
-          type: "heatmap",
+          type: hic.tracktype,
+          name: hic.name,
         },
       ],
     },
     "1d": tracks.map((track) => ({
       dataUid: uid(),
-      type: track.type,
+      type: track.tracktype,
       tilesetUid: track.tilesetUid,
       server: track.server,
-      positions: track.positions.reduce((prev, curr) => {
-        prev[curr] = uid();
+      datatype: track.datatype,
+      name: track.name,
+      positions: Object.keys(track.positions).reduce((prev, curr) => {
+        if (track.positions[curr]) {
+          prev[curr] = uid();
+        }
         return prev;
       }, {}),
     })),
@@ -124,13 +130,12 @@ const viewsToViewConfig = (views, positionedTracks, chromInfoPath) => {
 const configsReducer = (state, action) => {
   console.log("config reduce");
   if (action.type === "ADD_CASE") {
-    const { chromInfoPath, heatmap, tracks } = action.config;
-    const { initialXDomainStart, initialXDomainEnd } = action.config;
-    const initialXDomain = [+initialXDomainStart, +initialXDomainEnd];
-    const initialYDomain = [+initialXDomainStart, +initialXDomainEnd];
+    const { chromInfoPath, centerHiC, tracks } = action.config;
+    const initialXDomain = [...action.config.initialXDomain];
+    const initialYDomain = [...action.config.initialYDomain];
 
     const caseUid = uid();
-    const view = addView(heatmap, tracks);
+    const view = addView(centerHiC, tracks);
     const positionedTracks = {};
     // create default track options for heatmap track
     positionedTracks[view["2d"].contents[0].uid] = {
@@ -140,8 +145,10 @@ const configsReducer = (state, action) => {
       tilesetUid: view["2d"].contents[0].tilesetUid,
       // TODO: dynamically calculate the height so the heatmap is square
       height: 150,
+      width: 150,
       options: {
         ...addDefaultOptions(view["2d"].contents[0].type),
+        name: view["2d"].contents[0].name,
       },
     };
 
@@ -152,15 +159,17 @@ const configsReducer = (state, action) => {
         positionedTracks[trackUid] = {
           uid: trackUid,
           type: positionToOrientation(position) + "-" + track.type,
-          options: { ...addDefaultOptions(track.type) },
+          options: { ...addDefaultOptions(track.type), name: track.name },
         };
         if (track.type !== "chromosome-labels") {
           positionedTracks[trackUid].server = track.server;
           positionedTracks[trackUid].tilesetUid = track.tilesetUid;
           if (positionToOrientation(position) === "horizontal") {
             positionedTracks[trackUid].height = 60;
+            positionedTracks[trackUid].width = 150;
           } else {
             positionedTracks[trackUid].width = 60;
+            positionedTracks[trackUid].height = 150;
           }
         } else {
           positionedTracks[trackUid].chromInfoPath = chromInfoPath;

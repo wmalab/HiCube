@@ -1,52 +1,11 @@
 import React, { useState, useEffect } from "react";
 import { Field, useField, useFormikContext } from "formik";
 import TrackSelector from "./TrackSelector";
-
-// for datatype `chromsizes` we don't need select dataset
-const DATA_TYPES = {
-  "gene-annotation": {
-    "track-type": ["gene-annotation"],
-  },
-  matrix: {
-    "track-type": ["linear-heatmap"],
-  },
-  "2d-rectangle-domains": {
-    "track-type": ["2d-rectangle-domains", "linear-2d-rectangle-domains"],
-  },
-  vector: {
-    "track-type": ["line", "bar", "point", "1d-heatmap"],
-  },
-  chromsizes: {
-    "track-type": ["chromosome-labels", "2d-chromosome-grid"],
-  },
-};
-
-const TRACK_ORIENTATION = {
-  "gene-annotation": "1d",
-  "linear-heatmap": "1d",
-  "2d-rectangle-domains": "2d",
-  "linear-2d-rectangle-domains": "1d",
-  line: "1d",
-  bar: "1d",
-  point: "1d",
-  "1d-heatmap": "1d",
-  "chromosome-labels": "1d",
-  "2d-chromosome-grid": "2d",
-};
-
-const findTracktypes = (datatype) => {
-  if (datatype in DATA_TYPES) {
-    return DATA_TYPES[datatype]["track-type"];
-  }
-  return [];
-};
-
-const findTrackOrientation = (tracktype) => {
-  if (tracktype in TRACK_ORIENTATION) {
-    return TRACK_ORIENTATION[tracktype];
-  }
-  return null;
-};
+import {
+  findTracktypes,
+  findTrackOrientation,
+  availDatatypes,
+} from "../../configs/track-orientation";
 
 const TrackSelectComponent = ({ field, form, ...props }) => {
   const datasetChangeHandler = (dataset) => {
@@ -144,7 +103,7 @@ const TrackPositionsComponent = (props) => {
 // TODO: maybe put datatype and orientation into form values?
 // trackSelector gives server, tilesetUid and name
 const AddTrack = (props) => {
-  const datatypes = Object.keys(DATA_TYPES);
+  const datatypes = availDatatypes();
   console.log(props.track);
 
   return (
