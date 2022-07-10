@@ -4,7 +4,8 @@ import HiGlassCase from "./components/HiGlass/HiGlassCase";
 import ControlPanel from "./components/SideDrawer/ControlPanel";
 import GenomePositionBar from "./components/GenomePositionSearch/GenomePositionBar";
 import { defaultOptions as options } from "./configs/default-config";
-import GridLayout from "react-grid-layout";
+// import GridLayout from "react-grid-layout";
+import ThreeTrack from "./components/Three/ThreeTrack";
 import { uid } from "./utils";
 import "../node_modules/react-grid-layout/css/styles.css";
 import "../node_modules/react-resizable/css/styles.css";
@@ -58,6 +59,8 @@ export default function App() {
   const [overlays, dispatchOverlaysAction] = useReducer(overlaysReducer, []);
 
   const [trackSourceServers, setTrackSourceServers] = useState([]);
+
+  const [genomeAssembly, setGenomeAssembly] = useState({});
 
   const locationChangeHandler = (location, id) => {
     console.log(id, "location change");
@@ -143,12 +146,18 @@ export default function App() {
     });
   };
 
+  const genomeAssemblyChangeHandler = (updatedAssembly) => {
+    setGenomeAssembly(updatedAssembly);
+  };
+
   return (
     <div>
       <ControlPanel
         trackSourceServers={trackSourceServers}
         onAddServer={addServerHandler}
         onRemoveServer={removeServerHandler}
+        genomeAssembly={genomeAssembly}
+        onGenomeAssemblyChange={genomeAssemblyChangeHandler}
         mainLocation={mainLocation}
         // onAddCase={addCaseHandler}
         // configs={configs}
@@ -162,34 +171,44 @@ export default function App() {
         onRemoveOverlay={removeOverlayHandler}
       />
       <div style={{ position: "absolute", left: "330px", paddingLeft: "10px" }}>
-        <GenomePositionBar absPositions={mainLocation} name="Main" />
-        <GenomePositionBar absPositions={rangeSelection} name="ZoomIn" />
-        <GridLayout
-          className="layout"
-          layout={layout}
-          cols={12}
-          rowHeight={100}
-          width={1200}
+        <GenomePositionBar onPositionChange={locationChangeHandler} positions={mainLocation} name="Main" genomeAssembly={genomeAssembly} />
+        <GenomePositionBar positions={rangeSelection} name="ZoomIn" genomeAssembly={genomeAssembly} />
+        <div
+          // className="content"
+          // className="layout"
+          // layout={layout}
+          // cols={12}
+          // rowHeight={100}
+          // width={1200}
         >
           {configCtx.cases.map((caseUids) => {
             return (
-              <div key={caseUids.uid}>
-                <HiGlassCase
-                  id={caseUids.uid}
-                  options={options}
-                  viewConfig={configCtx.viewConfigs[caseUids.uid]}
-                  mainLocation={mainLocation}
-                  onMainLocationChange={locationChangeHandler}
-                  mouseTool={mouseTool}
-                  rangeSelection={rangeSelection}
-                  onRangeSelection={rangeSelectionChangeHandler}
-                  onCreateOverlay={createOverlayHandler}
-                  overlays={overlays}
-                />
-              </div>
+              <>
+                <div key={caseUids.uid + "-higlass"} className="content-item">
+                  <HiGlassCase
+                    id={caseUids.uid}
+                    options={options}
+                    viewConfig={configCtx.viewConfigs[caseUids.uid]}
+                    mainLocation={mainLocation}
+                    onMainLocationChange={locationChangeHandler}
+                    mouseTool={mouseTool}
+                    rangeSelection={rangeSelection}
+                    onRangeSelection={rangeSelectionChangeHandler}
+                    onCreateOverlay={createOverlayHandler}
+                    overlays={overlays}
+                  />
+                </div>
+                <div key={caseUids.uid + "-3d"} className="content-item">
+                  <ThreeTrack
+                    mainLocation={mainLocation}
+                    zoomLocation={rangeSelection}
+                    overlays={overlays}
+                  />
+                </div>
+              </>
             );
           })}
-        </GridLayout>
+        </div>
       </div>
     </div>
   );
