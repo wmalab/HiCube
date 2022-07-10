@@ -27,6 +27,9 @@
   width: 100%;
   padding-left: 0;
   padding-right: 0;
+  border: none;
+  cursor: pointer;
+  height: 50px;
 }
 
 .sidedrawer-config-panel {
@@ -44,4 +47,5 @@
   background-color: transparent;
   float: right;
   padding-right: 5px;
+  border: none;
 }
