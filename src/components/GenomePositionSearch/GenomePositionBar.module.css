@@ -15,7 +15,7 @@ input.position-bar {
   border: 2px solid #dee1e2;
   color: rgb(14, 14, 16);
   background: #dee1e2;
-  height: 15px;
+  height: 12px;
 }
 
 input.position-bar:hover {
@@ -39,7 +39,7 @@ button.search {
   border: 1px solid transparent;
   border-radius: 2px;
   /* height: 30px; */
-  line-height: 30px;
+  line-height: 24px;
   font-size: 14px;
   color: #241c15;
   background-color: #efeeea;
