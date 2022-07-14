@@ -3,6 +3,7 @@ import ConfigContext from "../../store/config-context";
 import TrackSourceManager from "./TrackSourceManager";
 import AssemblySelector from "../UI/AssemblySelector";
 import AddCaseForm from "./AddCaseForm";
+import PairedCaseForm from "./PairedCaseForm";
 import { uid } from "../../utils";
 
 // const getHgcViewConfig = (formVals) => {
@@ -90,7 +91,11 @@ const AddCase = (props) => {
     // props.onAddCase(hgcViewConfig);
   };
 
-  const disableAddCase = props.trackSourceServers.length === 0;
+  const hasTrackSource = props.trackSourceServers.length > 0;
+  const hasZeroCase = configCtx.cases.length === 0;
+  const hasOneCase = configCtx.cases.length === 1;
+
+  // const disableAddCase = props.trackSourceServers.length === 0;
   // FIXME: if already start add new case, delete all servers throw error
   return (
     <>
@@ -99,19 +104,43 @@ const AddCase = (props) => {
         onAddServer={props.onAddServer}
         onRemoveServer={props.onRemoveServer}
       />
-      <AssemblySelector
-        trackSourceServers={props.trackSourceServers}
-        onGenomeAssemblyChange={props.onGenomeAssemblyChange}
-      />
-      {!show && (
-        <button onClick={handleShow} disabled={disableAddCase}>
+      {hasZeroCase && (
+        <AssemblySelector
+          trackSourceServers={props.trackSourceServers}
+          onGenomeAssemblyChange={props.onGenomeAssemblyChange}
+        />
+      )}
+      {!hasZeroCase && (
+        <div className="control-section">
+          <strong>Genome assembly:</strong>
+          <span>{props.genomeAssembly.assemblyName}</span>
+        </div>
+      )}
+      {!show && hasZeroCase && (
+        <button onClick={handleShow} disabled={!hasTrackSource}>
           Add A New Case
         </button>
       )}
-      {show && (
+      {!show && hasOneCase && (
+        <button onClick={handleShow} disabled={!hasTrackSource}>
+          Add A Paired Case
+        </button>
+      )}
+      {show && hasZeroCase && (
         <AddCaseForm
           trackSourceServers={props.trackSourceServers}
           genomeAssembly={props.genomeAssembly}
+          onSubmit={submitHandler}
+          onClose={handleClose}
+        />
+      )}
+      {show && hasOneCase && (
+        <PairedCaseForm
+          genomeAssembly={props.genomeAssembly}
+          mainLocation={props.mainLocation}
+          trackSourceServers={props.trackSourceServers}
+          centerHiC={configCtx.cases[0].views[0]["2d"].contents[0]}
+          tracks={configCtx.cases[0].views[0]["1d"]}
           onSubmit={submitHandler}
           onClose={handleClose}
         />

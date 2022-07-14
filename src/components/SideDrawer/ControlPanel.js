@@ -20,6 +20,7 @@ const ControlPanel = (props) => {
           onRemoveServer={props.onRemoveServer}
           genomeAssembly={props.genomeAssembly}
           onGenomeAssemblyChange={props.onGenomeAssemblyChange}
+          mainLocation={props.mainLocation}
           // onAddCase={props.onAddCase}
         />
       )}
