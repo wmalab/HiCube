@@ -1,66 +1,46 @@
+/*
+The ThreeTrack consists of two major components: 
+data loader and structure render
+data loader:
+- g3d format using g3djs
+- other format can be converted to g3d
+  - use python library g3dtools
+- multivec format using HiGlass server
+structure render:
+- use a similar viewConfig as HiGlass
+  - ThreeTrack parse the viewConfig and setup the views and options
+  - ThreeView render each view with options
+*/
+
+
 import React, { useRef, useState, useEffect, useMemo } from "react";
 import { Canvas, useFrame } from "@react-three/fiber";
 import { Line, OrbitControls } from "@react-three/drei";
 import { ChromosomeInfo } from "higlass";
 import DemoStructure from "./DemoStructure";
 import { makeColorGradient } from "../../utils";
+import Backbone from "./Backbone";
+import OverlaysTrack from "./OverlaysTrack";
 
-const chromInfoPath = "https://s3.amazonaws.com/pkerp/data/hg19/chromSizes.tsv";
+// DONE: use chromInfoPath from genomeAssemply props
+// const chromInfoPath = "https://s3.amazonaws.com/pkerp/data/hg19/chromSizes.tsv";
 
-// TODO: add overlays
+// DONE: add overlays
 // TODO: add zoom view
-
-// a single sphere
-const Overlay1DTrack = (props) => {
-  const { points } = props;
-  // FIXME: flash when rotate, may change to Tube?
-  return (
-    <group>
-      <Line
-        points={points}
-        lineWidth={20}
-        color="hotpink"
-        transparent
-        opacity={0.5}
-      />
-    </group>
-  );
-};
-
-// two sphere each end and connected by a line
-const Overlay2DTrack = (props) => {
-  const { anchor1, anchor2 } = props;
-
-  return (
-    <group>
-      <mesh position={anchor1}>
-        <sphereGeometry args={[0.5, 16, 16]} />
-        <meshBasicMaterial color="hotpink" />
-      </mesh>
-      <mesh position={anchor2}>
-        <sphereGeometry args={[0.5, 16, 16]} />
-        <meshBasicMaterial color="hotpink" />
-      </mesh>
-      <Line
-        points={[anchor1, anchor2]}
-        lineWidth={5}
-        // dashed={true}
-        color="hotpink"
-      />
-    </group>
-  );
-};
+// FIXME: when init with partial genome regions, chromosomes not visible will always be grey
 
 const ThreeTrack = (props) => {
+  const { genomeAssembly: { chromInfoPath } } = props;
   const [chromInfo, setChromInfo] = useState();
   const [demo3d, setDemo3d] = useState();
 
   useEffect(() => {
-    ChromosomeInfo(chromInfoPath, (newChromInfo) => {
-      console.log("load chromInfo");
-      setChromInfo(newChromInfo);
-    });
-  }, []);
+    if (chromInfoPath) {
+      ChromosomeInfo(chromInfoPath, (newChromInfo) => {
+        setChromInfo(newChromInfo);
+      });
+    }
+  }, [chromInfoPath]);
 
   useEffect(() => {
     if (!chromInfo) {
@@ -95,48 +75,55 @@ const ThreeTrack = (props) => {
 
   let maskedColors = {};
 
-  // const locationToBinRange = (location) => {
-  //   const xBinRange = demo3d.binRange(location.xDomain);
-  //   const yBinRange = demo3d.binRange(location.yDomain);
+  // TODO: get the bin range of the x and y domains and see if need to merge them
+  // TODO: get the colors of the intervals
 
-  //   const range = {};
-  //   for (const chrom in xBinRange) {
-  //     range[chrom] = [xBinRange[chrom]];
-  //   }
-  //   for (const chrom in yBinRange) {
-  //     if (chrom in range) {
-  //       const prevR = range[chrom][0];
-  //       const newR = yBinRange[chrom];
-  //       // no overlap
-  //       if (prevR[1] < newR[0]) {
-  //         range[chrom].push(newR);
-  //       } else if (newR[1] < prevR[0]) {
-  //         range[chrom].unshift(newR);
-  //       } else {
-  //         // merge two intervals
-  //         range[chrom] = [
-  //           [Math.min(prevR[0], newR[0]), Math.max(prevR[1], newR[1])],
-  //         ];
-  //       }
-  //     } else {
-  //       range[chrom] = [yBinRange[chrom]];
-  //     }
-  //   }
-  //   return range;
-  // };
+  const locationToBinRange = (location) => {
+    const xBinRange = demo3d.binRange(location.xDomain);
+    const yBinRange = demo3d.binRange(location.yDomain);
 
-  // let zoomPoints = [];
+    const range = {};
+    for (const chrom in xBinRange) {
+      range[chrom] = [xBinRange[chrom]];
+    }
+    for (const chrom in yBinRange) {
+      if (chrom in range) {
+        const prevR = range[chrom][0];
+        const newR = yBinRange[chrom];
+        // no overlap
+        if (prevR[1] < newR[0]) {
+          range[chrom].push(newR);
+        } else if (newR[1] < prevR[0]) {
+          range[chrom].unshift(newR);
+        } else {
+          // merge two intervals
+          range[chrom] = [
+            [Math.min(prevR[0], newR[0]), Math.max(prevR[1], newR[1])],
+          ];
+        }
+      } else {
+        range[chrom] = [yBinRange[chrom]];
+      }
+    }
+    return range;
+  };
 
-  // if (demo3d && props.zoomLocation.xDomain && props.zoomLocation.yDomain) {
-  //   const range = locationToBinRange(props.zoomLocation);
-  //   for (const chrom in range) {
-  //     for (const interval of range[chrom]) {
-  //       zoomPoints = zoomPoints.concat(
-  //         demo3d.chrom3d[chrom].slice(interval[0], interval[1])
-  //       );
-  //     }
-  //   }
-  // }
+  let zoomSegments = [];
+  let zoomSegmentsColors = [];
+
+  if (demo3d && props.zoomLocation.xDomain && props.zoomLocation.yDomain) {
+    const range = locationToBinRange(props.zoomLocation);
+    for (const chrom in range) {
+      for (const interval of range[chrom]) {
+        zoomSegments.push(
+          demo3d.chrom3d[chrom].slice(interval[0], interval[1])
+        );
+        zoomSegmentsColors.push(
+          colorsByChrom[chrom].slice(interval[0], interval[1])
+        );
+      }
+    }
+  }
 
   if (colorsByChrom && chroms) {
     const xBinRange = demo3d.binRange(props.mainLocation.xDomain);
@@ -232,21 +219,26 @@ const ThreeTrack = (props) => {
   // FIXME: seems add one more div wrapper make the canvas not a direct child in flex item
   // and cause random line not coloring right
   return (
-    // <div>
-    // {zoomPoints.length > 0 && (
-    //   <div style={{height: "350px"}}>
-    //   <Canvas>
-    //     <group>
-    //       <Line 
-    //         points={zoomPoints}
-    //         lineWidth={8}
-    //       />
-    //     </group>
-    //     <OrbitControls zoomSpeed={0.5} />
-    //   </Canvas>
-    //   </div>
-    // )}
-    // <div>
+    <>
+    {zoomSegments.length > 0 && (
+      <div style={{ height: 350, width: 350 }}>
+        <Canvas>
+          <group>
+            {zoomSegments.map((segment, index) => {
+              return (
+                <Backbone 
+                  points={segment}
+                  colors={zoomSegmentsColors[index]}
+                  lw={8}
+                  opacity={1}
+                />
+              );
+            })}
+          </group>
+          <OrbitControls zoomSpeed={0.5} />
+        </Canvas>
+      </div>
+    )}
     <div style={{ height: 350, width: 350 }}>
     <Canvas>
       {/* <color attach="background" args={["black"]} /> */}
@@ -254,56 +246,26 @@ const ThreeTrack = (props) => {
         <group>
           {demo3d.chroms.length > 0 &&
             demo3d.chroms.map((chrom) => {
-              if (chroms.includes(chrom)) {
-                return (
-                  <Line
-                    key={chrom}
-                    points={demo3d.chrom3d[chrom]}
-                    color="white"
-                    vertexColors={maskedColors[chrom]}
-                    lineWidth={8}
-                    dashed={false}
-                    transparent={false}
-                    // FIXED: need to set opacity to 1.0 or it will be a white line
-                    opacity={1}
-                    // visible={true}
-                  />
-                );
-              } else {
-                return (
-                  <Line
-                    key={chrom}
-                    points={demo3d.chrom3d[chrom]}
-                    color="white"
-                    vertexColors={false}
-                    lineWidth={8}
-                    dashed={false}
-                    transparent={true}
-                    opacity={0.01}
-                    // visible={false}
-                  />
-                );
-              }
+              const visible = chroms.includes(chrom);
+              return (
+                <Backbone 
+                  key={chrom}
+                  points={demo3d.chrom3d[chrom]}
+                  colors={visible ? maskedColors[chrom] : false}
+                  lw={8}
+                  opacity={visible ? 1 : 0.01}
+                />
+              );
             })}
         </group>
       )}
-      {demo3d &&
-        overlays2d.length > 0 &&
-        overlays2d.map((overlay) => (
-          <Overlay2DTrack
-            key={overlay.uid}
-            anchor1={overlay.anchor1}
-            anchor2={overlay.anchor2}
-          />
-        ))}
-      {demo3d &&
-        overlays1d.length > 0 &&
-        overlays1d.map((overlay) => (
-          <Overlay1DTrack key={overlay.uid} points={overlay.points} />
-        ))}
+      {demo3d && (
+        <OverlaysTrack overlays1d={overlays1d} overlays2d={overlays2d} />
+      )}
       <OrbitControls zoomSpeed={0.5} />
     </Canvas>
     </div>
+    </>
   );
 };
 
