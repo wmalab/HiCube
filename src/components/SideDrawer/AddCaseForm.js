@@ -2,6 +2,7 @@ import React, { useRef, useEffect } from "react";
 import { Formik, Field, FieldArray, Form } from "formik";
 import AddTrack from "../UI/AddTrack";
 import TrackSelector from "../UI/TrackSelector";
+import FileUploader from "../UI/FileUploader";
 import { strToInt } from "../../utils";
 import { ChromosomeInfo } from "higlass";
 
@@ -94,6 +95,7 @@ const AddCaseForm = (props) => {
           // server: props.trackSourceServers[0].url,
           // tilesetUid: "CQMd6V_cRw6iCI_-Unl3PQ",
         },
+        threeFile: "",
         tracks: [
           // {
           //   type: "gene-annotations",
@@ -141,6 +143,15 @@ const AddCaseForm = (props) => {
             assemblyName={assemblyName}
             trackSourceServers={props.trackSourceServers}
           />
+          <div className="control-section">
+            <label>
+              <strong>Chromatin structure:</strong>
+            </label>
+            <div>
+              <label>Upload g3d file: </label>
+              <FileUploader name="threeFile" />
+            </div>
+          </div>
           <p>
             <strong>Additional datasets:</strong>
           </p>
