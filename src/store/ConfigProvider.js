@@ -130,7 +130,7 @@ const viewsToViewConfig = (views, positionedTracks, chromInfoPath) => {
 const configsReducer = (state, action) => {
   console.log("config reduce");
   if (action.type === "ADD_CASE") {
-    const { chromInfoPath, centerHiC, tracks } = action.config;
+    const { chromInfoPath, centerHiC, threeFile, tracks } = action.config;
     const initialXDomain = [...action.config.initialXDomain];
     const initialYDomain = [...action.config.initialYDomain];
 
@@ -152,6 +152,8 @@ const configsReducer = (state, action) => {
       },
     };
 
+    // FIXME: linear-2d-rectangle-domains aliases are "horizontal-2d-rectangle-domains"
+    // and "vertical-2d-rectangle-domains"
     // create default track options for 1d tracks
     for (const track of view["1d"]) {
       for (const position in track.positions) {
@@ -193,6 +195,7 @@ const configsReducer = (state, action) => {
     const updatedConfigs = {
       cases: state.cases.concat({ uid: caseUid, views: views }),
       positionedTracks: { ...state.positionedTracks, ...positionedTracks },
+      threeCases: {...state.threeCases, [caseUid]: threeFile },
       chromInfoPath: chromInfoPath,
       viewConfigs: { ...state.viewConfigs, [caseUid]: viewConfig },
       numViews: 1,
@@ -453,6 +456,7 @@ const ConfigProvider = (props) => {
 
   const configContext = {
     cases: configs.cases,
+    threeCases: configs.threeCases,
     positionedTracks: configs.positionedTracks,
     chromInfoPath: configs.chromInfoPath,
     viewConfigs: configs.viewConfigs,

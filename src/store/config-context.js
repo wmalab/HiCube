@@ -2,6 +2,7 @@ import React from "react";
 
 const ConfigContext = React.createContext({
   cases: [],
+  threeCases: {},
   positionedTracks: {},
   chromInfoPath: "",
   viewConfigs: {},
