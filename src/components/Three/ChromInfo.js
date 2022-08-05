@@ -5,13 +5,13 @@ class ChromInfo {
     this.chromLengths = {};
     this.chromBins = {};
 
-    chromInfo.cumPositions.map((cumPos) => {
+    chromInfo.cumPositions.forEach((cumPos) => {
       const chrom = cumPos.chr;
       this.chroms.push(chrom);
       const chromLength = Number(chromInfo.chromLengths[chrom]);
       this.chromLengths[chrom] = chromLength;
 
-      resolutions.map((resolution) => {
+      resolutions.forEach((resolution) => {
         if (!(resolution in this.chromBins)) {
           this.chromBins[resolution] = {};
         }
