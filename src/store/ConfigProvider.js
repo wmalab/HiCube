@@ -130,7 +130,7 @@ const viewsToViewConfig = (views, positionedTracks, chromInfoPath) => {
 const configsReducer = (state, action) => {
   console.log("config reduce");
   if (action.type === "ADD_CASE") {
-    const { chromInfoPath, centerHiC, threeFile, tracks } = action.config;
+    const { chromInfoPath, centerHiC, threed, tracks } = action.config;
     const initialXDomain = [...action.config.initialXDomain];
     const initialYDomain = [...action.config.initialYDomain];
 
@@ -195,7 +195,7 @@ const configsReducer = (state, action) => {
     const updatedConfigs = {
       cases: state.cases.concat({ uid: caseUid, views: views }),
       positionedTracks: { ...state.positionedTracks, ...positionedTracks },
-      threeCases: {...state.threeCases, [caseUid]: threeFile },
+      threeCases: {...state.threeCases, [caseUid]: threed },
       chromInfoPath: chromInfoPath,
       viewConfigs: { ...state.viewConfigs, [caseUid]: viewConfig },
       numViews: 1,

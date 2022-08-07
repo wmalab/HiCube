@@ -200,13 +200,11 @@ export default function App() {
                 </div>
                 <div key={caseUids.uid + "-3d"} className="content-item">
                   <ThreeTrack
-                    threeFile={configCtx.threeCases[caseUids.uid]}
+                    threed={configCtx.threeCases[caseUids.uid]}
                     genomeAssembly={genomeAssembly}
                     mainLocation={mainLocation}
                     zoomLocation={rangeSelection}
                     overlays={overlays}
-                    resolution={500000}
-                    category="maternal"
                   />
                 </div>
               </>

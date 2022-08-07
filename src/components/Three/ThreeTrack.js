@@ -38,14 +38,14 @@ import OverlaysTrack from "./OverlaysTrack";
 const ThreeTrack = (props) => {
   const {
     genomeAssembly: { chromInfoPath },
-    threeFile,
+    threed,
   } = props;
   const [chromInfo, setChromInfo] = useState();
-  const g3dFile = useRef(new G3dFile({ blob: threeFile }));
+  const g3dFile = useRef(new G3dFile({ blob: threed.fileObj }));
   const [resolutions, setResolutions] = useState();
-  const [resolution, setResolution] = useState(props.resolution);
+  const resolution = threed.resolution;
   const [categories, setCategories] = useState();
-  const [category, setCategory] = useState(props.category);
+  const category = threed.category;
   const [segmentData, setSegmentData] = useState();
   const [g3dChroms, setG3dChroms] = useState();
   const [chromColors, setChromColors] = useState();

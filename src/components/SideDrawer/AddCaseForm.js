@@ -95,7 +95,11 @@ const AddCaseForm = (props) => {
           // server: props.trackSourceServers[0].url,
           // tilesetUid: "CQMd6V_cRw6iCI_-Unl3PQ",
         },
-        threeFile: "",
+        threed: {
+          fileObj: "",
+          resolution: "",
+          category: "",
+        },
         tracks: [
           // {
           //   type: "gene-annotations",
@@ -143,15 +147,7 @@ const AddCaseForm = (props) => {
             assemblyName={assemblyName}
             trackSourceServers={props.trackSourceServers}
           />
-          <div className="control-section">
-            <label>
-              <strong>Chromatin structure:</strong>
-            </label>
-            <div>
-              <label>Upload g3d file: </label>
-              <FileUploader name="threeFile" />
-            </div>
-          </div>
+          <FileUploader name="threed" />
           <p>
             <strong>Additional datasets:</strong>
           </p>
