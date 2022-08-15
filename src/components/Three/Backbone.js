@@ -2,7 +2,17 @@ import React from "react";
 import { Line } from "@react-three/drei";
 
 const Backbone = (props) => {
-  const { segmentData: {segments, binToSegment}, color, visible, binRanges } = props;
+  const {
+    segmentData: { segments, binToSegment },
+    color,
+    visible,
+    showViewRangeOnly,
+    binRanges,
+  } = props;
+
+  // TODO: if showViewRangeOnly is true, only draw viewing binRanges
+  // otherwise draw the entire chromosome with non-viewing colored gray
+  // TODO: maybe change the gray to white? but whhich value rep white?
 
   const transparent = !visible;
   const opacity = transparent ? 0.03 : 1;
@@ -11,15 +21,23 @@ const Backbone = (props) => {
 
   if (visible) {
     for (let i = 0; i < segments.length; i++) {
-      segmentColors[i] = Array(segments[i].points.length).fill([1,1,1]);
+      segmentColors[i] = Array(segments[i].points.length).fill([1, 1, 1]);
     }
 
     for (const binRange of binRanges) {
+      console.log(binRange);
+
       const startBin = binRange[0];
       const startSegment = binToSegment[startBin];
       const endBin = binRange[1] - 1;
       const endSegment = binToSegment[endBin];
+
+      console.log("startBin=", startBin, "endBin=", endBin);
+      console.log("startSegment=", startSegment, segments[startSegment]);
+      console.log("endSegment=", endSegment, segments[endSegment]);
+
       for (let i = startSegment + 1; i < endSegment; i++) {
+        console.log("fill segment");
         segmentColors[i].fill(color);
       }
       if (startSegment === endSegment) {
@@ -28,7 +46,10 @@ const Backbone = (props) => {
           // not on the last missing piece
           const segment = segments[startSegment];
           const start = Math.max(0, startBin - segment.start);
-          const end = Math.min(segment.points.length, segment.points.length - segment.end + endBin)
+          const end = Math.min(
+            segment.points.length,
+            segment.points.length - segment.end + endBin
+          );
           if (start < end) {
             segmentColors[startSegment].fill(color, start, end);
           }
@@ -40,12 +61,23 @@ const Backbone = (props) => {
           const segment = segments[startSegment];
           segmentColors[startSegment].fill(color, startBin - segment.start);
         }
-        if (endSegment < segments.length) {
+        if (
+          endSegment < segments.length &&
+          endBin >= segments[endSegment].start
+        ) {
           if (endBin >= segments[endSegment].end) {
             segmentColors[endSegment].fill(color);
           } else {
             const segment = segments[endSegment];
-            segmentColors[endSegment].fill(color, 0, segment.points.length - segment.end + endBin);
+            console.log(
+              "fill endSegment",
+              segment.points.length - segment.end + endBin
+            );
+            segmentColors[endSegment].fill(
+              color,
+              0,
+              segment.points.length - segment.end + endBin
+            );
           }
         }
       }
@@ -60,7 +92,7 @@ const Backbone = (props) => {
     <group>
       {segments.map((segment, index) => (
         <Line
-          key={index} 
+          key={index}
           points={segment.points}
           color="white"
           vertexColors={segmentColors[index]}
