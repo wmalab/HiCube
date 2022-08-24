@@ -35,6 +35,7 @@ const ControlPanel = (props) => {
           onRemoveZoomIn={props.onRemoveZoomIn}
           overlays={props.overlays}
           onAddOverlay={props.onAddOverlay}
+          onUpdateOverlay={props.onUpdateOverlay}
           onRemoveOverlays={props.onRemoveOverlays}
           onRemoveOverlay={props.onRemoveOverlay}
         />

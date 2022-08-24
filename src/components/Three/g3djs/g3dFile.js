@@ -78,7 +78,7 @@ class G3dFile {
   second level keys are chroms such as chr1, chr2, etc.
   third level keys are: start, x, y, z
   */
-  async readData(resolution, callback, haplotype = "", chrom = "") {
+  async readData(resolution, callback, haplotype = "", chrom = []) {
     await this.initHeader();
     const resdata = this.meta.offsets[resolution];
     if (!resdata) {
@@ -101,13 +101,15 @@ class G3dFile {
         data = { [haplotype]: data[haplotype] };
       }
       let chroms = Object.keys(data[cats[0]]);
-      if (chrom) {
-        if (!chroms.includes(chrom)) {
+      if (chrom.length > 0) {
+        chroms = chrom.filter((chr) => chroms.includes(chr));
+        if (chroms.length < 1) {
           return null;
         }
-        chroms = [chrom];
         for (const cat of cats) {
-          data[cat] = { [chrom]: data[cat][chrom] };
+          for (const chr of chroms) {
+            data[cat] = { [chr]: data[cat][chr] };
+          }
         }
       }
       callback(data);

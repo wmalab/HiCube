@@ -1,9 +1,48 @@
-import React from "react";
+import React, { useMemo } from "react";
 import Overlay1dTrack from "./Overlay1dTrack";
 import Overlay2dTrack from "./Overlay2dTrack";
 
 const OverlaysTrack = (props) => {
-  const { overlays1d, overlays2d, segmentData } = props;
+  const { overlays, chromInfo, resolution, segmentData } = props;
+
+  const overlays1d = useMemo(() => {
+    if (!chromInfo || !resolution || overlays.length < 1) {
+      return [];
+    }
+    return overlays
+      .filter((overlay) => overlay.extent.length === 2)
+      .map((overlay) => {
+        const anchor1 = chromInfo.absToBin(overlay.extent[0], resolution);
+        const anchor2 = chromInfo.absToBin(overlay.extent[1], resolution);
+        return {
+          anchor1,
+          anchor2,
+          uid: overlay.uid,
+          options: overlay.options.threed,
+        };
+      });
+  }, [overlays, chromInfo, resolution]);
+
+  // TODO: if the x or y region is very long, only using the first bin seems not enough
+  const overlays2d = useMemo(() => {
+    if (!chromInfo || !resolution || overlays.length < 1) {
+      return [];
+    }
+    return overlays
+      .filter((overlay) => overlay.extent.length > 2)
+      .map((overlay) => {
+        const anchor1 = chromInfo.absToBin(overlay.extent[0], resolution);
+        const anchor2 = chromInfo.absToBin(overlay.extent[2], resolution);
+        return {
+          anchor1,
+          anchor2,
+          uid: overlay.uid,
+          options: overlay.options.threed,
+        };
+      });
+  }, [overlays, chromInfo, resolution]);
+
+  // FIXME: what if the 1d annotation is only 1 bin?
 
   const tracks1d = overlays1d.map((overlay) => {
     const { anchor1, anchor2 } = overlay;
@@ -19,6 +58,7 @@ const OverlaysTrack = (props) => {
     const segment2 = segments[s2];
     // get the point to the bin
     const start = Math.max(0, anchor1.bin - segment1.start);
+    // FIXME: if bin < segment2.start, end could be negative
     const end = Math.min(
       segment2.points.length,
       segment2.points.length - segment2.end + anchor2.bin
@@ -34,10 +74,18 @@ const OverlaysTrack = (props) => {
       for (let i = s1 + 1; i < s2; i++) {
         points = points.concat(segments[i].points);
       }
-      points = points.concat(segment2.points.slice(0, end));
+      if (end > 0) {
+        points = points.concat(segment2.points.slice(0, end));
+      }
     }
 
-    return <Overlay1dTrack key={overlay.uid} points={points} />;
+    return (
+      <Overlay1dTrack
+        key={overlay.uid}
+        points={points}
+        options={overlay.options}
+      />
+    );
   });
 
   const tracks2d = overlays2d.map((overlay) => {
@@ -54,7 +102,12 @@ const OverlaysTrack = (props) => {
     const point2 = segment2.points[anchor2.bin - segment2.start];
 
     return (
-      <Overlay2dTrack key={overlay.uid} anchor1={point1} anchor2={point2} />
+      <Overlay2dTrack
+        key={overlay.uid}
+        anchor1={point1}
+        anchor2={point2}
+        options={overlay.options}
+      />
     );
   });
 

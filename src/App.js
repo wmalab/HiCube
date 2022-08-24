@@ -15,16 +15,64 @@ const overlaysReducer = (state, action) => {
     return state.concat({
       uid: "overlay-1d-" + uid(),
       extent: action.extent,
+      options: {
+        higlass: {
+          fill: "blue",
+          fillOpacity: 0.3,
+          stroke: "blue",
+          strokeOpacity: 1,
+          strokeWidth: 0,
+        },
+        threed: {
+          lineColor: "blue",
+          lineWidth: 5,
+          drawLine: true,
+          drawAnchor1: false,
+          anchor1Color: "",
+          anchor1Radius: 1,
+          drawAnchor2: false,
+          anchor2Color: "",
+          anchor2Radius: 1,
+        },
+      },
     });
   } else if (action.type === "ADD_2D") {
     return state.concat({
       uid: "overlay-2d-" + uid(),
       extent: action.extent,
+      options: {
+        higlass: {
+          fill: "blue",
+          fillOpacity: 0.3,
+          stroke: "blue",
+          strokeOpacity: 1,
+          strokeWidth: 0,
+        },
+        threed: {
+          lineColor: "blue",
+          lineWidth: 1,
+          drawLine: true,
+          drawAnchor1: true,
+          anchor1Color: "blue",
+          anchor1Radius: 1,
+          drawAnchor2: true,
+          anchor2Color: "blue",
+          anchor2Radius: 1,
+        },
+      },
     });
   } else if (action.type === "CLEAR") {
     return [];
   } else if (action.type === "REMOVE") {
     return state.filter((overlay) => overlay.uid !== action.uuid);
+  } else if (action.type === "UPDATE") {
+    const { uuid, options } = action;
+    const overlayIndex = state.findIndex((overlay) => overlay.uid === uuid);
+    const overlay = state[overlayIndex];
+    const updatedOverlay = { ...overlay, options: options };
+    const updatedOverlays = [...state];
+    updatedOverlays[overlayIndex] = updatedOverlay;
+    return updatedOverlays;
   }
 };
 
@@ -97,7 +145,6 @@ export default function App() {
   };
 
   const createOverlayHandler = (type, location, id) => {
-    console.log(location);
     if (type === "1D") {
       dispatchOverlaysAction({
         type: "ADD_1D",
@@ -109,6 +156,14 @@ export default function App() {
         extent: [...location[0], ...location[1]],
       });
     }
+  };
+
+  const updateOverlayHandler = (overlayUid, overlayOptions) => {
+    dispatchOverlaysAction({
+      type: "UPDATE",
+      uuid: overlayUid,
+      options: overlayOptions,
+    });
   };
 
   const removeOverlayHandler = (overlayUid) => {
@@ -167,19 +222,31 @@ export default function App() {
         onRemoveZoomIn={clearSelectHandler}
         overlays={overlays}
         onAddOverlay={addOverlayHandler}
+        onUpdateOverlay={updateOverlayHandler}
         onRemoveOverlays={clearOverlaysHandler}
         onRemoveOverlay={removeOverlayHandler}
       />
       <div style={{ position: "absolute", left: "330px", paddingLeft: "10px" }}>
-        <GenomePositionBar onPositionChange={locationChangeHandler} positions={mainLocation} name="Main" genomeAssembly={genomeAssembly} />
-        <GenomePositionBar positions={rangeSelection} name="ZoomIn" genomeAssembly={genomeAssembly} />
+        {rangeSelection && rangeSelection.xDomain && (
+          <GenomePositionBar
+            positions={rangeSelection}
+            name="Zoom view"
+            genomeAssembly={genomeAssembly}
+          />
+        )}
+        <GenomePositionBar
+          onPositionChange={locationChangeHandler}
+          positions={mainLocation}
+          name="Base view"
+          genomeAssembly={genomeAssembly}
+        />
         <div
-          // className="content"
-          // className="layout"
-          // layout={layout}
-          // cols={12}
-          // rowHeight={100}
-          // width={1200}
+        // className="content"
+        // className="layout"
+        // layout={layout}
+        // cols={12}
+        // rowHeight={100}
+        // width={1200}
         >
           {configCtx.cases.map((caseUids) => {
             return (

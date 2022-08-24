@@ -1,7 +1,7 @@
 import React, { useState, useReducer, useEffect } from "react";
 import ConfigContext from "./config-context";
 import TRACKS_INFO_BY_TYPE from "../configs/tracks-info-by-type";
-import { uid } from "../utils";
+import { uid, makeColorGradient } from "../utils";
 
 // NOTE: context is suitable for low-frequency changes
 // do NOT put location changes inside context
@@ -130,7 +130,7 @@ const viewsToViewConfig = (views, positionedTracks, chromInfoPath) => {
 const configsReducer = (state, action) => {
   console.log("config reduce");
   if (action.type === "ADD_CASE") {
-    const { chromInfoPath, centerHiC, threed, tracks } = action.config;
+    const { chromInfoPath, centerHiC, threed, tracks, chroms } = action.config;
     const initialXDomain = [...action.config.initialXDomain];
     const initialYDomain = [...action.config.initialYDomain];
 
@@ -192,10 +192,23 @@ const configsReducer = (state, action) => {
       chromInfoPath
     );
 
+    let colormap = {};
+    if (state.cases.length > 0 && state.cases[0].uid in state.threeCases) {
+      colormap = state.threeCases[state.cases[0].uid].colormap;
+    } else {
+      const colors = makeColorGradient(chroms.length);
+      for (let i = 0; i < chroms.length; i++) {
+        colormap[chroms[i]] = colors[i];
+      }
+    }
+
     const updatedConfigs = {
       cases: state.cases.concat({ uid: caseUid, views: views }),
       positionedTracks: { ...state.positionedTracks, ...positionedTracks },
-      threeCases: {...state.threeCases, [caseUid]: threed },
+      threeCases: {
+        ...state.threeCases,
+        [caseUid]: { ...threed, colormap },
+      },
       chromInfoPath: chromInfoPath,
       viewConfigs: { ...state.viewConfigs, [caseUid]: viewConfig },
       numViews: 1,
@@ -250,6 +263,7 @@ const configsReducer = (state, action) => {
     }
     const updatedConfigs = {
       cases: updatedCases,
+      threeCases: state.threeCases,
       positionedTracks: updatedPositionedTracks,
       chromInfoPath: chromInfoPath,
       viewConfigs: updatedViewConfigs,
@@ -303,6 +317,12 @@ const configsReducer = (state, action) => {
         uid: overlay.uid,
         options: {
           extent: [overlay.extent],
+          fill: overlay.options.higlass.fill,
+          fillOpacity: +overlay.options.higlass.fillOpacity,
+          stroke: overlay.options.higlass.stroke,
+          strokeOpacity: +overlay.options.higlass.strokeOpacity,
+          strokeWidth: +overlay.options.higlass.strokeWidth,
+          strokePos: ["left", "right"],
         },
       };
     }
@@ -325,6 +345,7 @@ const configsReducer = (state, action) => {
     }
     const updatedConfigs = {
       cases: updatedCases,
+      threeCases: state.threeCases,
       positionedTracks: updatedPositionedTracks,
       chromInfoPath: chromInfoPath,
       viewConfigs: updatedViewConfigs,

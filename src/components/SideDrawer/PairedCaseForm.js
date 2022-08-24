@@ -1,6 +1,7 @@
 import React from "react";
 import { Formik, Form } from "formik";
 import PairedTrackSelector from "../UI/PairedTrackSelector";
+import FileUploader from "../UI/FileUploader";
 
 const PairedCaseForm = (props) => {
   const {
@@ -20,6 +21,11 @@ const PairedCaseForm = (props) => {
           server: "",
           tilesetUid: "",
           name: "",
+        },
+        threed: {
+          fileObj: "",
+          resolution: "",
+          category: "",
         },
         tracks: tracks.map((track) => ({
           datatype: track.datatype,
@@ -60,6 +66,7 @@ const PairedCaseForm = (props) => {
               trackSourceServers={trackSourceServers}
             />
           </div>
+          <FileUploader name="threed" />
           {values.tracks.map((track, index) => (
             <div className="control-section" key={index}>
               <PairedTrackSelector

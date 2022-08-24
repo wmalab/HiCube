@@ -12,6 +12,7 @@ const RGB2Color = (r, g, b) => {
 };
 
 export const makeColorGradient = (
+  len,
   frequency1 = 0.3,
   frequency2 = 0.3,
   frequency3 = 0.3,
@@ -19,8 +20,7 @@ export const makeColorGradient = (
   phase2 = 2,
   phase3 = 4,
   center = 128,
-  width = 127,
-  len = 50
+  width = 127
 ) => {
   const colors = [];
 
@@ -28,14 +28,13 @@ export const makeColorGradient = (
     const red = Math.sin(frequency1 * i + phase1) * width + center;
     const grn = Math.sin(frequency2 * i + phase2) * width + center;
     const blu = Math.sin(frequency3 * i + phase3) * width + center;
-    // colors.push(RGB2Color(red, grn, blu));
-    colors.push([Math.random(), Math.random(), Math.random()]);
+    colors.push(RGB2Color(red, grn, blu));
   }
   return colors;
 };
 
 export const numberWithCommas = (num) => {
-  return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
-}
+  return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+};
 
-export const strToInt = (str) => parseInt(str.replace(/,/g, ''));
+export const strToInt = (str) => parseInt(str.replace(/,/g, ""));

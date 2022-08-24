@@ -1,10 +1,15 @@
 import React from "react";
 import { Line } from "@react-three/drei";
+import * as THREE from "three";
+
+const color2rgb = (color) => {
+  const c = new THREE.Color(color);
+  return [c.r, c.g, c.b];
+};
 
 const Backbone = (props) => {
   const {
     segmentData: { segments, binToSegment },
-    color,
     visible,
     showViewRangeOnly,
     binRanges,
@@ -14,14 +19,20 @@ const Backbone = (props) => {
   // otherwise draw the entire chromosome with non-viewing colored gray
   // TODO: maybe change the gray to white? but whhich value rep white?
 
+  const color = color2rgb(props.color);
+  const color2 = color2rgb("white"); // for regions that is not visible
   const transparent = !visible;
   const opacity = transparent ? 0.03 : 1;
   // TODO: fill invisible chromsome with its chosen color instead of gray
   const segmentColors = {};
 
+  const lines = [];
+
   if (visible) {
-    for (let i = 0; i < segments.length; i++) {
-      segmentColors[i] = Array(segments[i].points.length).fill([1, 1, 1]);
+    if (!showViewRangeOnly) {
+      for (let i = 0; i < segments.length; i++) {
+        segmentColors[i] = Array(segments[i].points.length).fill(color2);
+      }
     }
 
     for (const binRange of binRanges) {
@@ -38,7 +49,18 @@ const Backbone = (props) => {
 
       for (let i = startSegment + 1; i < endSegment; i++) {
         console.log("fill segment");
-        segmentColors[i].fill(color);
+        if (!showViewRangeOnly) {
+          segmentColors[i].fill(color);
+        } else {
+          lines.push(
+            <Line
+              key={i}
+              points={segments[i].points}
+              color={color}
+              lineWidth={4}
+            />
+          );
+        }
       }
       if (startSegment === endSegment) {
         // only one segment
@@ -51,33 +73,91 @@ const Backbone = (props) => {
             segment.points.length - segment.end + endBin
           );
           if (start < end) {
-            segmentColors[startSegment].fill(color, start, end);
+            if (!showViewRangeOnly) {
+              segmentColors[startSegment].fill(color, start, end);
+            } else {
+              lines.push(
+                <Line
+                  key={startSegment}
+                  points={segment.points.slice(start, end)}
+                  color={color}
+                  lineWidth={4}
+                />
+              );
+            }
           }
         }
       } else {
         if (startBin <= segments[startSegment].start) {
-          segmentColors[startSegment].fill(color);
+          if (!showViewRangeOnly) {
+            segmentColors[startSegment].fill(color);
+          } else {
+            lines.push(
+              <Line
+                key={startSegment}
+                points={segments[startSegment].points}
+                color={color}
+                lineWidth={4}
+              />
+            );
+          }
         } else {
           const segment = segments[startSegment];
-          segmentColors[startSegment].fill(color, startBin - segment.start);
+          if (!showViewRangeOnly) {
+            segmentColors[startSegment].fill(color, startBin - segment.start);
+          } else {
+            lines.push(
+              <Line
+                key={startSegment}
+                points={segment.points.slice(startBin - segment.start)}
+                color={color}
+                lineWidth={4}
+              />
+            );
+          }
         }
         if (
           endSegment < segments.length &&
           endBin >= segments[endSegment].start
         ) {
           if (endBin >= segments[endSegment].end) {
-            segmentColors[endSegment].fill(color);
+            if (!showViewRangeOnly) {
+              segmentColors[endSegment].fill(color);
+            } else {
+              lines.push(
+                <Line
+                  key={endSegment}
+                  points={segments[endSegment].points}
+                  color={color}
+                  lineWidth={4}
+                />
+              );
+            }
           } else {
             const segment = segments[endSegment];
             console.log(
               "fill endSegment",
               segment.points.length - segment.end + endBin
             );
-            segmentColors[endSegment].fill(
-              color,
-              0,
-              segment.points.length - segment.end + endBin
-            );
+            if (!showViewRangeOnly) {
+              segmentColors[endSegment].fill(
+                color,
+                0,
+                segment.points.length - segment.end + endBin
+              );
+            } else {
+              lines.push(
+                <Line
+                  key={endSegment}
+                  points={segment.points.slice(
+                    0,
+                    segment.points.length - segment.end + endBin
+                  )}
+                  color={color}
+                  lineWidth={4}
+                />
+              );
+            }
           }
         }
       }
@@ -86,6 +166,10 @@ const Backbone = (props) => {
     for (let i = 0; i < segments.length; i++) {
       segmentColors[i] = Array(segments[i].points.length).fill(color);
     }
+  }
+
+  if (showViewRangeOnly) {
+    return <group>{lines}</group>;
   }
 
   return (

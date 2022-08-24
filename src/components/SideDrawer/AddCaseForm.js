@@ -132,6 +132,7 @@ const AddCaseForm = (props) => {
             initialYDomain: positionTextToScale(
               initialYDomain.trim() || initialXDomain
             ),
+            chroms: chromInfo.current.cumPositions.map((cumPos) => cumPos.chr),
           });
           setSubmitting(false);
           props.onClose();
