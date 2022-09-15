@@ -1,0 +1,24 @@
+.position {
+  display: flex;
+  align-items: center;
+}
+
+.position label {
+  font-size: 14px;
+  margin-right: 5px;
+}
+
+.position input {
+  margin-left: auto;
+  width: 180px;
+  text-align: left;
+  font-size: 13px;
+  border-radius: 3px;
+  line-height: 1.5;
+  padding: 5px 10px;
+  border: 1px solid gray;
+  color: rgb(14, 14, 16);
+  background-color:whitesmoke;
+  height: 12px;
+  margin-bottom: 5px;
+}
