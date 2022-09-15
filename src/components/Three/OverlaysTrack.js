@@ -59,10 +59,11 @@ const OverlaysTrack = (props) => {
     // get the point to the bin
     const start = Math.max(0, anchor1.bin - segment1.start);
     // FIXME: if bin < segment2.start, end could be negative
-    const end = Math.min(
-      segment2.points.length,
-      segment2.points.length - segment2.end + anchor2.bin
-    );
+    // const end = Math.min(
+    //   segment2.points.length,
+    //   segment2.points.length - segment2.end + anchor2.bin
+    // );
+    const end = anchor2.bin - segment2.start + 1;
     let points = [];
     if (s1 === s2) {
       // two anchors on the same segment

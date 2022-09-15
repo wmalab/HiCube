@@ -27,6 +27,7 @@ import { Line, OrbitControls } from "@react-three/drei";
 import { ChromosomeInfo } from "higlass";
 import Backbone from "./Backbone";
 import OverlaysTrack from "./OverlaysTrack";
+import classes from "./ThreeTrack.module.css";
 
 const getBounds = (chroms, data, category) => {
   const maxBound = {};
@@ -48,6 +49,56 @@ const getBounds = (chroms, data, category) => {
     }
   }
   return { max: maxBound, min: minBound };
+};
+
+const lastElem = (arr) => {
+  return arr[arr.length - 1];
+};
+
+const getZoomBounds = (binRanges, data) => {
+  if (!binRanges || !data) {
+    return undefined;
+  }
+  const xyzCenters = [];
+  for (const chr in binRanges) {
+    for (const binRange of binRanges[chr]) {
+      const { binToSegment, segments, max } = data[chr];
+      const startBin = binRange[0];
+      const startSegment = binToSegment[startBin];
+      const endBin = binRange[1] - 1;
+      const endSegment = binToSegment[endBin];
+      const startPoint =
+        segments[startSegment].points[
+          Math.max(0, startBin - segments[startSegment].start)
+        ];
+      let endPoint = lastElem(lastElem(segments).points);
+      if (endSegment < segments.length) {
+        if (endBin >= segments[endSegment].start) {
+          endPoint =
+            segments[endSegment].points[endBin - segments[endSegment].start];
+        } else {
+          endPoint = lastElem(segments[endSegment - 1].points);
+        }
+      }
+      xyzCenters.push([
+        (startPoint[0] + endPoint[0]) / 2,
+        (startPoint[1] + endPoint[1]) / 2,
+        (startPoint[2] + endPoint[2]) / 2,
+      ]);
+    }
+  }
+  let xCenter = 0;
+  let yCenter = 0;
+  let zCenter = 0;
+  for (let i = 0; i < xyzCenters.length; i++) {
+    xCenter += xyzCenters[i][0];
+    yCenter += xyzCenters[i][1];
+    zCenter += xyzCenters[i][2];
+  }
+  xCenter /= xyzCenters.length;
+  yCenter /= xyzCenters.length;
+  zCenter /= xyzCenters.length;
+  return [-xCenter, -yCenter, -zCenter];
 };
 
 // DONE: use chromInfoPath from genomeAssemply props
@@ -396,29 +447,36 @@ const ThreeTrack = (props) => {
   }, [g3dChroms, segmentData, category]);
 
   // find carmera positon for zoom-in chromosomes
-  const zoomCarmeraPosition = useMemo(() => {
-    if (zoomChroms && zoomSegmentData) {
-      const bounds = getBounds(zoomChroms, zoomSegmentData, category);
-      const xLen = bounds.max.x - bounds.min.x;
-      const yLen = bounds.max.y - bounds.min.y;
-      const zLen = bounds.max.z - bounds.min.z;
-      return [xLen / 2, yLen / 2, bounds.max.z];
-    } else {
-      return undefined;
-    }
-  }, [zoomSegmentData, category]);
+  // const zoomCarmeraPosition = useMemo(() => {
+  //   if (zoomChroms && zoomSegmentData) {
+  //     const bounds = getBounds(zoomChroms, zoomSegmentData, category);
+  //     const xLen = bounds.max.x - bounds.min.x;
+  //     const yLen = bounds.max.y - bounds.min.y;
+  //     const zLen = bounds.max.z - bounds.min.z;
+  //     return [xLen / 2, yLen / 2, bounds.max.z];
+  //   } else {
+  //     return undefined;
+  //   }
+  // }, [zoomSegmentData, category]);
+  const zoomCameraPosition = getZoomBounds(zoomBinRanges, zoomSegmentData[category]);
+
+  // TODO: find zoom camera position using start, end and middle points
+  console.log("cameraPosition", cameraPosition);
+  // console.log("zoomCameraPosition", zoomCameraPosition);
 
   return (
     <>
       {props.zoomLocation.xDomain &&
         props.zoomLocation.yDomain &&
         isZoomSegmentDataLoaded(zoomChroms) && (
-          <div style={{ height: 350, width: 350 }}>
-            {zoomCarmeraPosition && (
+          <div className={classes.threeview}>
+            {zoomCameraPosition && (
               <Canvas
                 pixelRatio={[1, 2]}
-                camera={{ position: zoomCarmeraPosition }}
+                // camera={{ position: zoomCameraPosition }}
+                // camera={{position: [0, 0, 0]}}
               >
+                <group position={zoomCameraPosition}>
                 <group>
                   {zoomChroms &&
                     zoomChroms.map((chrom) => {
@@ -444,14 +502,18 @@ const ThreeTrack = (props) => {
                     />
                   )}
                 </group>
+                </group>
                 <OrbitControls zoomSpeed={0.5} />
               </Canvas>
             )}
           </div>
         )}
-      <div style={{ height: 350, width: 350 }}>
+      <div className={classes.threeview}>
         {cameraPosition && (
-          <Canvas pixelRatio={[1, 2]} camera={{ position: cameraPosition }}>
+          <Canvas 
+            pixelRatio={[1, 2]} 
+            camera={{ position: cameraPosition }}
+          >
             <group>
               {g3dChroms &&
                 segmentData &&

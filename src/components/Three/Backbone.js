@@ -22,7 +22,7 @@ const Backbone = (props) => {
   const color = color2rgb(props.color);
   const color2 = color2rgb("white"); // for regions that is not visible
   const transparent = !visible;
-  const opacity = transparent ? 0.03 : 1;
+  const opacity = transparent ? 0.1 : 1; // TODO make it changeable
   // TODO: fill invisible chromsome with its chosen color instead of gray
   const segmentColors = {};
 
@@ -68,10 +68,11 @@ const Backbone = (props) => {
           // not on the last missing piece
           const segment = segments[startSegment];
           const start = Math.max(0, startBin - segment.start);
-          const end = Math.min(
-            segment.points.length,
-            segment.points.length - segment.end + endBin
-          );
+          // const end = Math.min(
+          //   segment.points.length,
+          //   segment.points.length - segment.end + endBin
+          // );
+          const end = endBin - segment.start + 1;
           if (start < end) {
             if (!showViewRangeOnly) {
               segmentColors[startSegment].fill(color, start, end);
@@ -143,7 +144,8 @@ const Backbone = (props) => {
               segmentColors[endSegment].fill(
                 color,
                 0,
-                segment.points.length - segment.end + endBin
+                endBin - segment.start + 1
+                // segment.points.length - segment.end + endBin
               );
             } else {
               lines.push(
@@ -151,7 +153,8 @@ const Backbone = (props) => {
                   key={endSegment}
                   points={segment.points.slice(
                     0,
-                    segment.points.length - segment.end + endBin
+                    endBin - segment.start + 1
+                    // segment.points.length - segment.end + endBin
                   )}
                   color={color}
                   lineWidth={4}
