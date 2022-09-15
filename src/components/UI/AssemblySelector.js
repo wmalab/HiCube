@@ -1,5 +1,7 @@
 import React, { useState, useEffect, useCallback, useMemo } from "react";
+import Collapsible from "./Collapsible";
 import useHttp from "../../hooks/use-http";
+import classes from "./AssemblySelector.module.css";
 
 const AssemblySelector = (props) => {
   const { trackSourceServers } = props;
@@ -72,22 +74,25 @@ const AssemblySelector = (props) => {
   }, [selectedAssembly]);
 
   return (
-    <div className="control-section">
-      <label>
-        <strong>Genome assembly:</strong>
-      </label>
-      {isLoading && <p>Loading assembly...</p>}
-      {error && <p>Error: {error}</p>}
-      {!isLoading && !error && availAssembly.length > 0 && (
-        <select value={selectedAssembly} onChange={selectAssemblyHandler}>
-          {availAssembly.map((assembly) => (
-            <option key={assembly} value={assembly}>
-              {assembly}
-            </option>
-          ))}
-        </select>
+    <Collapsible title="Genome Assembly">
+      {isLoading && <p className={classes.message}>Loading assembly...</p>}
+      {error && <p className={classes.message}>Error: {error}</p>}
+      {!isLoading && !error && availAssembly.length === 0 && (
+        <p className={classes.message}>No available assembly.</p>
       )}
-    </div>
+      {!isLoading && !error && availAssembly.length > 0 && (
+        <div className={classes.selector}>
+          <label>Assembly:</label>
+          <select value={selectedAssembly} onChange={selectAssemblyHandler}>
+            {availAssembly.map((assembly) => (
+              <option key={assembly} value={assembly}>
+                {assembly}
+              </option>
+            ))}
+          </select>
+        </div>
+      )}
+    </Collapsible>
   );
 };
 

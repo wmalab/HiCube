@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useFormikContext, Field } from "formik";
 import G3dFile from "../Three/g3djs/g3dFile";
+import Collapsible from "./Collapsible";
 
 // Upload g3d file and
 // TODO: display meta information of resolutions and categories for selection
@@ -24,15 +25,11 @@ const FileUploader = (props) => {
   };
 
   return (
-    <div className="control-section">
-      <p>
-        <strong>3D genome structure model:</strong>
-      </p>
-      <label>Select g3d file:</label>
+    <Collapsible title="3D Genome Structure Model" className={props.className}>
       <input name={name} type="file" onChange={fileUploadHandler} />
       {resolutions.length > 0 && (
         <div>
-          <label>Select resolution:</label>
+          <label>Resolution:</label>
           <Field name={`${name}.resolution`} as="select">
             {resolutions.map((resolution) => (
               <option key={resolution} value={resolution}>
@@ -44,7 +41,7 @@ const FileUploader = (props) => {
       )}
       {categories.length > 0 && (
         <div>
-          <label>Select category:</label>
+          <label>Category:</label>
           <Field name={`${name}.category`} as="select">
             {categories.map((category) => (
               <option key={category} value={category}>
@@ -54,7 +51,7 @@ const FileUploader = (props) => {
           </Field>
         </div>
       )}
-    </div>
+    </Collapsible>
   );
 };
 

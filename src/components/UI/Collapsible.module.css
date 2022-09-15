@@ -1,0 +1,25 @@
+.collapsible .content {
+  padding: 6px;
+  background-color: #eeeeee;
+}
+.collapsible .header {
+  background-color: #dddddd;
+  padding: 6px;
+  font-weight: bold;
+  font-size: 14px;
+}
+
+.collapsible .header button {
+  font: inherit;
+  border: none;
+  cursor: pointer;
+  background-color: transparent;
+}
+
+.collapsible .icon {
+  font-size: 11px;
+}
+
+.collapsible .header .delete {
+  float: right;
+}

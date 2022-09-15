@@ -5,13 +5,12 @@ import TrackSelector from "../UI/TrackSelector";
 import FileUploader from "../UI/FileUploader";
 import { strToInt } from "../../utils";
 import { ChromosomeInfo } from "higlass";
+import Collapsible from "../UI/Collapsible";
+import classes from "./AddCaseForm.module.css";
 
 const GenomePositionInput = () => {
   return (
-    <div className="control-section">
-      <div>
-        <strong>Genome positions:</strong>
-      </div>
+    <Collapsible title="Genome Positions" className={classes.enterfield}>
       <div>
         <label>X axis:</label>
         <Field name="initialXDomain" placeholder="chr1:start-chr2:end" />
@@ -20,7 +19,7 @@ const GenomePositionInput = () => {
         <label>Y axis:</label>
         <Field name="initialYDomain" placeholder="chr1:start-chr2:end" />
       </div>
-    </div>
+    </Collapsible>
   );
 };
 
@@ -42,17 +41,15 @@ const MatrixSelectComponent = ({ field, form, ...props }) => {
   };
 
   return (
-    <div className="control-section">
-      <label>
-        <strong>Hi-C dataset:</strong>
-      </label>
+    <Collapsible title="Hi-C Dataset" className={classes.enterfield}>
+      <label>Dataset:</label>
       <TrackSelector
         datatype="matrix"
         assembly={props.assemblyName}
         trackSourceServers={props.trackSourceServers}
         onDatasetChange={datasetChangeHandler}
       />
-    </div>
+    </Collapsible>
   );
 };
 
@@ -148,67 +145,58 @@ const AddCaseForm = (props) => {
             assemblyName={assemblyName}
             trackSourceServers={props.trackSourceServers}
           />
-          <FileUploader name="threed" />
-          <p>
-            <strong>Additional datasets:</strong>
-          </p>
-          <FieldArray name="tracks">
-            {(arrayHelpers) => (
-              <div>
-                {values.tracks &&
-                  values.tracks.length > 0 &&
-                  values.tracks.map((track, index) => (
-                    <div key={index} className="control-section">
-                      <AddTrack
-                        name={`tracks[${index}]`}
-                        track={track}
-                        assembly={genomeAssembly}
-                        trackSourceServers={props.trackSourceServers}
-                      />
-                      <button
-                        type="button"
-                        onClick={() => arrayHelpers.remove(index)}
+          <FileUploader name="threed" className={classes.enterfield} />
+          <Collapsible title="Additional Datasets">
+            <FieldArray name="tracks">
+              {(arrayHelpers) => (
+                <div>
+                  {values.tracks &&
+                    values.tracks.length > 0 &&
+                    values.tracks.map((track, index) => (
+                      <Collapsible
+                        key={index}
+                        title={`Track #${index + 1}`}
+                        onDelete={() => arrayHelpers.remove(index)}
                       >
-                        <ion-icon name="trash-outline"></ion-icon>
-                      </button>
-                    </div>
-                  ))}
-                <button
-                  type="button"
-                  onClick={() =>
-                    arrayHelpers.push({
-                      datatype: "",
-                      tracktype: "",
-                      server: "",
-                      tilesetUid: "",
-                      name: "",
-                      positions: {
-                        left: false,
-                        right: false,
-                        bottom: false,
-                        top: false,
-                        center: false,
-                      },
-                    })
-                  }
-                >
-                  <span>
-                    <ion-icon name="add-outline"></ion-icon>
-                  </span>
-                  <span>New dataset</span>
-                </button>
-              </div>
-            )}
-          </FieldArray>
-          <div>
+                        <AddTrack
+                          name={`tracks[${index}]`}
+                          track={track}
+                          assembly={genomeAssembly}
+                          trackSourceServers={props.trackSourceServers}
+                        />
+                      </Collapsible>
+                    ))}
+                  <div className={classes.action}>
+                    <button
+                      type="button"
+                      onClick={() =>
+                        arrayHelpers.push({
+                          datatype: "",
+                          tracktype: "",
+                          server: "",
+                          tilesetUid: "",
+                          name: "",
+                          positions: {
+                            left: false,
+                            right: false,
+                            bottom: false,
+                            top: false,
+                            center: false,
+                          },
+                        })
+                      }
+                    >
+                      Add A New Dataset
+                    </button>
+                  </div>
+                </div>
+              )}
+            </FieldArray>
+          </Collapsible>
+          <div className={classes.footer}>
+            <button type="submit">Add A New Case</button>
             <button type="button" onClick={props.onClose}>
               Cancel
-            </button>
-            <button type="submit">
-              <span>
-                <ion-icon name="add-outline"></ion-icon>
-              </span>
-              <span>Case</span>
             </button>
           </div>
         </Form>

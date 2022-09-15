@@ -5,6 +5,7 @@ import AssemblySelector from "../UI/AssemblySelector";
 import AddCaseForm from "./AddCaseForm";
 import PairedCaseForm from "./PairedCaseForm";
 import { uid } from "../../utils";
+import classes from "./AddCase.module.css";
 
 // const getHgcViewConfig = (formVals) => {
 //   const view = {
@@ -116,16 +117,18 @@ const AddCase = (props) => {
           <span>{props.genomeAssembly.assemblyName}</span>
         </div>
       )}
-      {!show && hasZeroCase && (
-        <button onClick={handleShow} disabled={!hasTrackSource}>
-          Add A New Case
-        </button>
-      )}
-      {!show && hasOneCase && (
-        <button onClick={handleShow} disabled={!hasTrackSource}>
-          Add A Paired Case
-        </button>
-      )}
+      <div className={classes.action}>
+        {!show && hasZeroCase && (
+          <button onClick={handleShow} disabled={!hasTrackSource}>
+            Add A New Case
+          </button>
+        )}
+        {!show && hasOneCase && (
+          <button onClick={handleShow} disabled={!hasTrackSource}>
+            Add A Paired Case
+          </button>
+        )}
+      </div>
       {show && hasZeroCase && (
         <AddCaseForm
           trackSourceServers={props.trackSourceServers}

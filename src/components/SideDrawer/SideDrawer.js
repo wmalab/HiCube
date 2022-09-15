@@ -32,11 +32,11 @@ const SideDrawer = (props) => {
         </button>
       </div>
       <div className={classes["sidedrawer-config-panel"]}>
-        <button className={classes["back"]}>
+        {/* <button className={classes["back"]}>
           <span>
             <ion-icon name="chevron-back-outline"></ion-icon>
           </span>
-        </button>
+        </button> */}
         {props.children}
       </div>
     </div>

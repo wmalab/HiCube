@@ -38,6 +38,7 @@ const ControlPanel = (props) => {
           onUpdateOverlay={props.onUpdateOverlay}
           onRemoveOverlays={props.onRemoveOverlays}
           onRemoveOverlay={props.onRemoveOverlay}
+          genomeAssembly={props.genomeAssembly}
         />
       )}
     </SideDrawer>

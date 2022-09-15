@@ -1,0 +1,38 @@
+ul.serverlist {
+  list-style-type: none;
+  margin-left: 0;
+  padding: 0;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.serverlist li {
+  margin-top: 5px;
+  color: darkgreen;
+}
+
+.serverlist input {
+  text-align: left;
+  background-color: whitesmoke;
+  border: 1px solid gray;
+  border-radius: 3px;
+  padding: 3px;
+}
+
+p.message {
+  font-size: 14px;
+  color: dimgray;
+  font-weight: 500;
+}
+
+.serverlist button {
+  padding: 5px;
+  border: none;
+  border-radius: 5px;
+  font-size: 12px;
+  margin-right: 3px;
+}
+
+.serverlist button:hover {
+  background-color: #ebe4e4;
+}

@@ -1,4 +1,6 @@
 import React, { useState } from "react";
+import Collapsible from "../UI/Collapsible";
+import classes from "./TrackSourceManager.module.css";
 
 const TrackSourceManager = (props) => {
   const [enteredServer, setEnteredServer] = useState(
@@ -10,24 +12,21 @@ const TrackSourceManager = (props) => {
   };
 
   const addServerHandler = () => {
+    // TODO: verify server URL
     props.onAddServer(enteredServer);
     setEnteredServer("");
   };
 
   return (
-    <div className="control-section">
-      <p>
-        <strong>Track source servers:</strong>
-      </p>
+    <Collapsible title="Track Source Servers">
       {props.trackSourceServers.length === 0 && (
-        <p>Please add HiGlass server.</p>
+        <p className={classes.message}>No server, add one to continue.</p>
       )}
-      <ul>
+      <ul className={classes.serverlist}>
         {props.trackSourceServers.length > 0 &&
           props.trackSourceServers.map((trackSourceServer) => {
             return (
               <li key={trackSourceServer.uuid}>
-                {trackSourceServer.url}
                 <button
                   onClick={props.onRemoveServer.bind(
                     null,
@@ -36,24 +35,25 @@ const TrackSourceManager = (props) => {
                 >
                   <ion-icon name="trash-outline"></ion-icon>
                 </button>
+                {trackSourceServer.url}
               </li>
             );
           })}
+        <li>
+          <button onClick={addServerHandler}>
+            <span>
+              <ion-icon name="add-outline"></ion-icon>
+            </span>
+          </button>
+          <input
+            type="text"
+            value={enteredServer}
+            onChange={serverInputChangeHandler}
+            placeholder="Add HiGlass server URL"
+          ></input>
+        </li>
       </ul>
-      <div>
-        <input
-          type="text"
-          value={enteredServer}
-          onChange={serverInputChangeHandler}
-          placeholder="Enter HiGlass server url"
-        ></input>
-        <button onClick={addServerHandler}>
-          <span>
-            <ion-icon name="add-outline"></ion-icon>
-          </span>
-        </button>
-      </div>
-    </div>
+    </Collapsible>
   );
 };
 

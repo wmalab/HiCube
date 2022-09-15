@@ -1,0 +1,17 @@
+.option label {
+  font-size: 14px;
+}
+
+.option input {
+  text-align: left;
+  background-color: whitesmoke;
+  border: 1px solid gray;
+  border-radius: 3px;
+  margin-left: auto;
+}
+
+div.option {
+  display: flex;
+  margin-bottom: 5px;
+  align-items: center;
+}

@@ -3,12 +3,18 @@ import { Formik, Field, FieldArray, Form, useField } from "formik";
 import ConfigContext from "../../store/config-context";
 import TRACKS_INFO_BY_TYPE from "../../configs/tracks-info-by-type";
 import FormItem from "../UI/FormItem";
+import Collapsible from "../UI/Collapsible";
+import Option from "../UI/Option";
 
 // TODO: group by cases, then the main heatmap options
 // then list of other tracks
 // TODO: manager configs in context
 // TODO: use index to manager configs and re-generate
 // viewconfig once index changed
+
+const camelcase2label = (str) => {
+  return str.replace(/([A-Z])/g, " $1").toLowerCase();
+};
 
 const getAvailableOptions = (trackType) =>
   TRACKS_INFO_BY_TYPE[trackType].availableOptions;
@@ -31,15 +37,29 @@ const OptionsForm = (props) => {
           <div>
             {values.options &&
               values.options.length > 0 &&
-              values.options.map((option, index) => (
-                <div key={index}>
-                  <FormItem
-                    type={typeof option.value}
-                    label={option.name}
+              values.options.map((option, index) => {
+                let type = "text";
+                if (typeof option.value === "number") {
+                  type = "number";
+                } else if (typeof option.value === "boolean") {
+                  type = "checkbox";
+                }
+                return (
+                  <Option
+                    key={index}
+                    label={camelcase2label(option.name)}
                     name={`options.${index}.value`}
+                    type={type}
                   />
-                </div>
-              ))}
+                  // <div key={index}>
+                  //   <FormItem
+                  //     type={typeof option.value}
+                  //     label={option.name}
+                  //     name={`options.${index}.value`}
+                  //   />
+                  // </div>
+                );
+              })}
           </div>
           <div>
             <button type="submit">Apply</button>
@@ -53,25 +73,38 @@ const OptionsForm = (props) => {
 const TrackOptions = (props) => {
   return (
     <>
-      <h4>{props.uid}</h4>
       {props.options &&
         props.options.length > 0 &&
-        props.options.map((option, index) => (
-          <div key={index}>
-            <FormItem
-              type={typeof option.value}
-              label={option.name}
+        props.options.map((option, index) => {
+          let type = "text";
+          if (typeof option.value === "number") {
+            type = "number";
+          } else if (typeof option.value === "boolean") {
+            type = "checkbox";
+          }
+          return (
+            <Option
+              key={index}
+              label={camelcase2label(option.name)}
               name={`tracks.${props.index}.options.${index}.value`}
+              type={type}
             />
-            {/* <label>{option.name}</label>
-            <Field name={`tracks.${props.index}.options.${index}.value`} /> */}
-          </div>
-        ))}
+          );
+          // <div key={index}>
+          //   <FormItem
+          //     type={typeof option.value}
+          //     label={option.name}
+          //     name={`tracks.${props.index}.options.${index}.value`}
+          //   />
+          // </div>
+        })}
     </>
   );
 };
 
 const TrackForm = (props) => {
+  console.log(props.tracks);
+
   return (
     <Formik
       initialValues={{
@@ -92,13 +125,17 @@ const TrackForm = (props) => {
                 {values.tracks &&
                   values.tracks.length > 0 &&
                   values.tracks.map((track, index) => (
-                    <div key={index}>
+                    <Collapsible
+                      key={index}
+                      title={track.name}
+                      defaultCollapsed={true}
+                    >
                       <TrackOptions
                         uid={track.uid}
                         options={track.options}
                         index={index}
                       />
-                    </div>
+                    </Collapsible>
                   ))}
               </div>
             )}
@@ -118,6 +155,8 @@ const TrackList = (props) => {
   // TODO: convert 1d tracks to form options
   // how to deal with positions show/hide
 
+  console.log(props.config);
+
   const allOptions = props.config.map((track) => {
     const { dataUid, type, positions } = track;
     const pos = Object.keys(positions);
@@ -125,6 +164,7 @@ const TrackList = (props) => {
     const { options } = configCtx.positionedTracks[trackUid];
     return {
       uid: dataUid,
+      name: track.name,
       options: getAvailableOptions(type).map((optionName) => ({
         name: optionName,
         value: options[optionName],
@@ -148,10 +188,9 @@ const TrackList = (props) => {
   };
 
   return (
-    <div>
-      <h3>1D Tracks</h3>
+    <Collapsible title="Additional Tracks" defaultCollapsed={true}>
       <TrackForm tracks={allOptions} onSubmit={submitHandler} />
-    </div>
+    </Collapsible>
   );
 };
 
@@ -174,10 +213,9 @@ const HicOptions = (props) => {
   };
 
   return (
-    <div>
-      <h3>Hi-C Track</h3>
+    <Collapsible title="Hi-C Track" defaultCollapsed={true}>
       <OptionsForm options={allOptions} onSubmit={submitHandler} />
-    </div>
+    </Collapsible>
   );
 };
 
@@ -201,16 +239,14 @@ const EditOptions = (props) => {
 
   return (
     <div>
-      <div>Edit Options</div>
       {configCtx.cases.map((caseConfig, index) => (
-        <>
-          <h2>{`Case ${index + 1}`}</h2>
+        <Collapsible key={`Case #${index + 1}`} title={`Case #${index + 1}`}>
           <CaseOptions
             key={caseConfig.uid}
             views={caseConfig.views}
             mainLocation={props.mainLocation}
           />
-        </>
+        </Collapsible>
       ))}
     </div>
   );

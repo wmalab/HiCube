@@ -29,9 +29,17 @@ const overlaysReducer = (state, action) => {
           drawLine: true,
           drawAnchor1: false,
           anchor1Color: "",
+          anchor1Label: "",
+          anchor1LabelSize: "12px",
+          anchor1LabelColor: "black",
+          anchor1LabelWeight: "600",
           anchor1Radius: 1,
           drawAnchor2: false,
           anchor2Color: "",
+          anchor2Label: "",
+          anchor2LabelSize: "12px",
+          anchor2LabelColor: "black",
+          anchor2LabelWeight: "600",
           anchor2Radius: 1,
         },
       },
@@ -54,9 +62,17 @@ const overlaysReducer = (state, action) => {
           drawLine: true,
           drawAnchor1: true,
           anchor1Color: "blue",
+          anchor1Label: "",
+          anchor1LabelSize: "12px",
+          anchor1LabelColor: "black",
+          anchor1LabelWeight: "600",
           anchor1Radius: 1,
           drawAnchor2: true,
           anchor2Color: "blue",
+          anchor2Label: "",
+          anchor2LabelSize: "12px",
+          anchor2LabelColor: "black",
+          anchor2LabelWeight: "600",
           anchor2Radius: 1,
         },
       },
@@ -66,10 +82,10 @@ const overlaysReducer = (state, action) => {
   } else if (action.type === "REMOVE") {
     return state.filter((overlay) => overlay.uid !== action.uuid);
   } else if (action.type === "UPDATE") {
-    const { uuid, options } = action;
+    const { uuid, extent, options } = action;
     const overlayIndex = state.findIndex((overlay) => overlay.uid === uuid);
     const overlay = state[overlayIndex];
-    const updatedOverlay = { ...overlay, options: options };
+    const updatedOverlay = { ...overlay, extent: extent, options: options };
     const updatedOverlays = [...state];
     updatedOverlays[overlayIndex] = updatedOverlay;
     return updatedOverlays;
@@ -158,10 +174,11 @@ export default function App() {
     }
   };
 
-  const updateOverlayHandler = (overlayUid, overlayOptions) => {
+  const updateOverlayHandler = (overlayUid, overlayExtent, overlayOptions) => {
     dispatchOverlaysAction({
       type: "UPDATE",
       uuid: overlayUid,
+      extent: overlayExtent,
       options: overlayOptions,
     });
   };
@@ -226,7 +243,7 @@ export default function App() {
         onRemoveOverlays={clearOverlaysHandler}
         onRemoveOverlay={removeOverlayHandler}
       />
-      <div style={{ position: "absolute", left: "330px", paddingLeft: "10px" }}>
+      <div className="main">
         {rangeSelection && rangeSelection.xDomain && (
           <GenomePositionBar
             positions={rangeSelection}
@@ -234,12 +251,14 @@ export default function App() {
             genomeAssembly={genomeAssembly}
           />
         )}
-        <GenomePositionBar
-          onPositionChange={locationChangeHandler}
-          positions={mainLocation}
-          name="Base view"
-          genomeAssembly={genomeAssembly}
-        />
+        {mainLocation && mainLocation.xDomain && (
+          <GenomePositionBar
+            onPositionChange={locationChangeHandler}
+            positions={mainLocation}
+            name="Base view"
+            genomeAssembly={genomeAssembly}
+          />
+        )}
         <div
         // className="content"
         // className="layout"
