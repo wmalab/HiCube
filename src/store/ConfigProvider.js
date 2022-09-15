@@ -144,8 +144,8 @@ const configsReducer = (state, action) => {
       server: view["2d"].contents[0].server,
       tilesetUid: view["2d"].contents[0].tilesetUid,
       // TODO: dynamically calculate the height so the heatmap is square
-      height: 150,
-      width: 150,
+      height: 140,
+      // width: 260,
       options: {
         ...addDefaultOptions(view["2d"].contents[0].type),
         name: view["2d"].contents[0].name,
@@ -168,13 +168,18 @@ const configsReducer = (state, action) => {
           positionedTracks[trackUid].tilesetUid = track.tilesetUid;
           if (positionToOrientation(position) === "horizontal") {
             positionedTracks[trackUid].height = 60;
-            positionedTracks[trackUid].width = 150;
+            // positionedTracks[trackUid].width = 150;
           } else {
             positionedTracks[trackUid].width = 60;
-            positionedTracks[trackUid].height = 150;
+            // positionedTracks[trackUid].height = 150;
           }
         } else {
           positionedTracks[trackUid].chromInfoPath = chromInfoPath;
+          if (positionToOrientation(position) === "horizontal") {
+            positionedTracks[trackUid].height = 30;
+          } else {
+            positionedTracks[trackUid].width = 30;
+          }
         }
       }
     }
@@ -420,6 +425,7 @@ const configsReducer = (state, action) => {
 
     const updatedConfigs = {
       cases: updatedCases,
+      threeCases: state.threeCases,
       positionedTracks: updatedPositionedTracks,
       chromInfoPath: chromInfoPath,
       viewConfigs: updatedViewConfigs,
