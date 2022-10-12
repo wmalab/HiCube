@@ -92,6 +92,10 @@ const AddCase = (props) => {
     // props.onAddCase(hgcViewConfig);
   };
 
+  const pairedSubmitHandler = (formVals) => {
+    configCtx.addPairedCase(formVals);
+  };
+
   const hasTrackSource = props.trackSourceServers.length > 0;
   const hasZeroCase = configCtx.cases.length === 0;
   const hasOneCase = configCtx.cases.length === 1;
@@ -144,7 +148,7 @@ const AddCase = (props) => {
           trackSourceServers={props.trackSourceServers}
           centerHiC={configCtx.cases[0].views[0]["2d"].contents[0]}
           tracks={configCtx.cases[0].views[0]["1d"]}
-          onSubmit={submitHandler}
+          onSubmit={pairedSubmitHandler}
           onClose={handleClose}
         />
       )}

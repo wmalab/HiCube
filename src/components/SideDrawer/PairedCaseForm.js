@@ -15,14 +15,14 @@ const PairedCaseForm = (props) => {
   return (
     <Formik
       initialValues={{
-        centerHiC: {
+        centerHiC: { // only one center hic dataset
           datatype: centerHiC.datatype,
           tracktype: centerHiC.type,
           server: "",
           tilesetUid: "",
           name: "",
         },
-        threed: {
+        threed: { // only one threed dataset
           fileObj: "",
           resolution: "",
           category: "",
@@ -32,6 +32,7 @@ const PairedCaseForm = (props) => {
           tracktype: track.type,
           server: "",
           tilesetUid: "",
+          pairDataUid: track.dataUid, // dataUid for a dataset, trackUid for positioned track
           name: "",
           positions: {
             left: "left" in track.positions,

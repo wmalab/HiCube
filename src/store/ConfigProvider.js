@@ -15,7 +15,9 @@ import { uid, makeColorGradient } from "../utils";
 
 const defaultConfigs = {
   cases: [],
+  pairedLocks: {},
   positionedTracks: {}, // uid indexed track config
+  threeCases: {},
   chromInfoPath: "",
   viewConfigs: {},
   numViews: 0,
@@ -42,6 +44,7 @@ const addView = (hic, tracks) => {
     },
     "1d": tracks.map((track) => ({
       dataUid: uid(),
+      pairDataUid: track.pairDataUid,
       type: track.tracktype,
       tilesetUid: track.tilesetUid,
       server: track.server,
@@ -129,13 +132,41 @@ const viewsToViewConfig = (views, positionedTracks, chromInfoPath) => {
 
 const configsReducer = (state, action) => {
   console.log("config reduce");
-  if (action.type === "ADD_CASE") {
+  if (action.type === "ADD_CASE" || action.type === "ADD_CASE_PAIRED") {
     const { chromInfoPath, centerHiC, threed, tracks, chroms } = action.config;
     const initialXDomain = [...action.config.initialXDomain];
     const initialYDomain = [...action.config.initialYDomain];
 
     const caseUid = uid();
     const view = addView(centerHiC, tracks);
+
+    // generate pairedLocks --------------------
+    const pairedLocks = {};
+    if (action.type === "ADD_CASE_PAIRED" && state.cases.length > 0) {
+      // add center hic lock
+      // this should also be the positioned track uid for center hic
+      const pairedCenterHiC = state.cases[0].views[0]["2d"].contents[0].uid;
+      const currCenterHiC = view["2d"].contents[0].uid;
+      pairedLocks[pairedCenterHiC] = currCenterHiC;
+      pairedLocks[currCenterHiC] = pairedCenterHiC;
+      // add supp track locks
+      for (const track of view["1d"]) {
+        // find the paired dataset
+        const pairDataset = state.cases[0].views[0]["1d"].find(
+          (dataset) => dataset.dataUid === track.pairDataUid
+        );
+        // pair with positioned trackUid
+        for (const pos in track.positions) {
+          const posUid = track.positions[pos];
+          const pairedPosUid = pairDataset.positions[pos];
+          pairedLocks[posUid] = pairedPosUid;
+          pairedLocks[pairedPosUid] = posUid;
+        }
+      }
+      // threed track config will be stored separately
+    }
+    // -----------------------------------------------
+
     const positionedTracks = {};
     // create default track options for heatmap track
     positionedTracks[view["2d"].contents[0].uid] = {
@@ -209,6 +240,7 @@ const configsReducer = (state, action) => {
 
     const updatedConfigs = {
       cases: state.cases.concat({ uid: caseUid, views: views }),
+      pairedLocks: { ...state.pairedLocks, ...pairedLocks },
       positionedTracks: { ...state.positionedTracks, ...positionedTracks },
       threeCases: {
         ...state.threeCases,
@@ -268,6 +300,7 @@ const configsReducer = (state, action) => {
     }
     const updatedConfigs = {
       cases: updatedCases,
+      pairedLocks: state.pairedLocks,
       threeCases: state.threeCases,
       positionedTracks: updatedPositionedTracks,
       chromInfoPath: chromInfoPath,
@@ -305,6 +338,8 @@ const configsReducer = (state, action) => {
 
     const updatedConfigs = {
       cases: updatedCases,
+      pairedLocks: state.pairedLocks,
+      threeCases: state.threeCases,
       positionedTracks: updatedPositionedTracks,
       chromInfoPath: chromInfoPath,
       viewConfigs: updatedViewConfigs,
@@ -350,6 +385,7 @@ const configsReducer = (state, action) => {
     }
     const updatedConfigs = {
       cases: updatedCases,
+      pairedLocks: state.pairedLocks,
       threeCases: state.threeCases,
       positionedTracks: updatedPositionedTracks,
       chromInfoPath: chromInfoPath,
@@ -383,6 +419,7 @@ const configsReducer = (state, action) => {
     }
     const updatedConfigs = {
       cases: updatedCases,
+      pairedLocks: state.pairedLocks,
       positionedTracks: updatedPositionedTracks,
       chromInfoPath: chromInfoPath,
       viewConfigs: updatedViewConfigs,
@@ -391,7 +428,8 @@ const configsReducer = (state, action) => {
     return updatedConfigs;
   } else if (action.type === "UPDATE_TRACKS") {
     const { updatedTracks, xyDomains } = action;
-    const { cases, positionedTracks, chromInfoPath } = state;
+    const { cases, positionedTracks, chromInfoPath, pairedLocks } = state;
+    console.log(pairedLocks);
 
     const updatedCases = [];
     const updatedPositionedTracks = deepCopy(positionedTracks);
@@ -404,7 +442,21 @@ const configsReducer = (state, action) => {
             option.value;
         }
       }
+      // update pair locked tracks ---------------------------
+      const pairedTrackUid = pairedLocks[track.uid];
+      if (pairedTrackUid in updatedPositionedTracks) {
+        for (const option of track.options) {
+          if (
+            option.value !== undefined &&
+            option.name in updatedPositionedTracks[pairedTrackUid].options
+          ) {
+            updatedPositionedTracks[pairedTrackUid].options[option.name] =
+              option.value;
+          }
+        }
+      }
     }
+    // -----------------------------------------------------------
 
     for (const prevCase of cases) {
       const newCase = deepCopy(prevCase);
@@ -425,6 +477,7 @@ const configsReducer = (state, action) => {
 
     const updatedConfigs = {
       cases: updatedCases,
+      pairedLocks: pairedLocks,
       threeCases: state.threeCases,
       positionedTracks: updatedPositionedTracks,
       chromInfoPath: chromInfoPath,
@@ -444,6 +497,10 @@ const ConfigProvider = (props) => {
 
   const addCaseHandler = (caseConfig) => {
     dispatchConfigsAction({ type: "ADD_CASE", config: caseConfig });
+  };
+
+  const addPairedCaseHandler = (caseConfig) => {
+    dispatchConfigsAction({ type: "ADD_CASE_PAIRED", config: caseConfig });
   };
 
   const addZoomViewHandler = (xyDomains) => {
@@ -489,6 +546,7 @@ const ConfigProvider = (props) => {
     viewConfigs: configs.viewConfigs,
     numViews: configs.numViews,
     addCase: addCaseHandler,
+    addPairedCase: addPairedCaseHandler,
     addZoomView: addZoomViewHandler,
     removeZoomView: removeZoomViewHandler,
     updateOverlays: updateOverlaysHandler,
