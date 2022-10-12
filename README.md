@@ -1,70 +1,67 @@
-# Getting Started with Create React App
+# HiCube
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+HiCube is a web application provides interactive visualization of multiscale and multimodal Hi-C and 3D genome data. 
 
-## Available Scripts
+<!-- TODO add figure 1 here -->
 
-In the project directory, you can run:
+## Installation
 
-### `npm start`
+Clone the repository to local:
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+```
+git clone https://github.com/wmalab/HiCube.git
+```
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+In the project directory, first run `npm install` to install all the dependencies, then `npm start` to start the app.
 
-### `npm test`
+Open [http://localhost:3000](http://localhost:3000) to use HiCube in your browser.
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+## Usage
 
-### `npm run build`
+### Prepare datasets
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+#### Hi-C, 1D or 2D datasets
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+The 1D and 2D datasets need to be served with [HiGlass Server](https://github.com/higlass/higlass-server) for access. There are two public availalbe HiGlass API servers: http://higlass.io/api/v1 and https://higlass.4dnucleome.org/api/v1 that can be used to access vast amount of public datasets. 
+To serve local datasets, the easiest way is to setup a local HiGlass API server with [Docker](https://www.docker.com/) using the [higlass-docker](https://github.com/higlass/higlass-docker) image, and the local API server can be accessed at http://localhost:8888/api/v1 for HiCube.
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+<!-- TODO: add docker instructions -->
 
-### `npm run eject`
+#### 3D genome structure datasets
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+HiCube can directly read local 3D genome structure file in .g3d format. Other formats e.g. nucle3d, .3dg, PASTIS output, can be converted to .g3d format using [g3dtools](https://github.com/lidaof/g3d/tree/master/g3dtools). 
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+Download example from [GSM3271351](https://www.ncbi.nlm.nih.gov/geo/download/?acc=GSM3271351&format=file&file=GSM3271351%5Fgm12878%5F05%2Eimpute3%2Eround4%2Eclean%2E3dg%2Etxt%2Egz) and convert to .g3d format:
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+```
+g3dtools 3dg GSM3271351_gm12878_05.impute3.round4.clean.3dg.txt.gz \
+-o GSM3271351_gm12878_05.impute3.round4.clean \
+-n GM12878 \
+-g hg19 \
+-s 2,3,4,5,6,7,8,9,10,25,50
+```
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+### Visualize datasets in HiCube
 
-## Learn More
+Before adding datasets to HiCube, users will first need to add public or local API servers (created with Docker) URLs to the *track server manager*, and select a *genome assembly* e.g. hg19, mm10, for your datasets. Then users can start to search, filter and add public or private datasets by clicking the *Add a new case* button.
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+#### Add datasets to create a case
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+The Hi-C dataset (in cooler format) is required to select and will be shown in the center track.
+Additionally, a 3D genome structure file (in .g3d format) can be uploaded, and users can select which resolution, and which parental genome or cell (if such category exists) to show.
 
-### Code Splitting
+Other types of datasets, such as gene annotation, chromosome location, bigWig, etc. can also be added, users can select the track type and which track positions (left, right, top, bottom, center) to display the datasets.
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+Then click *Add a new case* to show it in the app.
 
-### Analyzing the Bundle Size
+#### Add paired datasets to create a paired case
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+A second case can be added by clicking the *Add a paired case* button, and for each dataset in the existing case, users need to select its paired dataset in the second case.
 
-### Making a Progressive Web App
+#### Add zoom view
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+Click the third button in the sidebar, users can choose *Select zoom region* and use mouse to select the region to zoom, then click *Create zoom view* to create a zoom view for that region.
 
-### Advanced Configuration
+#### Add annotations
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+Click the third button in the sidebar, users can choose *Select annotation region* and use mouse to select either 1D (from top, left, right, bottom tracks) or 2D (from center track) region, and click *Add annotation* to show it.
