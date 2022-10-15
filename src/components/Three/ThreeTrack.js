@@ -22,7 +22,7 @@ import React, {
 import G3dFile from "./g3djs/g3dFile";
 import ChromInfo from "./ChromInfo";
 import Segment from "./g3djs/segment";
-import { Canvas, useFrame } from "@react-three/fiber";
+import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { Line, OrbitControls } from "@react-three/drei";
 import { ChromosomeInfo } from "higlass";
 import Backbone from "./Backbone";
@@ -108,6 +108,137 @@ const getZoomBounds = (binRanges, data) => {
 // TODO: add zoom view
 // FIXME: when init with partial genome regions, chromosomes not visible will always be grey
 // TODO: different resolutions from base and zoom-in views
+
+const MainScene = (props) => {
+  const gl = useThree((state) => state.gl);
+
+  useEffect(() => {
+    if (props.exportSvg) {
+      const link = document.createElement("a");
+      link.setAttribute("download", "3d-base.png");
+      link.setAttribute(
+        "href",
+        gl.domElement
+          .toDataURL("image/png")
+          .replace("image/png", "image/octet-stream")
+      );
+      link.click();
+      props.onFinishExportSvg();
+    }
+  }, [props.exportSvg]);
+
+  const {
+    g3dChroms,
+    segmentData,
+    chromColors,
+    category,
+    viewingBinRanges,
+    viewingChroms,
+    overlays,
+    chromInfo,
+    resolution,
+  } = props;
+
+  return (
+    <>
+      <group>
+        {g3dChroms &&
+          segmentData &&
+          chromColors &&
+          g3dChroms.map((chrom) => {
+            console.log(
+              chrom,
+              segmentData[category][chrom],
+              viewingBinRanges[chrom]
+            );
+            return (
+              <Backbone
+                key={chrom}
+                segmentData={segmentData[category][chrom]}
+                color={chromColors[chrom]}
+                visible={viewingChroms.includes(chrom)}
+                showViewRangeOnly={false}
+                binRanges={viewingBinRanges[chrom]}
+              />
+            );
+          })}
+      </group>
+      <group>
+        {segmentData && (
+          <OverlaysTrack
+            overlays={overlays}
+            chromInfo={chromInfo}
+            resolution={resolution}
+            segmentData={segmentData[category]}
+          />
+        )}
+      </group>
+    </>
+  );
+};
+
+const ZoomScene = (props) => {
+  const gl = useThree((state) => state.gl);
+
+  useEffect(() => {
+    if (props.exportSvg) {
+      const link = document.createElement("a");
+      link.setAttribute("download", "3d-zoom.png");
+      link.setAttribute(
+        "href",
+        gl.domElement
+          .toDataURL("image/png")
+          .replace("image/png", "image/octet-stream")
+      );
+      link.click();
+      props.onFinishExportSvg();
+    }
+  }, [props.exportSvg]);
+
+  const {
+    zoomCameraPosition,
+    zoomChroms,
+    zoomSegmentData,
+    category,
+    chromColors,
+    zoomBinRanges,
+    overlays,
+    chromInfo,
+    zoomResolution,
+  } = props;
+
+  return (
+    <>
+      <group position={zoomCameraPosition}>
+        <group>
+          {zoomChroms &&
+            zoomChroms.map((chrom) => {
+              return (
+                <Backbone
+                  key={chrom}
+                  segmentData={zoomSegmentData[category][chrom]}
+                  color={chromColors[chrom]}
+                  visible={true}
+                  showViewRangeOnly={true}
+                  binRanges={zoomBinRanges[chrom]}
+                />
+              );
+            })}
+        </group>
+        <group>
+          {zoomSegmentData && (
+            <OverlaysTrack
+              overlays={overlays}
+              chromInfo={chromInfo}
+              resolution={zoomResolution}
+              segmentData={zoomSegmentData[category]}
+            />
+          )}
+        </group>
+      </group>
+    </>
+  );
+};
 
 const ThreeTrack = (props) => {
   const {
@@ -458,7 +589,10 @@ const ThreeTrack = (props) => {
   //     return undefined;
   //   }
   // }, [zoomSegmentData, category]);
-  const zoomCameraPosition = getZoomBounds(zoomBinRanges, zoomSegmentData[category]);
+  const zoomCameraPosition = getZoomBounds(
+    zoomBinRanges,
+    zoomSegmentData[category]
+  );
 
   // TODO: find zoom camera position using start, end and middle points
   console.log("cameraPosition", cameraPosition);
@@ -472,37 +606,24 @@ const ThreeTrack = (props) => {
           <div className={classes.threeview}>
             {zoomCameraPosition && (
               <Canvas
+                gl={{ preserveDrawingBuffer: true }}
                 pixelRatio={[1, 2]}
                 // camera={{ position: zoomCameraPosition }}
                 // camera={{position: [0, 0, 0]}}
               >
-                <group position={zoomCameraPosition}>
-                <group>
-                  {zoomChroms &&
-                    zoomChroms.map((chrom) => {
-                      return (
-                        <Backbone
-                          key={chrom}
-                          segmentData={zoomSegmentData[category][chrom]}
-                          color={chromColors[chrom]}
-                          visible={true}
-                          showViewRangeOnly={true}
-                          binRanges={zoomBinRanges[chrom]}
-                        />
-                      );
-                    })}
-                </group>
-                <group>
-                  {zoomSegmentData && (
-                    <OverlaysTrack
-                      overlays={props.overlays}
-                      chromInfo={chromInfo}
-                      resolution={zoomResolution}
-                      segmentData={zoomSegmentData[category]}
-                    />
-                  )}
-                </group>
-                </group>
+                <ZoomScene
+                  zoomCameraPosition={zoomCameraPosition}
+                  zoomChroms={zoomChroms}
+                  zoomSegmentData={zoomSegmentData}
+                  category={category}
+                  chromColors={chromColors}
+                  zoomBinRanges={zoomBinRanges}
+                  overlays={props.overlays}
+                  chromInfo={chromInfo}
+                  zoomResolution={zoomResolution}
+                  exportSvg={props.exportSvg && props.exportSvg[2]}
+                  onFinishExportSvg={props.onFinishExportSvg}
+                />
                 <OrbitControls zoomSpeed={0.5} />
               </Canvas>
             )}
@@ -510,42 +631,24 @@ const ThreeTrack = (props) => {
         )}
       <div className={classes.threeview}>
         {cameraPosition && (
-          <Canvas 
-            pixelRatio={[1, 2]} 
+          <Canvas
+            gl={{ preserveDrawingBuffer: true }}
+            pixelRatio={[1, 2]}
             camera={{ position: cameraPosition }}
           >
-            <group>
-              {g3dChroms &&
-                segmentData &&
-                chromColors &&
-                g3dChroms.map((chrom) => {
-                  console.log(
-                    chrom,
-                    segmentData[category][chrom],
-                    viewingBinRanges[chrom]
-                  );
-                  return (
-                    <Backbone
-                      key={chrom}
-                      segmentData={segmentData[category][chrom]}
-                      color={chromColors[chrom]}
-                      visible={viewingChroms.includes(chrom)}
-                      showViewRangeOnly={false}
-                      binRanges={viewingBinRanges[chrom]}
-                    />
-                  );
-                })}
-            </group>
-            <group>
-              {segmentData && (
-                <OverlaysTrack
-                  overlays={props.overlays}
-                  chromInfo={chromInfo}
-                  resolution={resolution}
-                  segmentData={segmentData[category]}
-                />
-              )}
-            </group>
+            <MainScene
+              g3dChroms={g3dChroms}
+              segmentData={segmentData}
+              chromColors={chromColors}
+              category={category}
+              viewingBinRanges={viewingBinRanges}
+              viewingChroms={viewingChroms}
+              overlays={props.overlays}
+              chromInfo={chromInfo}
+              resolution={resolution}
+              exportSvg={props.exportSvg && !props.exportSvg[2]}
+              onFinishExportSvg={props.onFinishExportSvg}
+            />
             <OrbitControls zoomSpeed={0.5} />
           </Canvas>
         )}

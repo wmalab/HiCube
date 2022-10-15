@@ -20,12 +20,16 @@ const SideDrawer = (props) => {
             <ion-icon name="navigate-circle-outline"></ion-icon>
           </span>
         </button>
-        <button>
+        <button onClick={props.onPanelChange.bind(null, "Export")}>
           <span>
             <ion-icon name="cloud-download-outline"></ion-icon>
           </span>
         </button>
-        <button>
+        <button
+          onClick={() => {
+            window.open("https://github.com/wmalab/HiCube");
+          }}
+        >
           <span>
             <ion-icon name="help-circle-outline"></ion-icon>
           </span>

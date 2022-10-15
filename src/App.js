@@ -113,6 +113,7 @@ export default function App() {
   });
 
   const [mouseTool, setMouseTool] = useState("move");
+  const [exportSvg, setExportSvg] = useState(false);
   const [rangeSelection, setRangeSelection] = useState({
     type: null,
     xDomain: null,
@@ -222,6 +223,14 @@ export default function App() {
     setGenomeAssembly(updatedAssembly);
   };
 
+  const exportSvgHandler = (caseUid, type, isZoom) => {
+    setExportSvg([caseUid, type, isZoom]);
+  };
+
+  const finishExportSvgHandler = () => {
+    setExportSvg(false);
+  };
+
   return (
     <div>
       <ControlPanel
@@ -242,6 +251,8 @@ export default function App() {
         onUpdateOverlay={updateOverlayHandler}
         onRemoveOverlays={clearOverlaysHandler}
         onRemoveOverlay={removeOverlayHandler}
+        exportSvg={exportSvg}
+        onExportSvg={exportSvgHandler}
       />
       <div className="main">
         {rangeSelection && rangeSelection.xDomain && (
@@ -278,6 +289,12 @@ export default function App() {
                     mainLocation={mainLocation}
                     onMainLocationChange={locationChangeHandler}
                     mouseTool={mouseTool}
+                    exportSvg={
+                      exportSvg &&
+                      exportSvg[0] === caseUids.uid &&
+                      exportSvg[1] === "higlass"
+                    }
+                    onFinishExportSvg={finishExportSvgHandler}
                     rangeSelection={rangeSelection}
                     onRangeSelection={rangeSelectionChangeHandler}
                     onCreateOverlay={createOverlayHandler}
@@ -291,6 +308,13 @@ export default function App() {
                     mainLocation={mainLocation}
                     zoomLocation={rangeSelection}
                     overlays={overlays}
+                    exportSvg={
+                      exportSvg &&
+                      exportSvg[0] === caseUids.uid &&
+                      exportSvg[1] === "threed" &&
+                      exportSvg
+                    }
+                    onFinishExportSvg={finishExportSvgHandler}
                   />
                 </div>
               </>

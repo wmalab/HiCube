@@ -1,0 +1,15 @@
+.action button {
+  width: 100%;
+  background-color: #dddddd;
+  border: 1px solid #eeeeee;
+  padding-top: 5px;
+  padding-bottom: 5px;
+  cursor: pointer;
+  font-weight: 500;
+}
+
+.action button:hover {
+  background-color: #ebe4e4;
+  border-color: dimgrey;
+  font-weight: bold;
+}

@@ -3,6 +3,7 @@ import SideDrawer from "./SideDrawer";
 import AddCase from "./AddCase";
 import EditOptions from "./EditOptions";
 import ToolBar from "./ToolBar";
+import Export from "./Export";
 
 const ControlPanel = (props) => {
   const [panel, setPanel] = useState("AddCase");
@@ -40,6 +41,9 @@ const ControlPanel = (props) => {
           onRemoveOverlay={props.onRemoveOverlay}
           genomeAssembly={props.genomeAssembly}
         />
+      )}
+      {panel === "Export" && (
+        <Export onExportSvg={props.onExportSvg} exportSvg={props.exportSvg} />
       )}
     </SideDrawer>
   );

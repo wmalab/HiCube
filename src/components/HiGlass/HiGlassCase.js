@@ -14,6 +14,7 @@ import HiGlassWrapper from "./HiGlassWrapper";
 // DONE: handle switch mode between default and select
 // DONE: handle create zoom-in view from selected range
 // DONE: handle zoomLocation sync
+// TODO: add exportAsPngBlobPromise API for export function
 
 const DEBOUNCE = true;
 const DEBOUNCE_TIME = 100;
@@ -147,8 +148,12 @@ const HiGlassCase = (props) => {
       },
       "aa"
     );
+    const clickId = api.on("click", (param) => {
+      console.log(param);
+    });
     return () => {
       api.off("location", listenerId, "aa");
+      api.off("click", clickId);
     };
   }, []);
 
@@ -319,7 +324,10 @@ const HiGlassCase = (props) => {
         },
         "bb"
       );
-    } else if (props.viewConfig.views.length === 1 && zoomLocationListener.current) {
+    } else if (
+      props.viewConfig.views.length === 1 &&
+      zoomLocationListener.current
+    ) {
       hgcRef.current.api.off("location", zoomLocationListener.current, "bb");
       zoomLocationListener.current = null;
     }
@@ -344,6 +352,34 @@ const HiGlassCase = (props) => {
   }, [zoomLocation]);
 
   const mouseTool = props.mouseTool === "select" ? "select" : "move";
+
+  // TODO: add export as png ----------------------------------------
+  useEffect(() => {
+    // let isRendering = false;
+    // const renderPreview = () => {
+    //   if (isRendering) return;
+    //   isRendering = true;
+    //   window.requestIdleCallback(() => {
+    //     const svgStr = hgcRef.current.api.exportAsSvg();
+    //     document.getElementById('preview').innerHTML = svgStr;
+    //     isRendering = false;
+    //   });
+    // };
+    // hgcRef.current.api.on('location', renderPreview);
+    if (props.exportSvg) {
+      // const svgStr = hgcRef.current.api.exportAsSvg();
+      // document.getElementById('preview').innerHTML = svgStr;
+      hgcRef.current.api.exportAsPngBlobPromise().then((blob) => {
+        const blobUrl = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.setAttribute("download", "2d-hic.png");
+        link.setAttribute("href", blobUrl);
+        link.click();
+        props.onFinishExportSvg();
+      });
+    }
+  }, [props.exportSvg]);
+  // ----------------------------------------------------------------
 
   console.log(props.viewConfig);
 
