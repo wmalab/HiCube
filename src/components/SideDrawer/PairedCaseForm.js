@@ -2,6 +2,7 @@ import React from "react";
 import { Formik, Form } from "formik";
 import PairedTrackSelector from "../UI/PairedTrackSelector";
 import FileUploader from "../UI/FileUploader";
+import classes from "./PairedCaseForm.module.css";
 
 const PairedCaseForm = (props) => {
   const {
@@ -15,14 +16,16 @@ const PairedCaseForm = (props) => {
   return (
     <Formik
       initialValues={{
-        centerHiC: { // only one center hic dataset
+        centerHiC: {
+          // only one center hic dataset
           datatype: centerHiC.datatype,
           tracktype: centerHiC.type,
           server: "",
           tilesetUid: "",
           name: "",
         },
-        threed: { // only one threed dataset
+        threed: {
+          // only one threed dataset
           fileObj: "",
           resolution: "",
           category: "",
@@ -58,37 +61,39 @@ const PairedCaseForm = (props) => {
     >
       {({ values }) => (
         <Form>
-          <div className="control-section">
+          <PairedTrackSelector
+            name="centerHiC"
+            pairTrack={centerHiC}
+            datatype={values.centerHiC.datatype}
+            assemblyName={assemblyName}
+            trackSourceServers={trackSourceServers}
+          />
+          <FileUploader name="threed" className={classes.enterfield} />
+          {values.tracks.map((track, index) => (
             <PairedTrackSelector
-              name="centerHiC"
-              pairTrack={centerHiC}
-              datatype={values.centerHiC.datatype}
+              key={index}
+              name={`tracks[${index}]`}
+              pairTrack={tracks[index]}
+              datatype={track.datatype}
               assemblyName={assemblyName}
               trackSourceServers={trackSourceServers}
             />
-          </div>
-          <FileUploader name="threed" />
-          {values.tracks.map((track, index) => (
-            <div className="control-section" key={index}>
-              <PairedTrackSelector
-                name={`tracks[${index}]`}
-                pairTrack={tracks[index]}
-                datatype={track.datatype}
-                assemblyName={assemblyName}
-                trackSourceServers={trackSourceServers}
-              />
-            </div>
           ))}
-          <div>
-            <button type="button" onClick={props.onClose}>
-              Cancel
-            </button>
-            <button type="submit">
-              <span>
-                <ion-icon name="add-outline"></ion-icon>
-              </span>
-              <span>Paired Case</span>
-            </button>
+          <div className={classes.footer}>
+            <div>
+              <button type="submit" className={classes.submit}>
+                Add A Paired Case
+              </button>
+            </div>
+            <div>
+              <button
+                type="button"
+                className={classes.cancel}
+                onClick={props.onClose}
+              >
+                Cancel
+              </button>
+            </div>
           </div>
         </Form>
       )}

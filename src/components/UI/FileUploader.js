@@ -25,7 +25,11 @@ const FileUploader = (props) => {
   };
 
   return (
-    <Collapsible title="3D Genome Structure Model" className={props.className}>
+    <Collapsible
+      title="3D Genome Structure Model (.g3d)"
+      className={props.className}
+    >
+      <label>Upload:</label>
       <input name={name} type="file" onChange={fileUploadHandler} />
       {resolutions.length > 0 && (
         <div>

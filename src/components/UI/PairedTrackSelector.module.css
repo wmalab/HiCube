@@ -1,0 +1,30 @@
+.enterfield label {
+  font-size: 14px;
+}
+
+.enterfield input {
+  margin-left: 5px;
+  text-align: left;
+  background-color: whitesmoke;
+  border: 1px solid gray;
+  border-radius: 3px;
+  padding: 3px;
+  margin-bottom: 5px;
+}
+
+.enterfield select {
+  max-width: 200px;
+  margin-left: 5px;
+  text-align: left;
+  background-color: whitesmoke;
+  border: 1px solid gray;
+  border-radius: 3px;
+  padding: 2px;
+  margin-bottom: 5px;
+}
+
+.enterfield span.value {
+  font-size: 14px;
+  margin-left: 5px;
+  margin-bottom: 5px;
+}

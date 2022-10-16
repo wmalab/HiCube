@@ -13,3 +13,13 @@
   border-color: dimgrey;
   font-weight: bold;
 }
+
+.enterfield label {
+  font-size: 14px;
+}
+
+.enterfield span.value {
+  font-size: 14px;
+  margin-left: 5px;
+  margin-bottom: 5px;
+}

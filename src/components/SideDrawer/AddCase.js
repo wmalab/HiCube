@@ -4,6 +4,7 @@ import TrackSourceManager from "./TrackSourceManager";
 import AssemblySelector from "../UI/AssemblySelector";
 import AddCaseForm from "./AddCaseForm";
 import PairedCaseForm from "./PairedCaseForm";
+import Collapsible from "../UI/Collapsible";
 import { uid } from "../../utils";
 import classes from "./AddCase.module.css";
 
@@ -116,10 +117,12 @@ const AddCase = (props) => {
         />
       )}
       {!hasZeroCase && (
-        <div className="control-section">
-          <strong>Genome assembly:</strong>
-          <span>{props.genomeAssembly.assemblyName}</span>
-        </div>
+        <Collapsible title="Genome Assembly" className={classes.enterfield}>
+          <label>Assembly:</label>
+          <span className={classes.value}>
+            {props.genomeAssembly.assemblyName}
+          </span>
+        </Collapsible>
       )}
       <div className={classes.action}>
         {!show && hasZeroCase && (

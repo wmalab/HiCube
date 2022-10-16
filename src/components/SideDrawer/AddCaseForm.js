@@ -194,10 +194,20 @@ const AddCaseForm = (props) => {
             </FieldArray>
           </Collapsible>
           <div className={classes.footer}>
-            <button type="submit">Add A New Case</button>
-            <button type="button" onClick={props.onClose}>
-              Cancel
-            </button>
+            <div>
+              <button type="submit" className={classes.submit}>
+                Add A New Case
+              </button>
+            </div>
+            <div>
+              <button
+                type="button"
+                className={classes.cancel}
+                onClick={props.onClose}
+              >
+                Cancel
+              </button>
+            </div>
           </div>
         </Form>
       )}

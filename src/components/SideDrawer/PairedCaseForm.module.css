@@ -1,21 +1,3 @@
-.action button {
-  width: 100%;
-  background-color: #dddddd;
-  border: 1px solid dimgrey;
-  padding-top: 5px;
-  padding-bottom: 5px;
-  cursor: pointer;
-  font-weight: 500;
-  margin-top: 5px;
-  margin-bottom: 5px;
-}
-
-.action button:hover {
-  background-color: #ebe4e4;
-  border-color: dimgrey;
-  font-weight: bold;
-}
-
 .enterfield label {
   font-size: 14px;
 }
@@ -39,6 +21,13 @@
   border: 1px solid gray;
   border-radius: 3px;
   padding: 2px;
+  margin-bottom: 5px;
+}
+
+.enterfield span.value {
+  font-size: 14px;
+  margin-left: 5px;
+  font-weight: 600;
   margin-bottom: 5px;
 }
 
