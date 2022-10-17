@@ -43,7 +43,12 @@ const ControlPanel = (props) => {
         />
       )}
       {panel === "Export" && (
-        <Export onExportSvg={props.onExportSvg} exportSvg={props.exportSvg} />
+        <Export
+          onExportSvg={props.onExportSvg}
+          exportSvg={props.exportSvg}
+          onExportConfig={props.onExportConfig}
+          onExportAnnotations={props.onExportAnnotations}
+        />
       )}
     </SideDrawer>
   );

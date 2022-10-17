@@ -10,6 +10,16 @@ const Export = (props) => {
 
   return (
     <div>
+      <Collapsible title="Export Files">
+        <div className={classes.action}>
+          <button onClick={props.onExportConfig}>
+            Export configuration file (JSON)
+          </button>
+          <button onClick={props.onExportAnnotations}>
+            Export annotations
+          </button>
+        </div>
+      </Collapsible>
       {configCtx.cases.map((userCase, index) => {
         const caseUid = userCase.uid;
 

@@ -7,6 +7,7 @@ import { defaultOptions as options } from "./configs/default-config";
 // import GridLayout from "react-grid-layout";
 import ThreeTrack from "./components/Three/ThreeTrack";
 import { uid } from "./utils";
+import { ChromosomeInfo } from "higlass";
 import "../node_modules/react-grid-layout/css/styles.css";
 import "../node_modules/react-resizable/css/styles.css";
 
@@ -231,6 +232,59 @@ export default function App() {
     setExportSvg(false);
   };
 
+  const exportConfigHandler = () => {
+    const config = {
+      cases: configCtx.cases,
+      pairedLocks: configCtx.pairedLocks,
+      positionedTracks: configCtx.positionedTracks,
+      threeCases: configCtx.threeCases,
+      genomeAssembly: genomeAssembly,
+      // viewConfigs: configCtx.viewConfigs,
+      numViews: configCtx.numViews,
+      overlays: overlays,
+      mainXDomain: mainLocation.xDomain,
+      mainYDomain: mainLocation.yDomain,
+      zoomXDomain: rangeSelection.xDomain,
+      zoomYDomain: rangeSelection.yDomain,
+      trackSourceServers: trackSourceServers,
+    };
+    // export as JSON file for downloading
+    const blob = new Blob([JSON.stringify(config, null, 2)], {
+      type: "application/json",
+    });
+    const blobUrl = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = blobUrl;
+    link.download = "config.json";
+    link.click();
+  };
+
+  const loadConfigHandler = () => {};
+
+  const exportAnnotationsHandler = () => {
+    // convert overlays to chr positions
+    if (genomeAssembly && overlays.length > 0) {
+      ChromosomeInfo(genomeAssembly.chromInfoPath, (chromInfo) => {
+        const lines = overlays.map((overlay) => {
+          const { extent } = overlay;
+          const loc = [];
+          // TODO: what format for exporting annotations? BED-like?
+          for (const absPos of extent) {
+            const [chrom, pos] = chromInfo.absToChr(absPos);
+            loc.push(chrom, pos);
+          }
+          return loc.join("\t");
+        });
+        const blob = new Blob([lines.join("\n")], { type: "text/plain" });
+        const blobUrl = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.href = blobUrl;
+        link.download = "annotations.txt";
+        link.click();
+      });
+    }
+  };
+
   return (
     <div>
       <ControlPanel
@@ -253,6 +307,8 @@ export default function App() {
         onRemoveOverlay={removeOverlayHandler}
         exportSvg={exportSvg}
         onExportSvg={exportSvgHandler}
+        onExportConfig={exportConfigHandler}
+        onExportAnnotations={exportAnnotationsHandler}
       />
       <div className="main">
         {rangeSelection && rangeSelection.xDomain && (
