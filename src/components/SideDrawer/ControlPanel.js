@@ -22,6 +22,7 @@ const ControlPanel = (props) => {
           genomeAssembly={props.genomeAssembly}
           onGenomeAssemblyChange={props.onGenomeAssemblyChange}
           mainLocation={props.mainLocation}
+          onSubmitConfig={props.onSubmitConfig}
           // onAddCase={props.onAddCase}
         />
       )}

@@ -485,6 +485,39 @@ const configsReducer = (state, action) => {
       numViews: state.numViews,
     };
     return updatedConfigs;
+  } else if (action.type === "LOAD_CONFIG") {
+    const { config, g3dBlobs } = action;
+    const chromInfoPath = config.genomeAssembly.chromInfoPath;
+    const loadedViewConfigs = {};
+    const loadedThreeCases = {};
+    for (let i = 0; i < config.cases.length; i += 1) {
+      const ca = config.cases[i];
+      const viewConfig = viewsToViewConfig(
+        ca.views,
+        config.positionedTracks,
+        chromInfoPath
+      );
+      loadedViewConfigs[ca.uid] = viewConfig;
+      if (g3dBlobs.length > 0) {
+        loadedThreeCases[ca.uid] = config.threeCases[ca.uid];
+        if (i < g3dBlobs.length) {
+          loadedThreeCases[ca.uid].fileObj = g3dBlobs[i];
+        } else {
+          loadedThreeCases[ca.uid].fileObj = g3dBlobs[g3dBlobs.length - 1];
+        }
+      }
+    }
+
+    const loadedConfigs = {
+      cases: config.cases,
+      pairedLocks: config.pairedLocks,
+      threeCases: loadedThreeCases,
+      positionedTracks: config.positionedTracks,
+      chromInfoPath,
+      viewConfigs: loadedViewConfigs,
+      numViews: config.numViews,
+    };
+    return loadedConfigs;
   }
   return defaultConfigs;
 };
@@ -538,8 +571,13 @@ const ConfigProvider = (props) => {
     dispatchConfigsAction({ type: "UPDATE_TRACKS", updatedTracks, xyDomains });
   };
 
+  const loadConfigHandler = (config, g3dBlobs) => {
+    dispatchConfigsAction({ type: "LOAD_CONFIG", config, g3dBlobs });
+  };
+
   const configContext = {
     cases: configs.cases,
+    pairedLocks: configs.pairedLocks,
     threeCases: configs.threeCases,
     positionedTracks: configs.positionedTracks,
     chromInfoPath: configs.chromInfoPath,
@@ -552,6 +590,7 @@ const ConfigProvider = (props) => {
     updateOverlays: updateOverlaysHandler,
     removeOverlays: removeOverlaysHandler,
     updateTrackOptions: updateTrackOptionsHandler,
+    loadConfig: loadConfigHandler,
   };
 
   return (

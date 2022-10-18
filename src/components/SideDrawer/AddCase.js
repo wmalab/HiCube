@@ -1,4 +1,4 @@
-import React, { useState, useContext } from "react";
+import React, { useState, useContext, useRef } from "react";
 import ConfigContext from "../../store/config-context";
 import TrackSourceManager from "./TrackSourceManager";
 import AssemblySelector from "../UI/AssemblySelector";
@@ -82,6 +82,9 @@ import classes from "./AddCase.module.css";
 const AddCase = (props) => {
   const configCtx = useContext(ConfigContext);
 
+  const fileRef = useRef();
+  const g3dFileRef = useRef();
+
   const [show, setShow] = useState(false);
   const handleClose = () => setShow(false);
   const handleShow = () => setShow(true);
@@ -97,6 +100,17 @@ const AddCase = (props) => {
     configCtx.addPairedCase(formVals);
   };
 
+  const configSubmitHandler = () => {
+    const fileObj = fileRef.current.files && fileRef.current.files[0];
+    const g3dFileObjs = g3dFileRef.current.files;
+    if (!fileObj) {
+      return;
+    }
+    props.onSubmitConfig(fileObj, g3dFileObjs);
+    // fileRef.current.value = null;
+    // g3dFileRef.current.value = null;
+  };
+
   const hasTrackSource = props.trackSourceServers.length > 0;
   const hasZeroCase = configCtx.cases.length === 0;
   const hasOneCase = configCtx.cases.length === 1;
@@ -105,6 +119,21 @@ const AddCase = (props) => {
   // FIXME: if already start add new case, delete all servers throw error
   return (
     <>
+      <Collapsible
+        title="Load Config File (JSON)"
+        className={classes.enterfield}
+        defaultCollapsed
+      >
+        <label>Config:</label>
+        <input type="file" name="file" ref={fileRef} />
+        <Collapsible title="3D Genome Structure Model (.g3d)">
+          <label>G3D(s):</label>
+          <input type="file" name="g3dfiles" ref={g3dFileRef} multiple />
+        </Collapsible>
+        <button className={classes.submit} onClick={configSubmitHandler}>
+          Import Config with G3D File(s)
+        </button>
+      </Collapsible>
       <TrackSourceManager
         trackSourceServers={props.trackSourceServers}
         onAddServer={props.onAddServer}

@@ -8,11 +8,11 @@
   font-weight: 500;
 }
 
-.action button:hover {
+/* .action button:hover {
   background-color: #ebe4e4;
   border-color: dimgrey;
   font-weight: bold;
-}
+} */
 
 .enterfield label {
   font-size: 14px;
@@ -22,4 +22,25 @@
   font-size: 14px;
   margin-left: 5px;
   margin-bottom: 5px;
+}
+
+.enterfield input {
+  max-width: 200px;
+  margin-left: 5px;
+  text-align: left;
+  background-color: whitesmoke;
+  border: 1px solid gray;
+  border-radius: 3px;
+  padding: 3px;
+  margin-bottom: 5px;
+}
+
+.enterfield button.submit {
+  width: 100%;
+  background-color: #dddddd;
+  border: 1px solid dimgrey;
+  padding-top: 5px;
+  padding-bottom: 5px;
+  cursor: pointer;
+  font-weight: 500;
 }

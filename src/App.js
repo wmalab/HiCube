@@ -103,6 +103,8 @@ const overlaysReducer = (state, action) => {
     const updatedOverlays = [...state];
     updatedOverlays[overlayIndex] = updatedOverlay;
     return updatedOverlays;
+  } else if (action.type === "REPLACE") {
+    return action.overlays;
   }
 };
 
@@ -319,7 +321,26 @@ export default function App() {
     link.click();
   };
 
-  const loadConfigHandler = () => {};
+  const loadConfigHandler = (configBlob, g3dBlobs) => {
+    configBlob.text().then((text) => {
+      const config = JSON.parse(text);
+      setGenomeAssembly(config.genomeAssembly);
+      setTrackSourceServers(config.trackSourceServers);
+      configCtx.loadConfig(config, g3dBlobs);
+      dispatchOverlaysAction({ type: "REPLACE", overlays: config.overlays });
+      setMainLocation({
+        xDomain: config.mainXDomain,
+        yDomain: config.mainYDomain,
+        fromId: "loaded",
+      });
+      setRangeSelection({
+        type: "CREATE",
+        xDomain: config.zoomXDomain,
+        yDomain: config.zoomYDomain,
+        fromId: "loaded",
+      });
+    });
+  };
 
   const exportAnnotationsHandler = () => {
     // convert overlays to chr positions
@@ -354,6 +375,7 @@ export default function App() {
         genomeAssembly={genomeAssembly}
         onGenomeAssemblyChange={genomeAssemblyChangeHandler}
         mainLocation={mainLocation}
+        onSubmitConfig={loadConfigHandler}
         // onAddCase={addCaseHandler}
         // configs={configs}
         onSelect={activateSelectHandler}

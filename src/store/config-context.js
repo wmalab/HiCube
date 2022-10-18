@@ -13,6 +13,7 @@ const ConfigContext = React.createContext({
   updateOverlays: () => {},
   removeOverlays: () => {},
   updateTrackOptions: () => {},
+  loadConfig: () => {},
 });
 
 export default ConfigContext;
