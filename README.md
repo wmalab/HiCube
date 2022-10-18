@@ -20,6 +20,8 @@ Open [http://localhost:3000](http://localhost:3000) to use HiCube in your browse
 
 ### Prepare datasets
 
+The example datasets can be downloaded at [drive](https://drive.google.com/drive/folders/12_kfP9tELVEPKOw7ODgx8x2MVYUvi59T?usp=sharing).
+
 #### Hi-C, 1D or 2D datasets
 
 The 1D and 2D datasets need to be served with [HiGlass Server](https://github.com/higlass/higlass-server) for access. There are two public availalbe HiGlass API servers: http://higlass.io/api/v1 and https://higlass.4dnucleome.org/api/v1 that can be used to access vast amount of public datasets. 
