@@ -13,3 +13,32 @@
   border-color: dimgrey;
   font-weight: bold;
 }
+
+.action label {
+  font-size: 14px;
+}
+
+.action input {
+  max-width: 200px;
+  margin-left: 5px;
+  text-align: left;
+  background-color: whitesmoke;
+  border: 1px solid gray;
+  border-radius: 3px;
+  padding: 3px;
+  margin-bottom: 5px;
+}
+
+.action label.textinput {
+  display: block;
+}
+
+.action textarea {
+  font-size: 11px;
+  padding: 6px;
+  max-width: 100%;
+  line-height: 1;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+  box-shadow: 1px 1px 1px #999;
+}

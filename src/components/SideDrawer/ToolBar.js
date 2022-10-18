@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useRef } from "react";
 import OverlayList from "./OverlayList";
 import Collapsible from "../UI/Collapsible";
 import classes from "./ToolBar.module.css";
@@ -24,6 +24,23 @@ import classes from "./ToolBar.module.css";
 // };
 
 const ToolBar = (props) => {
+  const fileRef = useRef();
+  const [enteredText, setEnteredText] = useState();
+
+  const textareaChangeHandler = (event) => {
+    setEnteredText(event.target.value);
+  };
+
+  const submitHandler = () => {
+    // TODO: validate enteredText before submit
+    props.onAddOverlay({
+      fileObj: fileRef.current.files[0],
+      enteredText: enteredText,
+    });
+    fileRef.current.value = null;
+    setEnteredText("");
+  };
+
   return (
     <>
       <Collapsible title="Zoom-In View">
@@ -36,9 +53,26 @@ const ToolBar = (props) => {
       </Collapsible>
       <Collapsible title="Annotations">
         <div className={classes.action}>
+          <div>
+            <label>Upload:</label>
+            <input type="file" name="file" ref={fileRef} />
+          </div>
+          <div>
+            <label className={classes.textinput}>
+              Enter genomic intervals (1 per line):
+            </label>
+            <textarea
+              cols={38}
+              rows={6}
+              onChange={textareaChangeHandler}
+              value={enteredText}
+              placeholder="e.g. chrom start chrom end 
+              or chrom x-start chrom x-end chrom y-start chrom y-end"
+            />
+          </div>
           <button onClick={props.onSelect}>Select Annotation Region</button>
           <button onClick={props.onCancel}>Cancel</button>
-          <button onClick={props.onAddOverlay}>Add Annotation</button>
+          <button onClick={submitHandler}>Add Annotation</button>
           <button onClick={props.onRemoveOverlays}>
             Remove All Annotations
           </button>

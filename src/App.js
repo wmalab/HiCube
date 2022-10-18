@@ -6,78 +6,91 @@ import GenomePositionBar from "./components/GenomePositionSearch/GenomePositionB
 import { defaultOptions as options } from "./configs/default-config";
 // import GridLayout from "react-grid-layout";
 import ThreeTrack from "./components/Three/ThreeTrack";
-import { uid } from "./utils";
+import { uid, strToInt } from "./utils";
 import { ChromosomeInfo } from "higlass";
 import "../node_modules/react-grid-layout/css/styles.css";
 import "../node_modules/react-resizable/css/styles.css";
 
+const initOverlay1D = (extent) => {
+  return {
+    uid: "overlay-1d-" + uid(),
+    extent: extent,
+    options: {
+      higlass: {
+        fill: "blue",
+        fillOpacity: 0.3,
+        stroke: "blue",
+        strokeOpacity: 1,
+        strokeWidth: 0,
+      },
+      threed: {
+        lineColor: "blue",
+        lineWidth: 5,
+        drawLine: true,
+        drawAnchor1: false,
+        anchor1Color: "",
+        anchor1Label: "",
+        anchor1LabelSize: "12px",
+        anchor1LabelColor: "black",
+        anchor1LabelWeight: "600",
+        anchor1Radius: 1,
+        drawAnchor2: false,
+        anchor2Color: "",
+        anchor2Label: "",
+        anchor2LabelSize: "12px",
+        anchor2LabelColor: "black",
+        anchor2LabelWeight: "600",
+        anchor2Radius: 1,
+      },
+    },
+  };
+};
+
+const initOverlay2D = (extent) => {
+  return {
+    uid: "overlay-2d-" + uid(),
+    extent: extent, // this is not nested array
+    options: {
+      higlass: {
+        fill: "blue",
+        fillOpacity: 0.3,
+        stroke: "blue",
+        strokeOpacity: 1,
+        strokeWidth: 0,
+      },
+      threed: {
+        lineColor: "blue",
+        lineWidth: 1,
+        drawLine: true,
+        drawAnchor1: true,
+        anchor1Color: "blue",
+        anchor1Label: "",
+        anchor1LabelSize: "12px",
+        anchor1LabelColor: "black",
+        anchor1LabelWeight: "600",
+        anchor1Radius: 1,
+        drawAnchor2: true,
+        anchor2Color: "blue",
+        anchor2Label: "",
+        anchor2LabelSize: "12px",
+        anchor2LabelColor: "black",
+        anchor2LabelWeight: "600",
+        anchor2Radius: 1,
+      },
+    },
+  };
+};
+
 const overlaysReducer = (state, action) => {
   if (action.type === "ADD_1D") {
-    return state.concat({
-      uid: "overlay-1d-" + uid(),
-      extent: action.extent,
-      options: {
-        higlass: {
-          fill: "blue",
-          fillOpacity: 0.3,
-          stroke: "blue",
-          strokeOpacity: 1,
-          strokeWidth: 0,
-        },
-        threed: {
-          lineColor: "blue",
-          lineWidth: 5,
-          drawLine: true,
-          drawAnchor1: false,
-          anchor1Color: "",
-          anchor1Label: "",
-          anchor1LabelSize: "12px",
-          anchor1LabelColor: "black",
-          anchor1LabelWeight: "600",
-          anchor1Radius: 1,
-          drawAnchor2: false,
-          anchor2Color: "",
-          anchor2Label: "",
-          anchor2LabelSize: "12px",
-          anchor2LabelColor: "black",
-          anchor2LabelWeight: "600",
-          anchor2Radius: 1,
-        },
-      },
-    });
+    return state.concat(initOverlay1D(action.extent));
   } else if (action.type === "ADD_2D") {
-    return state.concat({
-      uid: "overlay-2d-" + uid(),
-      extent: action.extent,
-      options: {
-        higlass: {
-          fill: "blue",
-          fillOpacity: 0.3,
-          stroke: "blue",
-          strokeOpacity: 1,
-          strokeWidth: 0,
-        },
-        threed: {
-          lineColor: "blue",
-          lineWidth: 1,
-          drawLine: true,
-          drawAnchor1: true,
-          anchor1Color: "blue",
-          anchor1Label: "",
-          anchor1LabelSize: "12px",
-          anchor1LabelColor: "black",
-          anchor1LabelWeight: "600",
-          anchor1Radius: 1,
-          drawAnchor2: true,
-          anchor2Color: "blue",
-          anchor2Label: "",
-          anchor2LabelSize: "12px",
-          anchor2LabelColor: "black",
-          anchor2LabelWeight: "600",
-          anchor2Radius: 1,
-        },
-      },
-    });
+    return state.concat(initOverlay2D(action.extent));
+  } else if (action.type === "ADD_BATCH") {
+    return state.concat(
+      action.extent1D.map((extent) => initOverlay1D(extent)),
+      action.extent2D.map((extent) => initOverlay2D(extent))
+    );
   } else if (action.type === "CLEAR") {
     return [];
   } else if (action.type === "REMOVE") {
@@ -150,7 +163,54 @@ export default function App() {
     setMouseTool("move_clear");
   };
 
-  const addOverlayHandler = () => {
+  const convertStrToOverlays = (str) => {
+    if (!genomeAssembly) {
+      return;
+    }
+    ChromosomeInfo(genomeAssembly.chromInfoPath, (chromInfo) => {
+      // process string to get annotations
+      const lines = str.split("\n");
+      const add1D = [];
+      const add2D = [];
+      for (const line of lines) {
+        const entries = line.split(/\s+/);
+        if (entries.length === 4) {
+          // 1D annotation
+          const extent = [];
+          for (let i = 0; i < 4; i += 2) {
+            extent.push(
+              chromInfo.chrToAbs([entries[i], strToInt(entries[i + 1])])
+            );
+          }
+          add1D.push(extent);
+        }
+        if (entries.length === 8) {
+          // 2D annotation
+          const extent = [];
+          for (let i = 0; i < 8; i += 2) {
+            extent.push(
+              chromInfo.chrToAbs([entries[i], strToInt(entries[i + 1])])
+            );
+          }
+          add2D.push(extent);
+        }
+      }
+      dispatchOverlaysAction({
+        type: "ADD_BATCH",
+        extent1D: add1D,
+        extent2D: add2D,
+      });
+    });
+  };
+
+  const addOverlayHandler = (appendData) => {
+    if (appendData.fileObj) {
+      appendData.fileObj.text().then((text) => convertStrToOverlays(text));
+    }
+
+    if (appendData.enteredText) {
+      convertStrToOverlays(appendData.enteredText);
+    }
     setMouseTool("add_overlay");
   };
 
