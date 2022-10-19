@@ -11,7 +11,7 @@ const AssemblySelector = (props) => {
   useEffect(() => {
     const availAssembly = Object.keys(availChromSizes);
     if (availAssembly.length === 0) {
-      setSelectedAssembly(null);
+      // setSelectedAssembly(null);
       return;
     }
     if (!selectedAssembly || !availAssembly.includes(selectedAssembly)) {
@@ -61,7 +61,7 @@ const AssemblySelector = (props) => {
   };
 
   useEffect(() => {
-    if (!selectedAssembly) {
+    if (!selectedAssembly || !(selectedAssembly in availChromSizes)) {
       return;
     }
     const chromSize = availChromSizes[selectedAssembly][0];
@@ -74,7 +74,7 @@ const AssemblySelector = (props) => {
       tilesetUid: chromSize.uuid,
       chromInfoPath: `${chromSize.server}/chrom-sizes/?id=${chromSize.uuid}`,
     });
-  }, [selectedAssembly]);
+  }, [selectedAssembly, availChromSizes]);
 
   const availAssembly = Object.keys(availChromSizes);
 

@@ -10,11 +10,11 @@
   margin-bottom: 5px;
 }
 
-.action button:hover {
+/* .action button:hover {
   background-color: #ebe4e4;
   border-color: dimgrey;
   font-weight: bold;
-}
+} */
 
 .enterfield label {
   font-size: 14px;
@@ -29,6 +29,7 @@
   padding: 3px;
   margin-bottom: 5px;
   max-width: 200px;
+  width: 200px;
 }
 
 .enterfield select {
@@ -70,4 +71,11 @@
 
 .footer button.cancel:hover {
   background-color: #9b999d;
+}
+
+.example p {
+  font-size: 12px;
+  color: dimgray;
+  margin-top: 1px;
+  margin-bottom: 1px;
 }

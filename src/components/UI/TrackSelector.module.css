@@ -1,0 +1,26 @@
+p.message {
+  font-size: 12px;
+  color: dimgray;
+  margin-left: 5px;
+  margin-top: 5px;
+  margin-bottom: 5px;
+}
+
+div.selector {
+  display: flex;
+  margin-top: 3px;
+  margin-bottom: 3px;
+  align-items: center;
+}
+
+.selector label {
+  font-size: 14px;
+}
+
+.selector select {
+  margin-left: 5px;
+  background-color: whitesmoke;
+  border: 1px solid gray;
+  border-radius: 3px;
+  padding: 2px;
+}

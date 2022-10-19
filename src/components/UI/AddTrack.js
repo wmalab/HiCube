@@ -1,11 +1,12 @@
-import React, { useState, useEffect } from "react";
-import { Field, useField, useFormikContext } from "formik";
+import React, { useEffect } from "react";
+import { Field, useFormikContext } from "formik";
 import TrackSelector from "./TrackSelector";
 import {
   findTracktypes,
   findTrackOrientation,
   availDatatypes,
 } from "../../configs/track-orientation";
+import classes from "./AddTrack.module.css";
 
 const TrackSelectComponent = ({ field, form, ...props }) => {
   const datasetChangeHandler = (dataset) => {
@@ -16,6 +17,7 @@ const TrackSelectComponent = ({ field, form, ...props }) => {
 
   return (
     <TrackSelector
+      label={props.label}
       datatype={props.datatype}
       assembly={props.assemblyName}
       trackSourceServers={props.trackSourceServers}
@@ -107,11 +109,13 @@ const AddTrack = (props) => {
   console.log(props.track);
 
   return (
-    <div>
-      <div className="addtrack__datatype">
+    <div className={classes.addtrack}>
+      <div>
         <label>Data type:</label>
         <Field as="select" name={`${props.name}.datatype`}>
-          <option value=""></option>
+          <option value="" disabled>
+            Select...
+          </option>
           {datatypes.map((datatype) => (
             <option key={datatype} value={datatype}>
               {datatype}
@@ -119,31 +123,33 @@ const AddTrack = (props) => {
           ))}
         </Field>
       </div>
-      <div className="addtrack__selector">
-        <label>Dataset:</label>
-        <Field
-          name={`${props.name}`}
-          component={TrackSelectComponent}
-          datatype={props.track.datatype}
-          assemblyName={props.assembly.assemblyName}
-          trackSourceServers={props.trackSourceServers}
-        />
-      </div>
-      <div className="addtrack__tracktype">
-        <label>Track type:</label>
-        <Field
-          name={`${props.name}.tracktype`}
-          datatype={props.track.datatype}
-          component={TracktypeSelectComponent}
-        />
-      </div>
-      <div className="addtrack__positions">
-        <label>Track positions:</label>
-        <TrackPositionsComponent
-          name={`${props.name}.positions`}
-          orientation={findTrackOrientation(props.track.tracktype)}
-        />
-      </div>
+      {props.track.datatype && (
+        <>
+          <Field
+            name={`${props.name}`}
+            component={TrackSelectComponent}
+            label="Dataset"
+            datatype={props.track.datatype}
+            assemblyName={props.assembly.assemblyName}
+            trackSourceServers={props.trackSourceServers}
+          />
+          <div>
+            <label>Track type:</label>
+            <Field
+              name={`${props.name}.tracktype`}
+              datatype={props.track.datatype}
+              component={TracktypeSelectComponent}
+            />
+          </div>
+          <div>
+            <label>Track positions:</label>
+            <TrackPositionsComponent
+              name={`${props.name}.positions`}
+              orientation={findTrackOrientation(props.track.tracktype)}
+            />
+          </div>
+        </>
+      )}
     </div>
   );
 };

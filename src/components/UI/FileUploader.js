@@ -4,8 +4,8 @@ import G3dFile from "../Three/g3djs/g3dFile";
 import Collapsible from "./Collapsible";
 
 // Upload g3d file and
-// TODO: display meta information of resolutions and categories for selection
-// TODO: set default resolution to be the maximum and default category to be the first one
+// display meta information of resolutions and categories for selection
+// set default resolution to be the maximum and default category to be the first one
 const FileUploader = (props) => {
   const { name } = props;
   const { setFieldValue } = useFormikContext();
@@ -29,8 +29,13 @@ const FileUploader = (props) => {
       title="3D Genome Structure Model (.g3d)"
       className={props.className}
     >
-      <label>Upload:</label>
-      <input name={name} type="file" onChange={fileUploadHandler} />
+      <label>G3D:</label>
+      <input
+        name={name}
+        type="file"
+        accept=".g3d"
+        onChange={fileUploadHandler}
+      />
       {resolutions.length > 0 && (
         <div>
           <label>Resolution:</label>

@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback, useMemo } from "react";
 import useHttp from "../../hooks/use-http";
+import classes from "./TrackSelector.module.css";
 
 // Get available tilesets from API
 // filter by filetype `?t={}` or datatype `?dt={}`
@@ -22,9 +23,6 @@ const TrackSelector = (props) => {
   }, [datasets, assembly]);
 
   useEffect(() => {
-    // if (!selectedUuid && filteredDatasets.length > 0) {
-    //   setSelectedUuid(filteredDatasets[0]);
-    // }
     if (filteredDatasets.length > 0) {
       if (!selectedUuid || !filteredDatasets.includes(selectedUuid)) {
         setSelectedUuid(filteredDatasets[0]);
@@ -45,12 +43,16 @@ const TrackSelector = (props) => {
     }));
 
     setDatasets((prevDatasets) => {
-      let updatedDatasets = {};
+      // let updatedDatasets = {};
       // FIXED: clean up prev datasets that have different datatype than current
-      const prevKeys = Object.keys(prevDatasets);
-      if (prevKeys.length > 0 && prevDatasets[prevKeys[0]].datatype === datatype) {
-        updatedDatasets = { ...prevDatasets };
-      }
+      // const prevKeys = Object.keys(prevDatasets);
+      // if (
+      //   prevKeys.length > 0 &&
+      //   prevDatasets[prevKeys[0]].datatype === datatype
+      // ) {
+      //   updatedDatasets = { ...prevDatasets };
+      // }
+      const updatedDatasets = { ...prevDatasets };
       newDatasets.forEach((dataset) => {
         updatedDatasets[dataset.serverUidKey] = dataset;
       });
@@ -59,12 +61,13 @@ const TrackSelector = (props) => {
   }, []);
 
   useEffect(() => {
-    if (!trackSourceServers || !datatype) {
+    setDatasets({});
+    if (!trackSourceServers || trackSourceServers.length === 0 || !datatype) {
       return;
     }
     const query = `dt=${datatype}`;
     trackSourceServers.forEach((sourceServer) => {
-      console.log("fetch datasets");
+      console.log(`Fetch datasets from ${sourceServer.url}`);
       fetchDatasets(
         { url: `${sourceServer.url}/tilesets/?limit=10000&${query}` },
         transformDatasets.bind(null, sourceServer.url, datatype)
@@ -77,7 +80,7 @@ const TrackSelector = (props) => {
   };
 
   useEffect(() => {
-    if (!selectedUuid) {
+    if (!selectedUuid || !(selectedUuid in datasets)) {
       return;
     }
     const selectedDataset = datasets[selectedUuid];
@@ -87,12 +90,21 @@ const TrackSelector = (props) => {
       tilesetUid,
       name,
     });
-  }, [selectedUuid]);
+  }, [selectedUuid, datasets]);
+
+  let message = "";
+  if (isLoading) {
+    message = "Loading...";
+  } else if (error) {
+    message = error;
+  } else if (filteredDatasets.length === 0) {
+    message = "No available datasets.";
+  }
 
   return (
-    <>
-      {isLoading && <p>Loading datasets...</p>}
-      {error && <p>Error: {error}</p>}
+    <div className={classes.selector}>
+      <label>{props.label}:</label>
+      {message && <p className={classes.message}>{message}</p>}
       {!isLoading && !error && filteredDatasets.length > 0 && (
         <select value={selectedUuid} onChange={selectDatasetHandler}>
           {filteredDatasets.map((serverUidKey) => (
@@ -102,7 +114,7 @@ const TrackSelector = (props) => {
           ))}
         </select>
       )}
-    </>
+    </div>
   );
 };
 

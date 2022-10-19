@@ -13,11 +13,14 @@ const GenomePositionInput = () => {
     <Collapsible title="Genome Positions" className={classes.enterfield}>
       <div>
         <label>X axis:</label>
-        <Field name="initialXDomain" placeholder="chr1:start-chr2:end" />
+        <Field name="initialXDomain" placeholder="Enter position" />
       </div>
       <div>
         <label>Y axis:</label>
-        <Field name="initialYDomain" placeholder="chr1:start-chr2:end" />
+        <Field name="initialYDomain" placeholder="Enter position" />
+      </div>
+      <div className={classes.example}>
+        <p>Example: chr11:1500000-chr11:2400000</p>
       </div>
     </Collapsible>
   );
@@ -42,8 +45,8 @@ const MatrixSelectComponent = ({ field, form, ...props }) => {
 
   return (
     <Collapsible title="Hi-C Dataset" className={classes.enterfield}>
-      <label>Dataset:</label>
       <TrackSelector
+        label="Dataset"
         datatype="matrix"
         assembly={props.assemblyName}
         trackSourceServers={props.trackSourceServers}
@@ -85,43 +88,17 @@ const AddCaseForm = (props) => {
       initialValues={{
         initialXDomain: "",
         initialYDomain: "",
-        // initialXDomainStart: 1,
-        // initialXDomainEnd: 3200000000,
         chromInfoPath: chromInfoPath,
-        centerHiC: {
-          // server: props.trackSourceServers[0].url,
-          // tilesetUid: "CQMd6V_cRw6iCI_-Unl3PQ",
-        },
+        centerHiC: {},
         threed: {
           fileObj: "",
           resolution: "",
           category: "",
         },
-        tracks: [
-          // {
-          //   type: "gene-annotations",
-          //   tilesetUid: "OHJakQICQD6gTD7skx4EWA",
-          //   server: props.trackSourceServers[0].url,
-          //   positions: ["top", "left"],
-          // },
-          // {
-          //   type: "chromosome-labels",
-          //   chromInfoPath: chromInfoPath,
-          //   positions: ["top", "left"],
-          // },
-          // {
-          //   datatype: "chromsizes",
-          //   tracktype: "chromosome-labels",
-          //   server: genomeAssembly.server,
-          //   tilesetUid: genomeAssembly.tilesetUid,
-          //   name: genomeAssembly.name,
-          //   positions: ["top", "left"],
-          // },
-        ],
+        tracks: [],
       }}
       onSubmit={(values, { setSubmitting }) => {
         setTimeout(() => {
-          // props.onSubmit(values);
           const { initialXDomain, initialYDomain } = values;
           props.onSubmit({
             ...values,

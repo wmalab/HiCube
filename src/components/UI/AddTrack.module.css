@@ -1,0 +1,14 @@
+.addtrack label {
+  font-size: 14px;
+}
+
+.addtrack select {
+  max-width: 200px;
+  margin-left: 5px;
+  text-align: left;
+  background-color: whitesmoke;
+  border: 1px solid gray;
+  border-radius: 3px;
+  padding: 2px;
+  margin-bottom: 3px;
+}
