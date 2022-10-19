@@ -12,6 +12,7 @@ ul.serverlist {
 }
 
 .serverlist input {
+  width: 200px;
   text-align: left;
   background-color: whitesmoke;
   border: 1px solid gray;
@@ -35,4 +36,18 @@ p.message {
 
 .serverlist button:hover {
   background-color: #ebe4e4;
+}
+
+.error p {
+  font-size: 12px;
+  color: red;
+  margin-top: 2px;
+  margin-left: 5px;
+}
+
+.example p {
+  font-size: 12px;
+  color: dimgray;
+  margin-top: 1px;
+  margin-bottom: 1px;
 }

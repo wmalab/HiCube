@@ -1,20 +1,37 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Collapsible from "../UI/Collapsible";
+import useHttp from "../../hooks/use-http";
 import classes from "./TrackSourceManager.module.css";
 
 const TrackSourceManager = (props) => {
-  const [enteredServer, setEnteredServer] = useState(
-    "http://higlass.io/api/v1"
-  );
+  const [enteredServer, setEnteredServer] = useState("");
+  const [errorMsg, setErrorMsg] = useState("");
+  const { isLoading, error, sendRequest: validateServer } = useHttp();
+
+  useEffect(() => {
+    setErrorMsg(error);
+  }, [error]);
 
   const serverInputChangeHandler = (event) => {
     setEnteredServer(event.target.value);
   };
 
-  const addServerHandler = () => {
-    // TODO: verify server URL
-    props.onAddServer(enteredServer);
+  const focusHandler = (event) => {
+    setErrorMsg("");
+  };
+
+  const addServer = (data) => {
+    props.onAddServer(enteredServer.trim());
     setEnteredServer("");
+  };
+
+  const addServerHandler = () => {
+    if (enteredServer.trim() === "") {
+      setErrorMsg("Empty");
+      return;
+    }
+    // verify server URL is higlass API server
+    validateServer({ url: `${enteredServer.trim()}/tilesets` }, addServer);
   };
 
   return (
@@ -32,6 +49,7 @@ const TrackSourceManager = (props) => {
                     null,
                     trackSourceServer.uuid
                   )}
+                  disabled={props.trackSourceServers.length === 1}
                 >
                   <ion-icon name="trash-outline"></ion-icon>
                 </button>
@@ -49,10 +67,21 @@ const TrackSourceManager = (props) => {
             type="text"
             value={enteredServer}
             onChange={serverInputChangeHandler}
-            placeholder="Add HiGlass server URL"
+            onFocus={focusHandler}
+            placeholder="Enter HiGlass API server URL"
           ></input>
+          {errorMsg && (
+            <div className={classes.error}>
+              <p>Invalid server: {errorMsg}</p>
+            </div>
+          )}
         </li>
       </ul>
+      <div className={classes.example}>
+        <p>Example:</p>
+        <p>http://higlass.io/api/v1</p>
+        <p>http://localhost:8888/api/v1</p>
+      </div>
     </Collapsible>
   );
 };
