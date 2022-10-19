@@ -147,7 +147,7 @@ const AddCase = (props) => {
       )}
       {!hasZeroCase && (
         <Collapsible title="Genome Assembly" className={classes.enterfield}>
-          <label>Assembly:</label>
+          <label>Genome:</label>
           <span className={classes.value}>
             {props.genomeAssembly.assemblyName}
           </span>

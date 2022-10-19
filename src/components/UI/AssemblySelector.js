@@ -8,16 +8,16 @@ const AssemblySelector = (props) => {
   const [availChromSizes, setAvailChromSizes] = useState({});
   const [selectedAssembly, setSelectedAssembly] = useState(null);
 
-  const availAssembly = useMemo(
-    () => Object.keys(availChromSizes),
-    [availChromSizes]
-  );
-
   useEffect(() => {
-    if (!selectedAssembly && availAssembly.length > 0) {
+    const availAssembly = Object.keys(availChromSizes);
+    if (availAssembly.length === 0) {
+      setSelectedAssembly(null);
+      return;
+    }
+    if (!selectedAssembly || !availAssembly.includes(selectedAssembly)) {
       setSelectedAssembly(availAssembly[0]);
     }
-  }, [availAssembly]);
+  }, [availChromSizes]);
 
   const { isLoading, error, sendRequest: fetchChromSizes } = useHttp();
 
@@ -41,11 +41,14 @@ const AssemblySelector = (props) => {
   }, []);
 
   useEffect(() => {
-    if (!trackSourceServers) {
+    // empty the current avail chromsizes
+    setAvailChromSizes({});
+    if (!trackSourceServers || trackSourceServers.length === 0) {
       return;
     }
+
     trackSourceServers.forEach((sourceServer) => {
-      console.log("fetch chromsizes");
+      console.log(`Fetch chromsizes from ${sourceServer.url}`);
       fetchChromSizes(
         { url: `${sourceServer.url}/available-chrom-sizes/` },
         transformChromSizes.bind(null, sourceServer.url)
@@ -73,16 +76,25 @@ const AssemblySelector = (props) => {
     });
   }, [selectedAssembly]);
 
+  const availAssembly = Object.keys(availChromSizes);
+
+  let message = "";
+  if (!trackSourceServers || trackSourceServers.length === 0) {
+    message = "Add server first.";
+  } else if (isLoading) {
+    message = "Loading...";
+  } else if (error) {
+    message = error;
+  } else if (availAssembly.length === 0) {
+    message = "No available genomes.";
+  }
+
   return (
     <Collapsible title="Genome Assembly">
-      {isLoading && <p className={classes.message}>Loading assembly...</p>}
-      {error && <p className={classes.message}>Error: {error}</p>}
-      {!isLoading && !error && availAssembly.length === 0 && (
-        <p className={classes.message}>No available assembly.</p>
-      )}
-      {!isLoading && !error && availAssembly.length > 0 && (
-        <div className={classes.selector}>
-          <label>Assembly:</label>
+      <div className={classes.selector}>
+        <label>Genome:</label>
+        {message && <p className={classes.message}>{message}</p>}
+        {!isLoading && !error && availAssembly.length > 0 && (
           <select value={selectedAssembly} onChange={selectAssemblyHandler}>
             {availAssembly.map((assembly) => (
               <option key={assembly} value={assembly}>
@@ -90,8 +102,8 @@ const AssemblySelector = (props) => {
               </option>
             ))}
           </select>
-        </div>
-      )}
+        )}
+      </div>
     </Collapsible>
   );
 };

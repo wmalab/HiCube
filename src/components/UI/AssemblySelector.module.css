@@ -1,7 +1,7 @@
 p.message {
-  font-size: 14px;
+  font-size: 12px;
   color: dimgray;
-  font-weight: 500;
+  margin-left: 5px;
 }
 
 div.selector {
