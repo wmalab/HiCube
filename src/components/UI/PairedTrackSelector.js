@@ -15,10 +15,7 @@ const PairedTrackSelector = (props) => {
   };
 
   return (
-    <Collapsible
-      title={pairTrack.name}
-      className={classes.enterfield}
-    >
+    <Collapsible title={pairTrack.name} className={classes.enterfield}>
       <div>
         <label>Data type:</label>
         <span className={classes.value}>{pairTrack.datatype}</span>
@@ -28,8 +25,8 @@ const PairedTrackSelector = (props) => {
         <span className={classes.value}>{pairTrack.type}</span>
       </div>
       <div>
-        <label>Pair dataset:</label>
         <TrackSelector
+          label="Pair dataset"
           datatype={props.datatype}
           assembly={props.assemblyName}
           trackSourceServers={props.trackSourceServers}

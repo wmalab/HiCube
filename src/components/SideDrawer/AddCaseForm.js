@@ -1,10 +1,8 @@
-import React, { useRef, useEffect } from "react";
+import React from "react";
 import { Formik, Field, FieldArray, Form, useFormikContext } from "formik";
 import AddTrack from "../UI/AddTrack";
 import TrackSelector from "../UI/TrackSelector";
 import FileUploader from "../UI/FileUploader";
-import { strToInt } from "../../utils";
-import { ChromosomeInfo } from "higlass";
 import Collapsible from "../UI/Collapsible";
 import useChromInfo from "../../hooks/use-chrominfo";
 import classes from "./AddCaseForm.module.css";
@@ -78,31 +76,32 @@ const MatrixSelectComponent = ({ field, form, ...props }) => {
 const AddCaseForm = (props) => {
   const { genomeAssembly } = props;
   const { assemblyName, chromInfoPath } = genomeAssembly;
-  const chromInfo = useRef();
+  // const chromInfo = useRef();
 
-  const { validateGenomePosition } = useChromInfo(chromInfoPath);
+  const { validateGenomePosition, getGenomePosition, chroms } =
+    useChromInfo(chromInfoPath);
 
-  useEffect(() => {
-    ChromosomeInfo(chromInfoPath, (newChromInfo) => {
-      chromInfo.current = newChromInfo;
-    });
-  }, [chromInfoPath]);
+  // useEffect(() => {
+  //   ChromosomeInfo(chromInfoPath, (newChromInfo) => {
+  //     chromInfo.current = newChromInfo;
+  //   });
+  // }, [chromInfoPath]);
 
   // TODO: allow variant format: chr1, chr1-chr5, etc.
   // TODO: refactor with GenomePositionBar as custom hook?
-  const positionTextToScale = (positionText) => {
-    const [chromPos1, chromPos2] = positionText.split("-");
-    const [chrom1, pos1] = chromPos1.split(":");
-    const chromPos2splited = chromPos2.split(":");
-    let chrom2 = chrom1;
-    if (chromPos2splited.length > 1) {
-      chrom2 = chromPos2splited.shift();
-    }
-    const pos2 = chromPos2splited[0];
-    const scale1 = chromInfo.current.chrToAbs([chrom1, strToInt(pos1)]);
-    const scale2 = chromInfo.current.chrToAbs([chrom2, strToInt(pos2)]);
-    return [scale1, scale2];
-  };
+  // const positionTextToScale = (positionText) => {
+  //   const [chromPos1, chromPos2] = positionText.split("-");
+  //   const [chrom1, pos1] = chromPos1.split(":");
+  //   const chromPos2splited = chromPos2.split(":");
+  //   let chrom2 = chrom1;
+  //   if (chromPos2splited.length > 1) {
+  //     chrom2 = chromPos2splited.shift();
+  //   }
+  //   const pos2 = chromPos2splited[0];
+  //   const scale1 = chromInfo.current.chrToAbs([chrom1, strToInt(pos1)]);
+  //   const scale2 = chromInfo.current.chrToAbs([chrom2, strToInt(pos2)]);
+  //   return [scale1, scale2];
+  // };
 
   return (
     <Formik
@@ -124,11 +123,11 @@ const AddCaseForm = (props) => {
           const { initialXDomain, initialYDomain } = values;
           props.onSubmit({
             ...values,
-            initialXDomain: positionTextToScale(initialXDomain),
-            initialYDomain: positionTextToScale(
+            initialXDomain: getGenomePosition(initialXDomain),
+            initialYDomain: getGenomePosition(
               initialYDomain.trim() || initialXDomain
             ),
-            chroms: chromInfo.current.cumPositions.map((cumPos) => cumPos.chr),
+            chroms: chroms,
           });
           setSubmitting(false);
           props.onClose();

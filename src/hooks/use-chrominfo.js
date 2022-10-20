@@ -13,83 +13,124 @@ const splitToTwo = (str, sep) => {
 const chrToAbs = (chr, chromInfo, firstChrom = "") => {
   // `chr`: chr1, chr1:10000, 100000 (if has firstChrom)
   let error, absPos, chrom;
+  const ret = { error, absPos, chrom };
+  const { chrPositions, chromLengths } = chromInfo;
   // check chr1
-  if (chr in chromInfo.chrPositions) {
+  if (chr in chrPositions) {
     if (firstChrom) {
       // this is the second chr, pick the end position
-      absPos =
-        chromInfo.chrPositions[chr].pos + chromInfo.chromLengths[chr] - 1;
+      ret.absPos = chrPositions[chr].pos + chromLengths[chr] - 1;
     } else {
       // this is the first chr, pick the start position
-      absPos = chromInfo.chrPositions[chr].pos;
+      ret.absPos = chrPositions[chr].pos;
     }
-    return { error, absPos, chrom: chr };
+    ret.chrom = chr;
+    return ret;
   }
   // check chr1:10000
   if (chr.includes(":")) {
     const splited = splitToTwo(chr, ":");
     if (!splited.valid) {
-      error = "Wrong format";
-      return { error, absPos, chrom };
+      ret.error = "Invalid format";
+      return ret;
     }
-    if (!(splited.first in chromInfo.chrPositions)) {
-      error = "Wrong format";
-      return { error, absPos, chrom };
+    if (!(splited.first in chrPositions)) {
+      ret.error = `Chromosome name ${splited.first} does not exist`;
+      return ret;
     }
     try {
+      ret.chrom = splited.first;
       const pos = strToInt(splited.second);
-      if (
-        isNaN(pos) ||
-        pos < 0 ||
-        pos >= chromInfo.chromLengths[splited.first]
-      ) {
-        error = "Wrong format";
-        return { error, absPos, chrom };
+      if (isNaN(pos) || pos < 0 || pos >= chromLengths[ret.chrom]) {
+        ret.error = `Invalid position ${splited.second}`;
+        return ret;
       }
-      absPos = chromInfo.chrToAbs([splited.first, pos]);
-      return { error, absPos, chrom: splited.first };
+      ret.absPos = chromInfo.chrToAbs([ret.chrom, pos]);
+      return ret;
     } catch (err) {
-      error = err;
-      return { error, absPos, chrom };
+      ret.error = err;
+      return ret;
     }
   }
 
   // check 10000
   if (!firstChrom) {
-    error = "Wrong format";
-    return { error, absPos, chrom };
+    // is the start but without ':'
+    ret.error = `Chromosome name ${chr} does not exist`;
+    return ret;
   }
   try {
     const pos = strToInt(chr);
-    if (!(firstChrom in chromInfo.chromLengths)) {
-      error = "Wrong format";
-      return { error, absPos, chrom };
+    if (!(firstChrom in chromLengths)) {
+      ret.error = `Chromosome name ${firstChrom} does not exist`;
+      return ret;
     }
-    if (isNaN(pos) || pos < 0 || pos >= chromInfo.chromLengths[firstChrom]) {
-      error = "Wrong format";
-      return { error, absPos, chrom };
+    if (isNaN(pos) || pos < 0 || pos >= chromLengths[firstChrom]) {
+      ret.error = `Invalid position ${chr}`;
+      return ret;
     }
-    absPos = chromInfo.chrToAbs([firstChrom, pos]);
-    return { error, absPos, chrom: firstChrom };
+    ret.chrom = firstChrom;
+    ret.absPos = chromInfo.chrToAbs([firstChrom, pos]);
+    return ret;
   } catch (err) {
-    error = err;
-    return { error, absPos, chrom };
+    ret.error = err;
+    return ret;
   }
 };
 
 const chrToInterval = (chr, chromInfo) => {
-  let error, absPos1, absPos2;
-  if (!(chr in chromInfo.chrPositions)) {
-    error = "Wrong format";
-    return { error, absPos1, absPos2 };
+  let error, startAbsPos, endAbsPos;
+  const ret = { error, startAbsPos, endAbsPos };
+  const { chrPositions, chromLengths } = chromInfo;
+
+  if (!(chr in chrPositions)) {
+    ret.error = `Chromosome name ${chr} does not exist`;
+    return ret;
   }
-  absPos1 = chromInfo.chrPositions[chr].pos;
-  absPos2 = absPos1 + chromInfo.chromLengths[chr] - 1;
-  return { error, absPos1, absPos2 };
+  ret.startAbsPos = chrPositions[chr].pos;
+  ret.endAbsPos = ret.startAbsPos + chromLengths[chr] - 1;
+  return ret;
+};
+
+const convertGenomePosition = (position, chromInfo) => {
+  let error, startAbsPos, endAbsPos;
+  const ret = { error, startAbsPos, endAbsPos };
+
+  if (position.includes("-")) {
+    const splited = splitToTwo(position, "-");
+    if (!splited.valid) {
+      ret.error = "Invalid format";
+      return ret;
+    }
+    const first = chrToAbs(splited.first, chromInfo);
+    if (first.error) {
+      ret.error = first.error;
+      return ret;
+    }
+    const second = chrToAbs(splited.second, chromInfo, first.chrom);
+    if (second.error) {
+      ret.error = second.error;
+      return ret;
+    }
+    if (second.absPos - first.absPos <= 300000) {
+      ret.error = "Genome interval must be at least 300kb";
+      return ret.error;
+    }
+    ret.startAbsPos = first.absPos;
+    ret.endAbsPos = second.absPos;
+    return ret;
+  }
+  // if position does not contain '-', it can only be a chrom name
+  const unsplited = chrToInterval(position, chromInfo);
+  ret.error = unsplited.error;
+  ret.startAbsPos = unsplited.startAbsPos;
+  ret.endAbsPos = unsplited.endAbsPos;
+  return ret;
 };
 
 const useChromInfo = (chromInfoPath) => {
   const [chromInfo, setChromInfo] = useState();
+  const [chroms, setChroms] = useState([]);
 
   // fetch the latest chromosome info
   // ChromosomeInfo API -------------------------------------
@@ -103,6 +144,7 @@ const useChromInfo = (chromInfoPath) => {
   useEffect(() => {
     ChromosomeInfo(chromInfoPath, (newChromInfo) => {
       setChromInfo(newChromInfo);
+      setChroms(newChromInfo.cumPositions.map((cumPos) => cumPos.chr));
     });
   }, [chromInfoPath]);
 
@@ -121,33 +163,33 @@ const useChromInfo = (chromInfoPath) => {
       if (!required && position.trim() === "") {
         return undefined;
       }
-      if (position.includes("-")) {
-        const splited = splitToTwo(position, "-");
-        if (!splited.valid) {
-          return "Wrong format";
-        }
-        const first = chrToAbs(splited.first, chromInfo);
-        if (first.error) {
-          return first.error;
-        }
-        const second = chrToAbs(splited.second, chromInfo, first.chrom);
-        if (second.error) {
-          return second.error;
-        }
-        if (second.absPos - first.absPos <= 2000) {
-          return "Too short";
-        }
-        console.log(first.absPos, second.absPos);
-      } else {
-        const { error, absPos1, absPos2 } = chrToInterval(position, chromInfo);
-        console.log(absPos1, absPos2);
-        return error;
+      if (position.trim() === "") {
+        return "Must not be empty";
       }
+      const { error } = convertGenomePosition(position, chromInfo);
+      return error;
     },
     [chromInfo]
   );
 
-  return { validateGenomePosition };
+  const getGenomePosition = useCallback(
+    (position) => {
+      if (!chromInfo || position.trim() === "") {
+        return undefined;
+      }
+      const { error, startAbsPos, endAbsPos } = convertGenomePosition(
+        position,
+        chromInfo
+      );
+      if (error) {
+        return undefined;
+      }
+      return [startAbsPos, endAbsPos];
+    },
+    [chromInfo]
+  );
+
+  return { validateGenomePosition, getGenomePosition, chroms };
 };
 
 export default useChromInfo;
