@@ -73,16 +73,34 @@ A processed example .g3d file can be downloaded from [drive](https://drive.googl
 
 ### Visualize datasets in HiCube
 
-Before adding datasets to HiCube, users will first need to add public or local API servers (created with Docker) URLs to the *track server manager*, and select a *genome assembly* e.g. hg19, mm10, for your datasets. Then users can start to search, filter and add public or private datasets by clicking the *Add a new case* button.
+Before adding datasets to HiCube, users will first need to add public or local API servers (created with Docker) URLs to the **Track Source Servers**, and select a **Genome Assembly** e.g. hg19, mm10, for your datasets. 
+
+![Add server](docs/img/add-server.png)
+
+Then users can start to add public or private datasets by clicking the **Add A New Case** button.
 
 #### Add datasets to create a case
 
+First users need to enter the genome positions for display at *X axis* (required) and *Y axis* (optional), the accepting formats including: 
+
+- a single chromosome name: **chr1**
+- a range of chromosomes separated by `-`: **chr1-chr22**
+- a range on a single chromosome: **chr11:1500000-2400000**
+- a range span on multiple chromosomes: **chr1:100000-chr2:100000**
+
+![Genome positions](docs/img/genome-position.png)
+
 The Hi-C dataset (in cooler format) is required to select and will be shown in the center track.
+
 Additionally, a 3D genome structure file (in .g3d format) can be uploaded, and users can select which resolution, and which parental genome or cell (if such category exists) to show.
+
+![Hi-C and 3D](docs/img/hic-3d.png)
 
 Other types of datasets, such as gene annotation, chromosome location, bigWig, etc. can also be added, users can select the track type and which track positions (left, right, top, bottom, center) to display the datasets.
 
-Then click *Add a new case* to show it in the app.
+![Additional datasets](docs/img/additional-datasets.png)
+
+Then click **Add A New Case** to display the datasets in the app.
 
 #### Add paired datasets to create a paired case
 
