@@ -104,7 +104,16 @@ Then click **Add A New Case** to display the datasets in the app.
 
 #### Add paired datasets to create a paired case
 
-A second case can be added by clicking the *Add a paired case* button, and for each dataset in the existing case, users need to select its paired dataset in the second case.
+A second case can be added by clicking the **Add A Paired Case** button, and for each dataset in the existing case, users need to select its paired dataset in the second case.
+
+![Paired case](docs/img/paired-case.png)
+
+The following adjustments will be synchronized between cases:
+
+- navigation i.e. the current displayed genomic region
+- zoom view creation and navigation
+- annotations
+- display options
 
 #### Add zoom view
 
