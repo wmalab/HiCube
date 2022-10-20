@@ -289,16 +289,15 @@ const HiGlassCase = (props) => {
   useEffect(() => {
     if (props.overlays.length === 0) {
       // dispatchViewConfigAction({ type: "CLEAR_OVERLAYS" });
-      // configCtx.removeOverlays([
-      //   {
-      //     xDomain: mainLocation && mainLocation.xDomain,
-      //     yDomain: mainLocation && mainLocation.yDomain,
-      //   },
-      //   {
-      //     xDomain: zoomLocation && zoomLocation.xDomain,
-      //     yDomain: zoomLocation && zoomLocation.yDomain,
-      //   },
-      // ]);
+      if (mainLocation && mainLocation.xDomain && mainLocation.yDomain) {
+        configCtx.removeOverlays([
+          { xDomain: mainLocation.xDomain, yDomain: mainLocation.yDomain },
+          {
+            xDomain: zoomLocation && zoomLocation.xDomain,
+            yDomain: zoomLocation && zoomLocation.yDomain,
+          },
+        ]);
+      }
     } else {
       // dispatchViewConfigAction({
       //   type: "CHANGE_OVERLAYS",

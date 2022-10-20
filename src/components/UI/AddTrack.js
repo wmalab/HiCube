@@ -106,7 +106,7 @@ const TrackPositionsComponent = (props) => {
 // trackSelector gives server, tilesetUid and name
 const AddTrack = (props) => {
   const datatypes = availDatatypes();
-  console.log(props.track);
+  // console.log(props.track);
 
   return (
     <div className={classes.addtrack}>

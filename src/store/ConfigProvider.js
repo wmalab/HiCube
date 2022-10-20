@@ -394,6 +394,7 @@ const configsReducer = (state, action) => {
     };
     return updatedConfigs;
   } else if (action.type === "REMOVE_OVERLAYS") {
+    // TODO: fix this if no exists overlays we can skip
     const { xyDomains } = action;
     const { cases, positionedTracks, chromInfoPath } = state;
     const updatedCases = [];
@@ -420,6 +421,7 @@ const configsReducer = (state, action) => {
     const updatedConfigs = {
       cases: updatedCases,
       pairedLocks: state.pairedLocks,
+      threeCases: state.threeCases,
       positionedTracks: updatedPositionedTracks,
       chromInfoPath: chromInfoPath,
       viewConfigs: updatedViewConfigs,

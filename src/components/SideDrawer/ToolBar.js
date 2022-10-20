@@ -43,12 +43,12 @@ const ToolBar = (props) => {
 
   return (
     <>
-      <Collapsible title="Zoom-In View">
+      <Collapsible title="Zoom View">
         <div className={classes.action}>
-          <button onClick={props.onSelect}>Select Zoom-In Region</button>
+          <button onClick={props.onSelect}>Select Zoom Region</button>
           <button onClick={props.onCancel}>Cancel</button>
-          <button onClick={props.onAddZoomIn}>Create Zoom-In View</button>
-          <button onClick={props.onRemoveZoomIn}>Remove Zoom-In View</button>
+          <button onClick={props.onAddZoomIn}>Create Zoom View</button>
+          <button onClick={props.onRemoveZoomIn}>Remove Zoom View</button>
         </div>
       </Collapsible>
       <Collapsible title="Annotations">

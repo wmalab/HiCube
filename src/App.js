@@ -8,6 +8,7 @@ import { defaultOptions as options } from "./configs/default-config";
 import ThreeTrack from "./components/Three/ThreeTrack";
 import { uid, strToInt } from "./utils";
 import { ChromosomeInfo } from "higlass";
+import ErrorBoundary from "./components/UI/ErrorBoundary";
 import "../node_modules/react-grid-layout/css/styles.css";
 import "../node_modules/react-resizable/css/styles.css";
 
@@ -420,6 +421,7 @@ export default function App() {
             return (
               <>
                 <div key={caseUids.uid + "-higlass"} className="content-item">
+                  <ErrorBoundary>
                   <HiGlassCase
                     id={caseUids.uid}
                     options={options}
@@ -438,6 +440,7 @@ export default function App() {
                     onCreateOverlay={createOverlayHandler}
                     overlays={overlays}
                   />
+                  </ErrorBoundary>
                 </div>
                 <div key={caseUids.uid + "-3d"} className="content-item">
                   <ThreeTrack
