@@ -8,6 +8,8 @@ HiCube provides following unique features and functionality:
 - Zoom view at higher resolution
 - Add configurable annotations
 
+![Overview](docs/img/figure-1.png)
+
 ## Installation
 
 Clone the repository to local:
@@ -117,8 +119,8 @@ The following adjustments will be synchronized between cases:
 
 #### Add zoom view
 
-Click the third button in the sidebar, users can choose *Select zoom region* and use mouse to select the region to zoom, then click *Create zoom view* to create a zoom view for that region.
+Switch to the **Tools** tab (3rd tab) in the sidebar, users can choose **Select zoom region**, then press and hold down the left mouse button to select the region to zoom, then click **Create zoom view** to create a zoom view for that region.
 
 #### Add annotations
 
-Click the third button in the sidebar, users can choose *Select annotation region* and use mouse to select either 1D (from top, left, right, bottom tracks) or 2D (from center track) region, and click *Add annotation* to show it.
+Switch to the **Tools** tab (3rd tab) in the sidebar, users can choose **Select annotation region**, then press and hold down the left mouse button to select either 1D (on top, left, right, bottom tracks) or 2D (on center track) region, and click **Add annotation** to show it.
