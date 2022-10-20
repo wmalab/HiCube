@@ -68,7 +68,7 @@ const TrackSourceManager = (props) => {
             value={enteredServer}
             onChange={serverInputChangeHandler}
             onFocus={focusHandler}
-            placeholder="Enter HiGlass API server URL"
+            placeholder="Enter HiGlass API server URL..."
           ></input>
           {errorMsg && (
             <div className={classes.error}>

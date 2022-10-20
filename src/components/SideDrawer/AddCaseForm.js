@@ -1,26 +1,45 @@
 import React, { useRef, useEffect } from "react";
-import { Formik, Field, FieldArray, Form } from "formik";
+import { Formik, Field, FieldArray, Form, useFormikContext } from "formik";
 import AddTrack from "../UI/AddTrack";
 import TrackSelector from "../UI/TrackSelector";
 import FileUploader from "../UI/FileUploader";
 import { strToInt } from "../../utils";
 import { ChromosomeInfo } from "higlass";
 import Collapsible from "../UI/Collapsible";
+import useChromInfo from "../../hooks/use-chrominfo";
 import classes from "./AddCaseForm.module.css";
 
-const GenomePositionInput = () => {
+const GenomePositionInput = (props) => {
+  const { errors, touched } = useFormikContext();
   return (
     <Collapsible title="Genome Positions" className={classes.enterfield}>
       <div>
         <label>X axis:</label>
-        <Field name="initialXDomain" placeholder="Enter position" />
+        <Field
+          name="initialXDomain"
+          placeholder="Enter position..."
+          validate={props.validate.bind(null, true)}
+        />
+        {errors.initialXDomain && touched.initialXDomain && (
+          <p className={classes.error}>{errors.initialXDomain}</p>
+        )}
       </div>
       <div>
         <label>Y axis:</label>
-        <Field name="initialYDomain" placeholder="Enter position" />
+        <Field
+          name="initialYDomain"
+          placeholder="Enter position..."
+          validate={props.validate.bind(null, false)}
+        />
+        {errors.initialYDomain && touched.initialYDomain && (
+          <p className={classes.error}>{errors.initialYDomain}</p>
+        )}
       </div>
       <div className={classes.example}>
-        <p>Example: chr11:1500000-chr11:2400000</p>
+        <p>
+          Example: chr11:1500000-chr11:2400000, chr11:1500000-2400000, chr1,
+          chr1-chr22
+        </p>
       </div>
     </Collapsible>
   );
@@ -61,6 +80,8 @@ const AddCaseForm = (props) => {
   const { assemblyName, chromInfoPath } = genomeAssembly;
   const chromInfo = useRef();
 
+  const { validateGenomePosition } = useChromInfo(chromInfoPath);
+
   useEffect(() => {
     ChromosomeInfo(chromInfoPath, (newChromInfo) => {
       chromInfo.current = newChromInfo;
@@ -85,6 +106,7 @@ const AddCaseForm = (props) => {
 
   return (
     <Formik
+      validateOnChange={false}
       initialValues={{
         initialXDomain: "",
         initialYDomain: "",
@@ -115,7 +137,7 @@ const AddCaseForm = (props) => {
     >
       {({ values }) => (
         <Form>
-          <GenomePositionInput />
+          <GenomePositionInput validate={validateGenomePosition} />
           <Field
             name="centerHiC"
             component={MatrixSelectComponent}
