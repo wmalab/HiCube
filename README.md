@@ -2,7 +2,11 @@
 
 HiCube is a web application provides interactive visualization of multiscale and multimodal Hi-C and 3D genome data. 
 
-<!-- TODO add figure 1 here -->
+HiCube provides following unique features and functionality:
+
+- Paired case synchronization
+- Zoom view at higher resolution
+- Add configurable annotations
 
 ## Installation
 
@@ -27,7 +31,29 @@ The example datasets can be downloaded at [drive](https://drive.google.com/drive
 The 1D and 2D datasets need to be served with [HiGlass Server](https://github.com/higlass/higlass-server) for access. There are two public availalbe HiGlass API servers: http://higlass.io/api/v1 and https://higlass.4dnucleome.org/api/v1 that can be used to access vast amount of public datasets. 
 To serve local datasets, the easiest way is to setup a local HiGlass API server with [Docker](https://www.docker.com/) using the [higlass-docker](https://github.com/higlass/higlass-docker) image, and the local API server can be accessed at http://localhost:8888/api/v1 for HiCube.
 
-<!-- TODO: add docker instructions -->
+Create a directory (e.g. `~/hg-data`) to store the cooler files (example files can be downloaded from [drive](https://drive.google.com/drive/folders/12_kfP9tELVEPKOw7ODgx8x2MVYUvi59T?usp=sharing)):
+
+```bash
+# Pull the latest image of higlass-docker
+docker pull higlass/higlass-docker
+
+# Start docker container
+docker run --detach \
+	--publish 8888:80 \
+	--volume ~/hg-data:/data \
+	--volume ~/hg-tmp:/tmp \
+	--name higlass-container \
+	higlass/higlass-docker
+
+# Add cooler files to server
+docker exec higlass-container python higlass-server/manage.py ingest_tileset \
+--filename /data/GSE63525_GM12878_diploid_maternal.mcool \
+--filetype cooler --datatype matrix --coordSystem hg19
+
+docker exec higlass-container python higlass-server/manage.py ingest_tileset \
+--filename /data/GSE63525_GM12878_diploid_paternal.mcool \
+--filetype cooler --datatype matrix --coordSystem hg19
+```
 
 #### 3D genome structure datasets
 
@@ -42,6 +68,8 @@ g3dtools 3dg GSM3271351_gm12878_05.impute3.round4.clean.3dg.txt.gz \
 -g hg19 \
 -s 2,3,4,5,6,7,8,9,10,25,50
 ```
+
+A processed example .g3d file can be downloaded from [drive](https://drive.google.com/drive/folders/12_kfP9tELVEPKOw7ODgx8x2MVYUvi59T?usp=sharing).
 
 ### Visualize datasets in HiCube
 
