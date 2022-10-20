@@ -85,10 +85,10 @@ Then users can start to add public or private datasets by clicking the **Add A N
 
 First users need to enter the genome positions for display at *X axis* (required) and *Y axis* (optional), the accepting formats including: 
 
-- a single chromosome name: **chr1**
-- a range of chromosomes separated by `-`: **chr1-chr22**
-- a range on a single chromosome: **chr11:1500000-2400000**
-- a range span on multiple chromosomes: **chr1:100000-chr2:100000**
+- a single chromosome name: chr1
+- a range of chromosomes separated by -: chr1-chr22
+- a range on a single chromosome: chr11:1500000-2400000
+- a range span on multiple chromosomes: chr1:100000-chr2:100000
 
 ![Genome positions](docs/img/genome-position.png)
 
@@ -119,8 +119,26 @@ The following adjustments will be synchronized between cases:
 
 #### Add zoom view
 
-Switch to the **Tools** tab (3rd tab) in the sidebar, users can choose **Select zoom region**, then press and hold down the left mouse button to select the region to zoom, then click **Create zoom view** to create a zoom view for that region.
+Switch to the **Tools** tab (3rd tab) in the sidebar, users can choose **Select Zoom Region**, then press and hold down the left mouse button to select the region to zoom, then click **Create Zoom View** to create a zoom view for that region.
+
+![Select zoom region](docs/img/zoom-select.png)
 
 #### Add annotations
 
-Switch to the **Tools** tab (3rd tab) in the sidebar, users can choose **Select annotation region**, then press and hold down the left mouse button to select either 1D (on top, left, right, bottom tracks) or 2D (on center track) region, and click **Add annotation** to show it.
+Switch to the **Tools** tab (3rd tab) in the sidebar, users can choose **Select Annotation Region**, then press and hold down the left mouse button to select either 1D (on top, left, right, bottom tracks) or 2D (on center track) region, and click **Add Annotation** to show it.
+
+Other ways to add annotations are: enter in the textarea or upload a file contains a list of genomic intervals in the following formats:
+
+For 1D annotations:
+
+```
+chrom start-coordinate chrom end-coordinate
+```
+
+For 2D annotations:
+
+```
+chrom x-ax-start-coordinate chrom x-ax-end-coordinate chrom y-ax-start-coordinate chrom y-ax-end-coordinate
+```
+
+![Add annotations](docs/img/add-annotations.png)
