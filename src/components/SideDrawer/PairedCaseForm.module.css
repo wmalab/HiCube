@@ -42,9 +42,9 @@
   font-weight: 800;
 }
 
-.footer button.submit:hover {
+/* .footer button.submit:hover {
   background-color: #298e46;
-}
+} */
 
 .footer button.cancel {
   width: 100%;
@@ -57,6 +57,6 @@
   font-weight: 800;
 }
 
-.footer button.cancel:hover {
+/* .footer button.cancel:hover {
   background-color: #9b999d;
-}
+} */

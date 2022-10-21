@@ -32,11 +32,12 @@ p.message {
   border-radius: 5px;
   font-size: 12px;
   margin-right: 3px;
+  cursor: pointer;
 }
 
-.serverlist button:hover {
+/* .serverlist button:hover {
   background-color: #ebe4e4;
-}
+} */
 
 .error p {
   font-size: 12px;
