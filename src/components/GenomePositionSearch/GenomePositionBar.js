@@ -1,6 +1,5 @@
-import React, { useState, useEffect, useRef } from "react";
-import { ChromosomeInfo } from "higlass";
-import { numberWithCommas, strToInt } from "../../utils";
+import React, { useState, useEffect } from "react";
+import useChromInfo from "../../hooks/use-chrominfo";
 import classes from "./GenomePositionBar.module.css";
 
 // Get chr:start-end format from absolute positions
@@ -9,64 +8,16 @@ import classes from "./GenomePositionBar.module.css";
 const GenomePositionBar = (props) => {
   const { xDomain: xScale, yDomain: yScale } = props.positions;
   const [xPositionText, setXPositionText] = useState("");
+  const [xError, setXError] = useState("");
   const [yPositionText, setYPositionText] = useState("");
-  const chromInfo = useRef();
-
-  const convertScaleToPositionText = (scale) => {
-    let positionText = "";
-    // scale: 2 absolute positions
-    if (!scale || !scale[0] || !scale[1]) {
-      return positionText;
-    }
-    const [chrom1, pos1] = chromInfo.current.absToChr(scale[0]);
-    const [chrom2, pos2] = chromInfo.current.absToChr(scale[1]);
-    // if the range is within the same chromosome
-    // use format `${chrom}:${start}-${end}`
-    const pos1Str = numberWithCommas(pos1);
-    const pos2Str = numberWithCommas(pos2);
-    if (chrom1 === chrom2) {
-      positionText = `${chrom1}:${pos1Str}-${pos2Str}`;
-    } else {
-      positionText = `${chrom1}:${pos1Str}-${chrom2}:${pos2Str}`;
-    }
-    console.log(chrom1, pos1, chrom2, pos2);
-    return positionText;
-  };
-
-  const convertPositionTextToScale = (positionText) => {
-    const [chromPos1, chromPos2] = positionText.split("-");
-    const [chrom1, pos1] = chromPos1.split(":");
-    const chromPos2splited = chromPos2.split(":");
-    let chrom2 = chrom1;
-    if (chromPos2splited.length > 1) {
-      chrom2 = chromPos2splited.shift();
-    }
-    const pos2 = chromPos2splited[0];
-    const scale1 = chromInfo.current.chrToAbs([chrom1, strToInt(pos1)]);
-    const scale2 = chromInfo.current.chrToAbs([chrom2, strToInt(pos2)]);
-    return [scale1, scale2];
-  };
-
-  const setPositionText = () => {
-    if (!chromInfo.current) {
-      return;
-    }
-    setXPositionText(convertScaleToPositionText(xScale));
-    setYPositionText(convertScaleToPositionText(yScale));
-  };
-
-  const { genomeAssembly } = props;
-  useEffect(() => {
-    ChromosomeInfo(genomeAssembly.chromInfoPath, (newChromInfo) => {
-      chromInfo.current = newChromInfo;
-      // set chr position text
-      setPositionText();
-    });
-  }, [genomeAssembly]);
+  const [yError, setYError] = useState("");
+  const { validateGenomePosition, getGenomePosition, toGenomePositionString } =
+    useChromInfo(props.genomeAssembly.chromInfoPath);
 
   useEffect(() => {
-    setPositionText();
-  }, [xScale, yScale]);
+    setXPositionText(toGenomePositionString(xScale));
+    setYPositionText(toGenomePositionString(yScale));
+  }, [xScale, yScale, toGenomePositionString]);
 
   const xPositionTextChangeHandler = (event) => {
     setXPositionText(event.target.value);
@@ -76,14 +27,41 @@ const GenomePositionBar = (props) => {
     setYPositionText(event.target.value);
   };
 
+  const xPositionTextBlurHandler = (event) => {
+    // validate
+    const error = validateGenomePosition(true, xPositionText);
+    setXError(error);
+  };
+
+  const yPositionTextBlurHandler = (event) => {
+    // validate
+    const error = validateGenomePosition(false, yPositionText);
+    setYError(error);
+  };
+
+  const xPositionTextFocusHandler = (event) => {
+    setXError("");
+  };
+
+  const yPositionTextFocusHandler = (event) => {
+    setYError("");
+  };
+
   const positionSubmitHandler = (event) => {
     event.preventDefault();
-    // TODO: validation on range
-    const enteredXScale = convertPositionTextToScale(xPositionText);
-    const enteredYScale = convertPositionTextToScale(yPositionText);
+    const xErrMsg = validateGenomePosition(true, xPositionText);
+    const yErrMsg = validateGenomePosition(false, yPositionText);
+    if (xErrMsg || yErrMsg) {
+      setXError(xErrMsg);
+      setYError(yErrMsg);
+      return;
+    }
+    const enteredXScale = getGenomePosition(xPositionText);
+    const enteredYScale = getGenomePosition(yPositionText);
+    // enteredYScale can be empty => then set same as xScale
     const updatedLocation = {
       xDomain: enteredXScale,
-      yDomain: enteredYScale,
+      yDomain: enteredYScale || [...enteredXScale],
     };
     props.onPositionChange(updatedLocation, "user_entered");
   };
@@ -91,24 +69,33 @@ const GenomePositionBar = (props) => {
   return (
     <div>
       <form onSubmit={positionSubmitHandler}>
-        <span className={classes["title"]}>{props.name} :</span>
+        <span className={classes["title"]}>{props.name}</span>
         <div className={classes["position"]}>
+          <span className={classes["sep"]}>X =</span>
           <input
             value={xPositionText}
             onChange={xPositionTextChangeHandler}
+            onBlur={xPositionTextBlurHandler}
+            onFocus={xPositionTextFocusHandler}
             className={classes["position-bar"]}
           />
-          <span className={classes["sep"]}>&</span>
+          <span className={classes["sep"]}>Y =</span>
           <input
             value={yPositionText}
             onChange={yPositionTextChangeHandler}
+            onBlur={yPositionTextBlurHandler}
+            onFocus={yPositionTextFocusHandler}
             className={classes["position-bar"]}
           />
-          <button type="submit" className={classes["search"]}>
-            Go
-          </button>
         </div>
+        <button type="submit" className={classes["search"]}>
+          Go
+        </button>
       </form>
+      <div>
+        {xError && <p className={classes.error}>{`X: ${xError}`}</p>}
+        {yError && <p className={classes.error}>{`Y: ${yError}`}</p>}
+      </div>
     </div>
   );
 };

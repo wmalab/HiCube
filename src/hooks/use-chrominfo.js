@@ -1,6 +1,6 @@
 import { useState, useCallback, useEffect } from "react";
 import { ChromosomeInfo } from "higlass";
-import { strToInt } from "../utils";
+import { strToInt, numberWithCommas } from "../utils";
 
 const splitToTwo = (str, sep) => {
   const items = str.split(sep);
@@ -189,7 +189,36 @@ const useChromInfo = (chromInfoPath) => {
     [chromInfo]
   );
 
-  return { validateGenomePosition, getGenomePosition, chroms };
+  const toGenomePositionString = useCallback(
+    (absPos) => {
+      if (!chromInfo || !absPos || absPos.length < 2) {
+        return "";
+      }
+      const [startAbsPos, endAbsPos] = absPos;
+      if (startAbsPos == null || endAbsPos == null) {
+        return "";
+      }
+      const [startChrom, startPos] = chromInfo.absToChr(startAbsPos);
+      const [endChrom, endPos] = chromInfo.absToChr(endAbsPos);
+      // if the range is within the same chromosome
+      // use format `${chrom}:${start}-${end}`
+      const startPosStr = numberWithCommas(startPos);
+      const endPosStr = numberWithCommas(endPos);
+      if (startChrom === endChrom) {
+        return `${startChrom}:${startPosStr}-${endPosStr}`;
+      } else {
+        return `${startChrom}:${startPosStr}-${endChrom}:${endPosStr}`;
+      }
+    },
+    [chromInfo]
+  );
+
+  return {
+    validateGenomePosition,
+    getGenomePosition,
+    toGenomePositionString,
+    chroms,
+  };
 };
 
 export default useChromInfo;
