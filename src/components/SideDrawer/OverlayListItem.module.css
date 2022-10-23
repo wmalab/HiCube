@@ -1,0 +1,9 @@
+.action button {
+  width: 100%;
+  background-color: #dddddd;
+  border: 1px solid dimgrey;
+  padding-top: 5px;
+  padding-bottom: 5px;
+  cursor: pointer;
+  font-weight: 500;
+}

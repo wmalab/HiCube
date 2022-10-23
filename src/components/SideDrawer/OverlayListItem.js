@@ -1,13 +1,11 @@
 import React from "react";
-import { Formik, Field, Form } from "formik";
-import OverlayListItem from "./OverlayListItem";
+import { Formik, Form } from "formik";
 import Collapsible from "../UI/Collapsible";
 import Option from "../UI/Option";
 import GenomePositionInput from "../UI/GenomePositionInput";
-import classes from "./OverlayList.module.css";
+import classes from "./OverlayListItem.module.css";
 
-/*
-const OverlayItem = (props) => {
+const OverlayListItem = (props) => {
   const { uid, extent, options, onSubmit } = props;
 
   return (
@@ -128,31 +126,5 @@ const OverlayItem = (props) => {
     </Formik>
   );
 };
-*/
 
-const OverlayList = (props) => {
-  return (
-    <>
-      {props.overlays.map((overlay, index) => {
-        return (
-          <Collapsible
-            key={overlay.uid}
-            title={`Annotation #${index + 1}`}
-            onDelete={props.onRemoveOverlay.bind(null, overlay.uid)}
-          >
-            <OverlayListItem
-              key={overlay.uid}
-              uid={overlay.uid}
-              extent={overlay.extent}
-              options={overlay.options}
-              onSubmit={props.onUpdateOverlay}
-              genomeAssembly={props.genomeAssembly}
-            />
-          </Collapsible>
-        );
-      })}
-    </>
-  );
-};
-
-export default OverlayList;
+export default OverlayListItem;
