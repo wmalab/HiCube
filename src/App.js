@@ -376,6 +376,7 @@ export default function App() {
         genomeAssembly={genomeAssembly}
         onGenomeAssemblyChange={genomeAssemblyChangeHandler}
         mainLocation={mainLocation}
+        zoomLocation={rangeSelection}
         onSubmitConfig={loadConfigHandler}
         // onAddCase={addCaseHandler}
         // configs={configs}
@@ -421,7 +422,7 @@ export default function App() {
             return (
               <>
                 <div key={caseUids.uid + "-higlass"} className="content-item">
-                  <ErrorBoundary>
+                  {/* <ErrorBoundary> */}
                   <HiGlassCase
                     id={caseUids.uid}
                     options={options}
@@ -440,7 +441,7 @@ export default function App() {
                     onCreateOverlay={createOverlayHandler}
                     overlays={overlays}
                   />
-                  </ErrorBoundary>
+                  {/* </ErrorBoundary> */}
                 </div>
                 <div key={caseUids.uid + "-3d"} className="content-item">
                   <ThreeTrack

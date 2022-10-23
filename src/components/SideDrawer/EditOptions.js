@@ -1,10 +1,8 @@
 import React, { useContext } from "react";
-import { Formik, Field, FieldArray, Form, useField } from "formik";
 import ConfigContext from "../../store/config-context";
-import TRACKS_INFO_BY_TYPE from "../../configs/tracks-info-by-type";
-import FormItem from "../UI/FormItem";
 import Collapsible from "../UI/Collapsible";
-import Option from "../UI/Option";
+import DisplayOptions from "../UI/DisplayOptions";
+import TrackOptionList from "../UI/TrackOptionList";
 
 // TODO: group by cases, then the main heatmap options
 // then list of other tracks
@@ -12,13 +10,18 @@ import Option from "../UI/Option";
 // TODO: use index to manager configs and re-generate
 // viewconfig once index changed
 
+/*
 const camelcase2label = (str) => {
   return str.replace(/([A-Z])/g, " $1").toLowerCase();
 };
+*/
 
+/*
 const getAvailableOptions = (trackType) =>
   TRACKS_INFO_BY_TYPE[trackType].availableOptions;
+*/
 
+/*  
 const OptionsForm = (props) => {
   return (
     <Formik
@@ -51,13 +54,6 @@ const OptionsForm = (props) => {
                     name={`options.${index}.value`}
                     type={type}
                   />
-                  // <div key={index}>
-                  //   <FormItem
-                  //     type={typeof option.value}
-                  //     label={option.name}
-                  //     name={`options.${index}.value`}
-                  //   />
-                  // </div>
                 );
               })}
           </div>
@@ -69,7 +65,9 @@ const OptionsForm = (props) => {
     </Formik>
   );
 };
+*/
 
+/*
 const TrackOptions = (props) => {
   return (
     <>
@@ -90,18 +88,13 @@ const TrackOptions = (props) => {
               type={type}
             />
           );
-          // <div key={index}>
-          //   <FormItem
-          //     type={typeof option.value}
-          //     label={option.name}
-          //     name={`tracks.${props.index}.options.${index}.value`}
-          //   />
-          // </div>
         })}
     </>
   );
 };
+*/
 
+/*
 const TrackForm = (props) => {
   console.log(props.tracks);
 
@@ -148,7 +141,9 @@ const TrackForm = (props) => {
     </Formik>
   );
 };
+*/
 
+/*
 const TrackList = (props) => {
   const configCtx = useContext(ConfigContext);
   // configCtx.positionedTracks[];
@@ -193,7 +188,9 @@ const TrackList = (props) => {
     </Collapsible>
   );
 };
+*/
 
+/*
 const HicOptions = (props) => {
   const hicUid = props.config.contents[0].uid;
   const configCtx = useContext(ConfigContext);
@@ -213,23 +210,38 @@ const HicOptions = (props) => {
   };
 
   return (
-    <Collapsible title="Hi-C Track" defaultCollapsed={true}>
+    <Collapsible title="Hi-C Track" defaultCollapsed>
       <OptionsForm options={allOptions} onSubmit={submitHandler} />
     </Collapsible>
   );
 };
+*/
 
 const CaseOptions = (props) => {
+  // TODO: add 3D options
   return (
     <div>
-      <HicOptions
+      {/* <HicOptions
         config={props.views[0]["2d"]}
         mainLocation={props.mainLocation}
+        zoomLocation={props.zoomLocation}
+      /> */}
+      <DisplayOptions
+        trackUid={props.views[0]["2d"].contents[0].uid}
+        trackName={props.views[0]["2d"].contents[0].name}
+        mainLocation={props.mainLocation}
+        zoomLocation={props.zoomLocation}
       />
-      <TrackList
+      <TrackOptionList 
         config={props.views[0]["1d"]}
         mainLocation={props.mainLocation}
+        zoomLocation={props.zoomLocation}
       />
+      {/* <TrackList
+        config={props.views[0]["1d"]}
+        mainLocation={props.mainLocation}
+        zoomLocation={props.zoomLocation}
+      /> */}
     </div>
   );
 };
@@ -245,6 +257,7 @@ const EditOptions = (props) => {
             key={caseConfig.uid}
             views={caseConfig.views}
             mainLocation={props.mainLocation}
+            zoomLocation={props.zoomLocation}
           />
         </Collapsible>
       ))}

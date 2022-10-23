@@ -38,3 +38,18 @@ export const numberWithCommas = (num) => {
 };
 
 export const strToInt = (str) => parseInt(str.replace(/,/g, ""));
+
+export const camelCaseToTitleCase = (text) => {
+  const result = text.replace(/([A-Z])/g, " $1");
+  return result.charAt(0).toUpperCase() + result.slice(1);
+};
+
+export const basicType = (value) => {
+  if (typeof value === "number") {
+    return "number";
+  }
+  if (typeof value === "boolean") {
+    return "boolean";
+  }
+  return "string";
+};

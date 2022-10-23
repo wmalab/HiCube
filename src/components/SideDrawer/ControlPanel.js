@@ -27,7 +27,10 @@ const ControlPanel = (props) => {
         />
       )}
       {panel === "EditOptions" && (
-        <EditOptions mainLocation={props.mainLocation} />
+        <EditOptions
+          mainLocation={props.mainLocation}
+          zoomLocation={props.zoomLocation}
+        />
       )}
       {panel === "ToolBar" && (
         <ToolBar
