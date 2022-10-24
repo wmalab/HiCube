@@ -200,9 +200,12 @@ const useChromInfo = (chromInfoPath) => {
       if (!chromInfo || position.trim() === "") {
         return undefined;
       }
+      // should already done validation, relax all constraints (onSameChrom, minDist)
       const { error, startAbsPos, endAbsPos } = convertGenomePosition(
         position,
-        chromInfo
+        chromInfo,
+        false,
+        0
       );
       if (error) {
         return undefined;
