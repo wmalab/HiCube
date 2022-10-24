@@ -9,7 +9,7 @@ const YES_NO = {
   no: { name: "No", value: false },
 };
 
-const AVAILABLE_COLORS = {
+export const AVAILABLE_COLORS = {
   black: { name: "Black", value: "black" },
   blue: { name: "Blue", value: "blue" },
   brown: { name: "Brown", value: "brown" },

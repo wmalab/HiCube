@@ -92,7 +92,12 @@ const chrToInterval = (chr, chromInfo) => {
   return ret;
 };
 
-const convertGenomePosition = (position, chromInfo) => {
+const convertGenomePosition = (
+  position,
+  chromInfo,
+  onSameChrom = false,
+  minDist = 300000
+) => {
   let error, startAbsPos, endAbsPos;
   const ret = { error, startAbsPos, endAbsPos };
 
@@ -112,9 +117,13 @@ const convertGenomePosition = (position, chromInfo) => {
       ret.error = second.error;
       return ret;
     }
-    if (second.absPos - first.absPos <= 300000) {
-      ret.error = "Genome interval must be at least 300kb";
-      return ret.error;
+    if (onSameChrom && first.chrom !== second.chrom) {
+      ret.error = "Must be on the same chromosome";
+      return ret;
+    }
+    if (second.absPos - first.absPos <= minDist) {
+      ret.error = `Genome interval must be at least ${minDist}`;
+      return ret;
     }
     ret.startAbsPos = first.absPos;
     ret.endAbsPos = second.absPos;
@@ -172,6 +181,20 @@ const useChromInfo = (chromInfoPath) => {
     [chromInfo]
   );
 
+  const validateGenomePositionOnSameChrom = useCallback(
+    (position) => {
+      if (!chromInfo) {
+        return undefined;
+      }
+      if (position.trim() === "") {
+        return "Must not be empty";
+      }
+      const { error } = convertGenomePosition(position, chromInfo, true, 5000);
+      return error;
+    },
+    [chromInfo]
+  );
+
   const getGenomePosition = useCallback(
     (position) => {
       if (!chromInfo || position.trim() === "") {
@@ -215,6 +238,7 @@ const useChromInfo = (chromInfoPath) => {
 
   return {
     validateGenomePosition,
+    validateGenomePositionOnSameChrom,
     getGenomePosition,
     toGenomePositionString,
     chroms,

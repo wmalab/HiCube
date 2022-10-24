@@ -1,122 +1,204 @@
-import React from "react";
-import { Formik, Form } from "formik";
+import React, { useMemo } from "react";
+import { Formik, Form, useField } from "formik";
 import Collapsible from "../UI/Collapsible";
 import Option from "../UI/Option";
-import GenomePositionInput from "../UI/GenomePositionInput";
+import ColorOption from "../UI/ColorOption";
+import FontSizeOption from "../UI/FontSizeOption";
+import FontWeightOption from "../UI/FontWeightOption";
+// import GenomePositionInput from "../UI/GenomePositionInput";
+import useChromInfo from "../../hooks/use-chrominfo";
 import classes from "./OverlayListItem.module.css";
+
+const GenomePositionInput = ({ label, ...props }) => {
+  const [field, meta] = useField(props);
+
+  return (
+    <div>
+      <div className={classes.position}>
+        <label>{label}:</label>
+        <input {...field} {...props} />
+      </div>
+      {meta.touched && meta.error && (
+        <p className={classes.error}>{meta.error}</p>
+      )}
+    </div>
+  );
+};
 
 const OverlayListItem = (props) => {
   const { uid, extent, options, onSubmit } = props;
+  // validate genome location
+  // X axis or Y axis should only be on one chromosome
+  // convert genome position string back to abs position when submit
+  const {
+    validateGenomePositionOnSameChrom,
+    getGenomePosition,
+    toGenomePositionString,
+  } = useChromInfo(props.genomeAssembly.chromInfoPath);
+
+  const initialXDomain = useMemo(() => {
+    if (!extent || extent.length < 2) {
+      return "";
+    }
+    return toGenomePositionString(extent.slice(0, 2));
+  }, [extent, toGenomePositionString]);
+
+  const initialYDomain = useMemo(() => {
+    if (!extent || extent.length < 4) {
+      return "";
+    }
+    return toGenomePositionString(extent.slice(2, 4));
+  }, [extent, toGenomePositionString]);
+
+  // BEWARE: toGenomePositionString depend on the chromInfo, use is async call
+  // until the Promise is resolved, toGenomePositionString will return ""
+  // we need enableReinitialize so once it loaded we reset the form
 
   return (
     <Formik
+      enableReinitialize
+      validateOnChange={false}
       initialValues={{
-        extent: extent,
+        initialXDomain: initialXDomain,
+        initialYDomain: initialYDomain,
         options: options,
       }}
       onSubmit={(values, { setSubmitting }) => {
         setTimeout(() => {
-          onSubmit(uid, values.extent, values.options);
+          let newExtent = [];
+          if (values.initialXDomain) {
+            newExtent = getGenomePosition(values.initialXDomain);
+          }
+          if (values.initialYDomain) {
+            newExtent = [
+              ...newExtent,
+              ...getGenomePosition(values.initialYDomain),
+            ];
+          }
+          onSubmit(uid, newExtent, values.options);
           setSubmitting(false);
         }, 400);
       }}
     >
       {({ values }) => (
         <Form>
-          <Collapsible title="Genomic Locations">
+          <Collapsible title="Genome Positions">
             <GenomePositionInput
-              name="extent"
-              extent={extent}
-              genomeAssembly={props.genomeAssembly}
+              label="X axis"
+              name="initialXDomain"
+              validate={validateGenomePositionOnSameChrom}
             />
+            {extent && extent.length >= 4 && (
+              <GenomePositionInput
+                label="Y axis"
+                name="initialYDomain"
+                validate={validateGenomePositionOnSameChrom}
+              />
+            )}
           </Collapsible>
-          <Collapsible title="1D/2D Options">
-            <Option label="fill color" name="options.higlass.fill" />
+          <Collapsible title="2D Options">
+            <ColorOption label="Fill Color" name="options.higlass.fill" />
             <Option
-              label="fill opacity"
+              label="Fill Opacity"
               name="options.higlass.fillOpacity"
               type="number"
               min="0"
+              max="1"
               step="0.1"
             />
-            <Option label="stroke color" name="options.higlass.stroke" />
+            <ColorOption label="Stroke Color" name="options.higlass.stroke" />
             <Option
-              label="stroke opacity"
+              label="Stroke Opacity"
               name="options.higlass.strokeOpacity"
               type="number"
               min="0"
+              max="1"
               step="0.1"
             />
             <Option
-              label="stroke width"
+              label="Stroke Width"
               name="options.higlass.strokeWidth"
               type="number"
               min="0"
+              max="10"
               step="1"
             />
           </Collapsible>
           <Collapsible title="3D Options">
-            <Option
-              label="draw line"
-              name="options.threed.drawLine"
-              type="checkbox"
-            />
-            <Option label="line color" name="options.threed.lineColor" />
-            <Option
-              label="line width"
-              name="options.threed.lineWidth"
-              type="number"
-              min="0"
-              step="1"
-            />
-            <Option
-              label="draw anchor 1"
-              name="options.threed.drawAnchor1"
-              type="checkbox"
-            />
-            <Option label="anchor 1 color" name="options.threed.anchor1Color" />
-            <Option
-              label="anchor 1 radius"
-              name="options.threed.anchor1Radius"
-              type="number"
-            />
-            <Option label="anchor 1 label" name="options.threed.anchor1Label" />
-            <Option
-              label="anchor 1 label font-size"
-              name="options.threed.anchor1LabelSize"
-            />
-            <Option
-              label="anchor 1 label color"
-              name="options.threed.anchor1LabelColor"
-            />
-            <Option
-              label="anchor 1 label font weight"
-              name="options.threed.anchor1LabelWeight"
-            />
-            <Option
-              label="draw anchor 2"
-              name="options.threed.drawAnchor2"
-              type="checkbox"
-            />
-            <Option label="anchor 2 color" name="options.threed.anchor2Color" />
-            <Option
-              label="anchor 2 radius"
-              name="options.threed.anchor2Radius"
-              type="number"
-            />
-            <Option label="anchor 2 label" name="options.threed.anchor2Label" />
-            <Option
-              label="anchor 2 label font-size"
-              name="options.threed.anchor2LabelSize"
-            />
-            <Option
-              label="anchor 2 label color"
-              name="options.threed.anchor2LabelColor"
-            />
-            <Option
-              label="anchor 2 label font weight"
-              name="options.threed.anchor2LabelWeight"
-            />
+            <Collapsible title="Line">
+              <Option
+                label="Draw Line"
+                name="options.threed.drawLine"
+                type="checkbox"
+              />
+              <ColorOption label="Color" name="options.threed.lineColor" />
+              <Option
+                label="Width"
+                name="options.threed.lineWidth"
+                type="number"
+                min="0"
+                max="20"
+                step="1"
+              />
+            </Collapsible>
+            <Collapsible title="Anchor 1">
+              <Option
+                label="Draw Anchor 1"
+                name="options.threed.drawAnchor1"
+                type="checkbox"
+              />
+              <ColorOption label="Color" name="options.threed.anchor1Color" />
+              <Option
+                label="Radius"
+                name="options.threed.anchor1Radius"
+                type="number"
+                min="1"
+                max="5"
+                step="1"
+              />
+              <Option label="Label" name="options.threed.anchor1Label" />
+              <FontSizeOption
+                label="Label Font Size"
+                name="options.threed.anchor1LabelSize"
+              />
+              <ColorOption
+                label="Label Color"
+                name="options.threed.anchor1LabelColor"
+              />
+              <FontWeightOption
+                label="Label Font Weight"
+                name="options.threed.anchor1LabelWeight"
+              />
+            </Collapsible>
+            <Collapsible title="Anchor 2">
+              <Option
+                label="Draw Anchor 2"
+                name="options.threed.drawAnchor2"
+                type="checkbox"
+              />
+              <ColorOption label="Color" name="options.threed.anchor2Color" />
+              <Option
+                label="Radius"
+                name="options.threed.anchor2Radius"
+                type="number"
+                min="1"
+                max="5"
+                step="1"
+              />
+              <Option label="Label" name="options.threed.anchor2Label" />
+              <FontSizeOption
+                label="Label Font Size"
+                name="options.threed.anchor2LabelSize"
+              />
+              <ColorOption
+                label="Label Color"
+                name="options.threed.anchor2LabelColor"
+              />
+              <FontWeightOption
+                label="Label Font Weight"
+                name="options.threed.anchor2LabelWeight"
+              />
+            </Collapsible>
           </Collapsible>
           <div className={classes.action}>
             <button type="submit">Update</button>
