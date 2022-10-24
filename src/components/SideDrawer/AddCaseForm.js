@@ -73,6 +73,28 @@ const MatrixSelectComponent = ({ field, form, ...props }) => {
   );
 };
 
+const validate = (values) => {
+  const errors = {};
+  errors.tracks = [];
+  for (const track of values.tracks) {
+    if (track.datatype === "") {
+      errors.tracks.push("Must choose a data type");
+    } else if (track.tracktype === "") {
+      errors.tracks.push("Must choose a track type");
+    } else if (track.server === "" || track.tilesetUid === "") {
+      errors.tracks.push("Must choose a dataset");
+    } else if (Object.values(track.positions).every((val) => val === false)) {
+      errors.tracks.push("Must choose at least one position");
+    } else {
+      errors.tracks.push(undefined);
+    }
+  }
+  if (errors.tracks.every((val) => val === undefined)) {
+    return undefined;
+  }
+  return errors;
+};
+
 const AddCaseForm = (props) => {
   const { genomeAssembly } = props;
   const { assemblyName, chromInfoPath } = genomeAssembly;
@@ -106,6 +128,7 @@ const AddCaseForm = (props) => {
   return (
     <Formik
       validateOnChange={false}
+      validate={validate}
       initialValues={{
         initialXDomain: "",
         initialYDomain: "",
@@ -134,7 +157,7 @@ const AddCaseForm = (props) => {
         }, 400);
       }}
     >
-      {({ values }) => (
+      {({ values, errors }) => (
         <Form>
           <GenomePositionInput validate={validateGenomePosition} />
           <Field
@@ -162,6 +185,11 @@ const AddCaseForm = (props) => {
                           assembly={genomeAssembly}
                           trackSourceServers={props.trackSourceServers}
                         />
+                        {errors && errors.tracks && errors.tracks[index] && (
+                          <p className={classes.error}>
+                            {errors.tracks[index]}
+                          </p>
+                        )}
                       </Collapsible>
                     ))}
                   <div className={classes.action}>
