@@ -54,6 +54,10 @@ button, input, select {
   margin-top: 10px;
 }
 
+.hgc {
+  border: 1px solid gray;
+}
+
 .control-section {
   border-bottom: 1px solid #EEEEEE;
   margin-bottom: 5px;

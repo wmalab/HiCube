@@ -398,6 +398,8 @@ export default function App() {
   };
 
   console.log("refs", configCtx.hgcRefs);
+  console.log("mainLocation", mainLocation);
+  console.log("rangeselection", rangeSelection);
 
   return (
     <div>
@@ -444,7 +446,7 @@ export default function App() {
           {configCtx.cases.map((caseUids) => {
             return (
               <>
-                <div key={caseUids.uid + "-higlass"} className="content-item">
+                <div key={caseUids.uid + "-higlass"} className="content-item hgc">
                   {/* <ErrorBoundary> */}
                   <HiGlassCase
                     id={caseUids.uid}
