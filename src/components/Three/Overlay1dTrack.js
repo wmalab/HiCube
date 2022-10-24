@@ -6,7 +6,7 @@ const Overlay1dTrack = (props) => {
   // FIXME: flash when rotate, may change to Tube?
   return (
     <group>
-      {options.drawAnchor1 && (
+      {options.drawAnchor1 && points.length > 0 && (
         <mesh position={points[0]}>
           <sphereGeometry args={[+options.anchor1Radius, 16, 16]} />
           <meshBasicMaterial color={options.anchor1Color} />
@@ -23,7 +23,7 @@ const Overlay1dTrack = (props) => {
           )}
         </mesh>
       )}
-      {options.drawAnchor2 && (
+      {options.drawAnchor2 && points.length > 1 && (
         <mesh position={points[points.length - 1]}>
           <sphereGeometry args={[+options.anchor2Radius, 16, 16]} />
           <meshBasicMaterial color={options.anchor2Color} />
@@ -40,7 +40,7 @@ const Overlay1dTrack = (props) => {
           )}
         </mesh>
       )}
-      {options.drawLine && (
+      {options.drawLine && points.length > 1 && (
         <Line
           points={points}
           lineWidth={+options.lineWidth}

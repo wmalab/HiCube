@@ -4,10 +4,19 @@ import { Line, Html } from "@react-three/drei";
 const Overlay2dTrack = (props) => {
   const { anchor1, anchor2, options } = props;
 
+  // TODO: take the middle point, allow for more option later
+  let point1, point2;
+  if (anchor1.length > 0) {
+    point1 = anchor1[Math.floor(anchor1.length / 2)];
+  }
+  if (anchor2.length > 0) {
+    point2 = anchor2[Math.floor(anchor2.length / 2)];
+  }
+
   return (
     <group>
-      {options.drawAnchor1 && (
-        <mesh position={anchor1}>
+      {options.drawAnchor1 && point1 && (
+        <mesh position={point1}>
           <sphereGeometry args={[+options.anchor1Radius, 16, 16]} />
           <meshBasicMaterial color={options.anchor1Color} />
           {options.anchor1Label && (
@@ -23,8 +32,8 @@ const Overlay2dTrack = (props) => {
           )}
         </mesh>
       )}
-      {options.drawAnchor2 && (
-        <mesh position={anchor2}>
+      {options.drawAnchor2 && point2 && (
+        <mesh position={point2}>
           <sphereGeometry args={[+options.anchor2Radius, 16, 16]} />
           <meshBasicMaterial color={options.anchor2Color} />
           {options.anchor2Label && (
@@ -40,9 +49,9 @@ const Overlay2dTrack = (props) => {
           )}
         </mesh>
       )}
-      {options.drawLine && (
+      {options.drawLine && point1 && point2 && (
         <Line
-          points={[anchor1, anchor2]}
+          points={[point1, point2]}
           lineWidth={+options.lineWidth}
           // dashed={true}
           color={options.lineColor}
