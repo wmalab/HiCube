@@ -139,6 +139,7 @@ const OverlayList = (props) => {
             key={overlay.uid}
             title={`Annotation #${index + 1}`}
             onDelete={props.onRemoveOverlay.bind(null, overlay.uid)}
+            defaultCollapsed
           >
             <OverlayListItem
               key={overlay.uid}
