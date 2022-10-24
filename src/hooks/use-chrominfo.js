@@ -130,7 +130,7 @@ const convertGenomePosition = (
     return ret;
   }
   // if position does not contain '-', it can only be a chrom name
-  const unsplited = chrToInterval(position, chromInfo);
+  const unsplited = chrToInterval(position.trim(), chromInfo);
   ret.error = unsplited.error;
   ret.startAbsPos = unsplited.startAbsPos;
   ret.endAbsPos = unsplited.endAbsPos;

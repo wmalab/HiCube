@@ -1,4 +1,4 @@
-import React, { useState, useReducer, useEffect } from "react";
+import React, { useState, useReducer, useEffect, useRef } from "react";
 import ConfigContext from "./config-context";
 import TRACKS_INFO_BY_TYPE from "../configs/tracks-info-by-type";
 import { uid, makeColorGradient } from "../utils";
@@ -185,6 +185,7 @@ const configsReducer = (state, action) => {
 
     // FIXME: linear-2d-rectangle-domains aliases are "horizontal-2d-rectangle-domains"
     // and "vertical-2d-rectangle-domains"
+    // FIXME: need to add position (hor/ver) to enable select on 1d tracks
     // create default track options for 1d tracks
     for (const track of view["1d"]) {
       for (const position in track.positions) {
@@ -222,6 +223,11 @@ const configsReducer = (state, action) => {
         initialYDomain: initialYDomain,
       },
     ];
+
+    // TODO: add zoom view if exist zoomLocation---------------------
+
+    // --------------------------------------------------------------
+
     const viewConfig = viewsToViewConfig(
       views,
       positionedTracks,
@@ -530,6 +536,8 @@ const ConfigProvider = (props) => {
     defaultConfigs
   );
 
+  const hgcRefs = useRef({});
+
   const addCaseHandler = (caseConfig) => {
     dispatchConfigsAction({ type: "ADD_CASE", config: caseConfig });
   };
@@ -585,6 +593,7 @@ const ConfigProvider = (props) => {
     chromInfoPath: configs.chromInfoPath,
     viewConfigs: configs.viewConfigs,
     numViews: configs.numViews,
+    hgcRefs: hgcRefs,
     addCase: addCaseHandler,
     addPairedCase: addPairedCaseHandler,
     addZoomView: addZoomViewHandler,

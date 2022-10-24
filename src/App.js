@@ -9,8 +9,8 @@ import ThreeTrack from "./components/Three/ThreeTrack";
 import { uid, strToInt } from "./utils";
 import { ChromosomeInfo } from "higlass";
 import ErrorBoundary from "./components/UI/ErrorBoundary";
-import "../node_modules/react-grid-layout/css/styles.css";
-import "../node_modules/react-resizable/css/styles.css";
+// import "../node_modules/react-grid-layout/css/styles.css";
+// import "../node_modules/react-resizable/css/styles.css";
 
 const initOverlay1D = (extent) => {
   return {
@@ -155,15 +155,47 @@ export default function App() {
   };
 
   const createZoomInHandler = () => {
-    setMouseTool("move_create");
+    // get range selection for each case
+    const caseUids = configCtx.cases.map((val) => val.uid);
+    let newZoomLocation;
+    for (const caseUid of caseUids) {
+      const range = configCtx.hgcRefs.current[caseUid].getRangeSelection();
+      if (range) {
+        newZoomLocation = range;
+      }
+    }
+    if (newZoomLocation) {
+      configCtx.addZoomView([mainLocation, newZoomLocation]);
+    }
+    // setMouseTool("move_create");
+    setMouseTool("move");
   };
 
   const cancelSelectHandler = () => {
-    setMouseTool("move_cancel");
+    // setMouseTool("move_cancel");
+    setMouseTool("move");
   };
 
   const clearSelectHandler = () => {
-    setMouseTool("move_clear");
+    // setMouseTool("move_clear");
+    // check if has zoom view
+    if (!rangeSelection.xDomain || !rangeSelection.yDomain) {
+      return;
+    }
+    // unsubscribe zoom location change
+    const caseUids = configCtx.cases.map((val) => val.uid);
+    for (const caseUid of caseUids) {
+      configCtx.hgcRefs.current[caseUid].unsubscribeZoomLocation();
+    }
+    configCtx.removeZoomView([mainLocation]);
+    // set zoom location to none
+    setRangeSelection({
+      type: null,
+      xDomain: null,
+      yDomain: null,
+      fromId: null,
+    });
+    setMouseTool("move");
   };
 
   const convertStrToOverlays = (str) => {
@@ -252,12 +284,9 @@ export default function App() {
     dispatchOverlaysAction({ type: "REMOVE", uuid: overlayUid });
   };
 
-  // const nViews =
-  //   !rangeSelection.xDomain || rangeSelection.xDomain.every((e) => e === null)
-  //     ? 1
-  //     : 2;
-  const nViews = configCtx.numViews > 1 ? 2 : 1;
+  // const nViews = configCtx.numViews > 1 ? 2 : 1;
 
+  /*
   const layout = configCtx.cases.map((caseUids, idx) => {
     return {
       i: caseUids.uid,
@@ -268,6 +297,7 @@ export default function App() {
       static: true,
     };
   });
+  */
 
   const addServerHandler = (serverURL) => {
     setTrackSourceServers((prevTrackSourceServers) => {
@@ -367,6 +397,8 @@ export default function App() {
     }
   };
 
+  console.log("refs", configCtx.hgcRefs);
+
   return (
     <div>
       <ControlPanel
@@ -378,8 +410,6 @@ export default function App() {
         mainLocation={mainLocation}
         zoomLocation={rangeSelection}
         onSubmitConfig={loadConfigHandler}
-        // onAddCase={addCaseHandler}
-        // configs={configs}
         onSelect={activateSelectHandler}
         onCancelSelect={cancelSelectHandler}
         onAddZoomIn={createZoomInHandler}
@@ -410,14 +440,7 @@ export default function App() {
             genomeAssembly={genomeAssembly}
           />
         )}
-        <div
-        // className="content"
-        // className="layout"
-        // layout={layout}
-        // cols={12}
-        // rowHeight={100}
-        // width={1200}
-        >
+        <div>
           {configCtx.cases.map((caseUids) => {
             return (
               <>
@@ -425,6 +448,7 @@ export default function App() {
                   {/* <ErrorBoundary> */}
                   <HiGlassCase
                     id={caseUids.uid}
+                    ref={(el) => (configCtx.hgcRefs.current[caseUids.uid] = el)}
                     options={options}
                     viewConfig={configCtx.viewConfigs[caseUids.uid]}
                     mainLocation={mainLocation}

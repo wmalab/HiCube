@@ -4,6 +4,7 @@ import React, {
   useRef,
   useReducer,
   useContext,
+  useImperativeHandle,
 } from "react";
 import ConfigContext from "../../store/config-context";
 
@@ -20,7 +21,7 @@ const DEBOUNCE = true;
 const DEBOUNCE_TIME = 100;
 const DISABLE_NOTIFY_TIME = 100;
 
-const HiGlassCase = (props) => {
+const HiGlassCase = (props, ref) => {
   console.log("HiGlassCase render");
 
   const configCtx = useContext(ConfigContext);
@@ -31,6 +32,43 @@ const HiGlassCase = (props) => {
   const notify = useRef(true);
   const notifyTimer = useRef();
   const zoomLocationListener = useRef();
+
+  const getRangeSelection = () => {
+    const { dataRange } = hgcRef.current.api.getRangeSelection();
+    // if no selection, dataRange = undefined
+    // if 1D selection, dataRange = [Array(2), null]
+    // if 2D selection, dataRange = [Array(2), Array(2)]
+
+    if (dataRange === undefined) {
+      return undefined;
+    }
+    const xDomain = [...dataRange[0]];
+    const yDomain = dataRange[1] ? [...dataRange[1]] : [...dataRange[0]];
+    return { xDomain, yDomain };
+  };
+
+  const subscribeZoomLocation = () => {
+    zoomLocationListener.current = hgcRef.current.api.on(
+      "location",
+      (location) => setZoomLocation(location),
+      "bb"
+    );
+  };
+
+  const unsubscribeZoomLocation = () => {
+    // add check if view bb and listener exist
+    if (!zoomLocationListener.current || props.viewConfig.views.length > 1) {
+      return;
+    }
+    hgcRef.current.api.off("location", zoomLocationListener.current, "bb");
+    zoomLocationListener.current = null;
+  };
+
+  useImperativeHandle(ref, () => ({
+    api: hgcRef.current.api,
+    getRangeSelection: getRangeSelection,
+    unsubscribeZoomLocation: unsubscribeZoomLocation,
+  }));
 
   const viewConfigReducer = (state, action) => {
     let vcf = hgcRef.current.api.getViewConfig();
@@ -240,6 +278,7 @@ const HiGlassCase = (props) => {
         { xDomain: mainLocation.xDomain, yDomain: mainLocation.yDomain },
       ]);
     } else if (props.mouseTool === "add_overlay") {
+      // TODO: refactor this part
       const { dataRange } = hgcRef.current.api.getRangeSelection();
       if (!dataRange || dataRange.every((e) => e === null)) {
         return;
@@ -278,7 +317,12 @@ const HiGlassCase = (props) => {
         clearTimeout(notifyTimer.current);
       }
       notify.current = false;
-      hgcRef.current.api.zoomTo("bb", ...xDomain, ...yDomain, 1);
+      try {
+        hgcRef.current.api.zoomTo("bb", ...xDomain, ...yDomain, 1);
+      } catch (error) {
+        console.log(error);
+        notify.current = true;
+      }
       notifyTimer.current = setTimeout(() => {
         notify.current = true;
         notifyTimer.current = null;
@@ -303,11 +347,15 @@ const HiGlassCase = (props) => {
       //   type: "CHANGE_OVERLAYS",
       //   overlays: props.overlays,
       // });
+      // mainLocation (local) can be null when init
       configCtx.updateOverlays(props.overlays, [
-        { xDomain: mainLocation.xDomain, yDomain: mainLocation.yDomain },
         {
-          xDomain: zoomLocation && zoomLocation.xDomain,
-          yDomain: zoomLocation && zoomLocation.yDomain,
+          xDomain: props.mainLocation.xDomain,
+          yDomain: props.mainLocation.yDomain,
+        },
+        {
+          xDomain: props.zoomLocation && props.zoomLocation.xDomain,
+          yDomain: props.zoomLocation && props.zoomLocation.yDomain,
         },
       ]);
     }
@@ -350,7 +398,7 @@ const HiGlassCase = (props) => {
     };
   }, [zoomLocation]);
 
-  const mouseTool = props.mouseTool === "select" ? "select" : "move";
+  // const mouseTool = props.mouseTool === "select" ? "select" : "move";
 
   // TODO: add export as png ----------------------------------------
   useEffect(() => {
@@ -393,9 +441,9 @@ const HiGlassCase = (props) => {
       onRef={hgcRef}
       options={props.options}
       viewConfig={props.viewConfig}
-      mouseTool={mouseTool}
+      mouseTool={props.mouseTool}
     />
   );
 };
 
-export default HiGlassCase;
+export default React.forwardRef(HiGlassCase);
