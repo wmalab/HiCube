@@ -52,6 +52,8 @@ const PairedCaseForm = (props) => {
             ...values,
             initialXDomain: xDomain,
             initialYDomain: yDomain,
+            zoomXDomain: props.zoomLocation.xDomain,
+            zoomYDomain: props.zoomLocation.yDomain,
             chromInfoPath,
           });
           setSubmitting(false);

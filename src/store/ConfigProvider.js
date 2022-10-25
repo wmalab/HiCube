@@ -224,8 +224,33 @@ const configsReducer = (state, action) => {
       },
     ];
 
+    console.log(action.config.zoomXDomain, action.config.zoomYDomain);
     // TODO: add zoom view if exist zoomLocation---------------------
-
+    if (
+      action.type === "ADD_CASE_PAIRED" &&
+      action.config.zoomXDomain &&
+      action.config.zoomYDomain
+    ) {
+      console.log("add paired zoom");
+      const newView = deepCopy(views[0]);
+      newView.uid = "bb";
+      newView.initialXDomain = [...action.config.zoomXDomain];
+      newView.initialYDomain = [...action.config.zoomYDomain];
+      views.push(newView);
+      const viewportUid = uid();
+      const viewportType = "viewport-projection-center";
+      views[0]["2d"].contents.push({
+        type: viewportType,
+        uid: viewportUid,
+        fromViewUid: "bb",
+      });
+      positionedTracks[viewportUid] = {
+        type: viewportType,
+        uid: viewportUid,
+        fromViewUid: "bb",
+        options: addDefaultOptions(viewportType),
+      };
+    }
     // --------------------------------------------------------------
 
     const viewConfig = viewsToViewConfig(
@@ -254,7 +279,7 @@ const configsReducer = (state, action) => {
       },
       chromInfoPath: chromInfoPath,
       viewConfigs: { ...state.viewConfigs, [caseUid]: viewConfig },
-      numViews: 1,
+      numViews: state.numViews || 1,
     };
     return updatedConfigs;
   } else if (action.type === "ADD_ZOOMVIEW") {

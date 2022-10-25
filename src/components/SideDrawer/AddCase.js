@@ -101,6 +101,7 @@ const AddCase = (props) => {
         <PairedCaseForm
           genomeAssembly={props.genomeAssembly}
           mainLocation={props.mainLocation}
+          zoomLocation={props.zoomLocation}
           trackSourceServers={props.trackSourceServers}
           centerHiC={configCtx.cases[0].views[0]["2d"].contents[0]}
           tracks={configCtx.cases[0].views[0]["1d"]}
