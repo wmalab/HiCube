@@ -8,6 +8,7 @@ const DisplayOptionForm = (props) => {
 
   return (
     <Formik
+      enableReinitialize
       initialValues={{
         options: options,
       }}
