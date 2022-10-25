@@ -16,7 +16,8 @@
   bottom: 0;
   padding-top: 10px;
   background: #F5F5F5;
-  border-right: 1px solid #EEEEEE;
+  /* border-right: 1px solid #EEEEEE; */
+  border-right: 1px solid lightgray;
 }
 
 .sidedrawer-control-buttons button {
@@ -39,7 +40,8 @@
   bottom: 0;
   /* padding-left: 10px; */
   overflow-y: auto;
-  border-right: 1px solid #EEEEEE;
+  /* border-right: 1px solid #EEEEEE; */
+  border-right: 1px solid lightgray;
 }
 
 .sidedrawer-config-panel button.back {

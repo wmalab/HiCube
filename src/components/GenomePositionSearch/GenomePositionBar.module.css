@@ -1,7 +1,7 @@
 .position {
   background: #dee1e2;
   display: inline-block;
-  border: 1px solid gray;
+  border: 1px solid lightgray;
 }
 
 input.position-bar {
@@ -38,12 +38,12 @@ input.position-bar:focus {
 }
 
 .title {
-  font-weight: 800;
+  font-weight: bold;
   line-height: 24px;
   margin-left: 10px;
-  font-size: 15px;
+  font-size: 14px;
   display: inline-block;
-  width: 80px;
+  width: 100px;
 }
 
 button.search {
