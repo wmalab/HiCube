@@ -49,10 +49,10 @@ const AddCase = (props) => {
         defaultCollapsed
       >
         <label>Config:</label>
-        <input type="file" name="file" ref={fileRef} />
+        <input type="file" name="file" ref={fileRef} accept=".json" />
         <Collapsible title="3D Genome Structure Model (.g3d)">
           <label>G3D(s):</label>
-          <input type="file" name="g3dfiles" ref={g3dFileRef} multiple />
+          <input type="file" name="g3dfiles" ref={g3dFileRef} multiple accept=".g3d" />
         </Collapsible>
         <button className={classes.submit} onClick={configSubmitHandler}>
           Import Config with G3D File(s)
