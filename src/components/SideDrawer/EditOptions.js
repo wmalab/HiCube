@@ -227,12 +227,14 @@ const CaseOptions = (props) => {
         zoomLocation={props.zoomLocation}
       /> */}
       <DisplayOptions
+        caseUid={props.caseUid}
         trackUid={props.views[0]["2d"].contents[0].uid}
         trackName={props.views[0]["2d"].contents[0].name}
         mainLocation={props.mainLocation}
         zoomLocation={props.zoomLocation}
       />
-      <TrackOptionList 
+      <TrackOptionList
+        caseUid={props.caseUid} 
         config={props.views[0]["1d"]}
         mainLocation={props.mainLocation}
         zoomLocation={props.zoomLocation}
@@ -255,6 +257,7 @@ const EditOptions = (props) => {
         <Collapsible key={`Case #${index + 1}`} title={`Case #${index + 1}`}>
           <CaseOptions
             key={caseConfig.uid}
+            caseUid={caseConfig.uid}
             views={caseConfig.views}
             mainLocation={props.mainLocation}
             zoomLocation={props.zoomLocation}

@@ -584,6 +584,75 @@ const OPTIONS_INFO = {
       },
     },
   },
+  dataTransform: {
+    name: "Transforms",
+    inlineOptions: {
+      default: { name: "Default", value: "default" },
+      None: { name: "None", value: "None" },
+    },
+    generateOptions: (track) => {
+      if (!track) {
+        return [];
+      }
+      const inlineOptions = [];
+      const { tilesetInfo } = track;
+      if (tilesetInfo && tilesetInfo.transforms) {
+        for (const transform of tilesetInfo.transforms) {
+          inlineOptions.push({
+            name: transform.name,
+            value: transform.value,
+          });
+        }
+      }
+      return inlineOptions;
+    },
+  },
+  maxZoom: {
+    name: "Zoom limit",
+    inlineOptions: {
+      none: { name: "None", value: null },
+    },
+    generateOptions: (track) => {
+      if (!track) {
+        return [];
+      }
+      const { tilesetInfo } = track;
+      if (tilesetInfo && tilesetInfo["max_zoom"]) {
+        const inlineOptions = [];
+        const maxZoom = tilesetInfo["max_zoom"];
+
+        for (let i = 0; i <= maxZoom; i++) {
+          const maxWidth = tilesetInfo["max_width"];
+          const binsPerDimension = tilesetInfo["bins_per_dimension"];
+
+          let maxResolutionSize = 1;
+          let resolution = 1;
+
+          if (tilesetInfo.resolutions) {
+            const sortedResolutions = tilesetInfo.resolutions
+              .map((x) => +x)
+              .sort((a, b) => b - a);
+            [maxResolutionSize] = sortedResolutions;
+            resolution = sortedResolutions[i];
+          } else {
+            resolution = maxWidth / (2 ** i * binsPerDimension);
+            maxResolutionSize = maxWidth / (2 ** maxZoom * binsPerDimension);
+          }
+
+          // const pp = precisionPrefix(maxResolutionSize, resolution);
+          // const f = formatPrefix(`.${pp}`, resolution);
+          // const formattedResolution = f(resolution);
+
+          inlineOptions.push({
+            name: String(resolution),
+            value: i.toString(),
+          });
+        }
+        return inlineOptions;
+      }
+      return [];
+    },
+  },
 };
 
 export default OPTIONS_INFO;

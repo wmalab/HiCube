@@ -7,7 +7,7 @@ import OPTIONS_INFO from "../../configs/options-info";
 import { camelCaseToTitleCase } from "../../utils";
 
 const DisplayOptions = (props) => {
-  const { trackUid, trackName } = props;
+  const { trackUid, trackName, caseUid } = props;
   const ctx = useContext(ConfigContext);
   const track = ctx.positionedTracks[trackUid];
   const optionItems = {};
@@ -61,6 +61,24 @@ const DisplayOptions = (props) => {
           value: val,
         };
       }
+      // TODO: generate options if exists ------------------------
+      if (OPTIONS_INFO[option].generateOptions) {
+        const trackObj = ctx.hgcRefs.current[caseUid].api.getTrackObject(
+          "aa",
+          trackUid
+        );
+        const generatedOptions = OPTIONS_INFO[option].generateOptions(trackObj); // returned an array
+        for (const generatedOption of generatedOptions) {
+          availableValues[generatedOption.value] = {
+            name: generatedOption.name,
+            value: generatedOption.value,
+          };
+        }
+        // maxZoom is ok but dataTransform throw error
+        // availableValues['test'] = {name: 'test', value: "50000"};
+      }
+      // ---------------------------------------------------------
+
       optionItems[option].availableValues = availableValues;
     } else {
       optionItems[option].label = camelCaseToTitleCase(option);

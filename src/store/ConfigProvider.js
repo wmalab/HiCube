@@ -2,6 +2,7 @@ import React, { useState, useReducer, useEffect, useRef } from "react";
 import ConfigContext from "./config-context";
 import TRACKS_INFO_BY_TYPE from "../configs/tracks-info-by-type";
 import { uid, makeColorGradient } from "../utils";
+import OPTIONS_INFO from "../configs/options-info";
 
 // NOTE: context is suitable for low-frequency changes
 // do NOT put location changes inside context
@@ -17,6 +18,7 @@ const defaultConfigs = {
   cases: [],
   pairedLocks: {},
   positionedTracks: {}, // uid indexed track config
+  positionedTracksToCaseUid: {},
   threeCases: {},
   chromInfoPath: "",
   viewConfigs: {},
@@ -168,6 +170,7 @@ const configsReducer = (state, action) => {
     // -----------------------------------------------
 
     const positionedTracks = {};
+    const positionedTracksToCaseUid = {}; // positionedTrackUid => { caseUid }
     // create default track options for heatmap track
     positionedTracks[view["2d"].contents[0].uid] = {
       uid: view["2d"].contents[0].uid,
@@ -175,12 +178,16 @@ const configsReducer = (state, action) => {
       server: view["2d"].contents[0].server,
       tilesetUid: view["2d"].contents[0].tilesetUid,
       // TODO: dynamically calculate the height so the heatmap is square
-      height: 140,
+      height: 300,
       // width: 260,
       options: {
         ...addDefaultOptions(view["2d"].contents[0].type),
         name: view["2d"].contents[0].name,
       },
+    };
+
+    positionedTracksToCaseUid[view["2d"].contents[0].uid] = {
+      caseUid: caseUid,
     };
 
     // FIXME: linear-2d-rectangle-domains aliases are "horizontal-2d-rectangle-domains"
@@ -199,6 +206,7 @@ const configsReducer = (state, action) => {
     for (const track of view["1d"]) {
       for (const position in track.positions) {
         const trackUid = track.positions[position];
+        positionedTracksToCaseUid[trackUid] = { caseUid: caseUid };
         // positioned track type from alias
         let positionedTrackType = track.type;
         const ori = positionToOrientation(position); // orientation
@@ -244,8 +252,7 @@ const configsReducer = (state, action) => {
       },
     ];
 
-    console.log(action.config.zoomXDomain, action.config.zoomYDomain);
-    // TODO: add zoom view if exist zoomLocation---------------------
+    // add zoom view if exist zoomLocation---------------------
     if (
       action.type === "ADD_CASE_PAIRED" &&
       action.config.zoomXDomain &&
@@ -293,6 +300,10 @@ const configsReducer = (state, action) => {
       cases: state.cases.concat({ uid: caseUid, views: views }),
       pairedLocks: { ...state.pairedLocks, ...pairedLocks },
       positionedTracks: { ...state.positionedTracks, ...positionedTracks },
+      positionedTracksToCaseUid: {
+        ...state.positionedTracksToCaseUid,
+        ...positionedTracksToCaseUid,
+      },
       threeCases: {
         ...state.threeCases,
         [caseUid]: { ...threed, colormap },
@@ -314,6 +325,8 @@ const configsReducer = (state, action) => {
       const newCase = deepCopy(prevCase);
       const views = newCase.views;
       // if already exist selected view, clear it
+      // TODO: check each content if its type is viewport-projection-center
+      // and delete it from positionedTracks and positionedTracksToCaseUid
       if (views.length === 2) {
         views.pop();
         views[0]["2d"].contents.pop();
@@ -354,6 +367,7 @@ const configsReducer = (state, action) => {
       pairedLocks: state.pairedLocks,
       threeCases: state.threeCases,
       positionedTracks: updatedPositionedTracks,
+      positionedTracksToCaseUid: state.positionedTracksToCaseUid,
       chromInfoPath: chromInfoPath,
       viewConfigs: updatedViewConfigs,
       numViews: 2,
@@ -370,6 +384,7 @@ const configsReducer = (state, action) => {
     for (const prevCase of cases) {
       const newCase = deepCopy(prevCase);
       const views = newCase.views;
+      // TODO: check each content type
       if (views.length === 2) {
         views.pop();
         views[0]["2d"].contents.pop();
@@ -392,6 +407,7 @@ const configsReducer = (state, action) => {
       pairedLocks: state.pairedLocks,
       threeCases: state.threeCases,
       positionedTracks: updatedPositionedTracks,
+      positionedTracksToCaseUid: state.positionedTracksToCaseUid,
       chromInfoPath: chromInfoPath,
       viewConfigs: updatedViewConfigs,
       numViews: 1,
@@ -403,6 +419,7 @@ const configsReducer = (state, action) => {
     const updatedCases = [];
     const updatedPositionedTracks = deepCopy(positionedTracks);
     const updatedViewConfigs = {};
+    // TODO: separate overlay style for each case
     for (const overlay of overlays) {
       updatedPositionedTracks[overlay.uid] = {
         uid: overlay.uid,
@@ -439,6 +456,7 @@ const configsReducer = (state, action) => {
       pairedLocks: state.pairedLocks,
       threeCases: state.threeCases,
       positionedTracks: updatedPositionedTracks,
+      positionedTracksToCaseUid: state.positionedTracksToCaseUid,
       chromInfoPath: chromInfoPath,
       viewConfigs: updatedViewConfigs,
       numViews: state.numViews,
@@ -474,6 +492,7 @@ const configsReducer = (state, action) => {
       pairedLocks: state.pairedLocks,
       threeCases: state.threeCases,
       positionedTracks: updatedPositionedTracks,
+      positionedTracksToCaseUid: state.positionedTracksToCaseUid,
       chromInfoPath: chromInfoPath,
       viewConfigs: updatedViewConfigs,
       numViews: state.numViews,
@@ -482,7 +501,6 @@ const configsReducer = (state, action) => {
   } else if (action.type === "UPDATE_TRACKS") {
     const { updatedTracks, xyDomains } = action;
     const { cases, positionedTracks, chromInfoPath, pairedLocks } = state;
-    console.log(pairedLocks);
 
     const updatedCases = [];
     const updatedPositionedTracks = deepCopy(positionedTracks);
@@ -490,6 +508,7 @@ const configsReducer = (state, action) => {
 
     for (const track of updatedTracks) {
       for (const option of track.options) {
+        // option = { name, value }
         if (option.value !== undefined) {
           updatedPositionedTracks[track.uid].options[option.name] =
             option.value;
@@ -499,12 +518,54 @@ const configsReducer = (state, action) => {
       const pairedTrackUid = pairedLocks[track.uid];
       if (pairedTrackUid in updatedPositionedTracks) {
         for (const option of track.options) {
-          if (
-            option.value !== undefined &&
-            option.name in updatedPositionedTracks[pairedTrackUid].options
-          ) {
-            updatedPositionedTracks[pairedTrackUid].options[option.name] =
-              option.value;
+          if (option.value === undefined) {
+            continue;
+          }
+          // FIXME: some options are not in defaultOptions e.g. dataTransform
+          // instead need to check if is in availableOptions
+          const availOptions =
+            TRACKS_INFO_BY_TYPE[updatedPositionedTracks[pairedTrackUid].type]
+              .availableOptions;
+          if (availOptions.includes(option.name)) {
+            // TODO: for option=dataTransform/maxZoom, make sure the paired track has the new value
+            if (option.name === "dataTransform" || option.name === "maxZoom") {
+              console.log("option.value", option.value);
+
+              const inlineOptions = Object.values(
+                OPTIONS_INFO[option.name].inlineOptions
+              );
+              // BEWARE: some option value can be null
+              const isInlineOption =
+                inlineOptions.findIndex((op) => op.value === option.value) >= 0;
+              let isGeneratedOption = false;
+              if (!isInlineOption) {
+                // try with generated options
+                const pairedTrackObj = action.hgcRefs.current[
+                  state.positionedTracksToCaseUid[pairedTrackUid].caseUid
+                ].api.getTrackObject("aa", pairedTrackUid);
+
+                console.log("pairedTrackObj", pairedTrackObj);
+
+                if (pairedTrackObj) {
+                  const generatedOptions =
+                    OPTIONS_INFO[option.name].generateOptions(pairedTrackObj);
+                  console.log("generatedOptions", generatedOptions);
+                  isGeneratedOption =
+                    generatedOptions.findIndex(
+                      (op) => op.value === option.value
+                    ) >= 0;
+                }
+              }
+              console.log("isInlineOption", isInlineOption, isGeneratedOption);
+              if (isInlineOption || isGeneratedOption) {
+                updatedPositionedTracks[pairedTrackUid].options[option.name] =
+                  option.value;
+              }
+              // otherwise just don't update the paired track option value
+            } else {
+              updatedPositionedTracks[pairedTrackUid].options[option.name] =
+                option.value;
+            }
           }
         }
       }
@@ -533,6 +594,7 @@ const configsReducer = (state, action) => {
       pairedLocks: pairedLocks,
       threeCases: state.threeCases,
       positionedTracks: updatedPositionedTracks,
+      positionedTracksToCaseUid: state.positionedTracksToCaseUid,
       chromInfoPath: chromInfoPath,
       viewConfigs: updatedViewConfigs,
       numViews: state.numViews,
@@ -566,6 +628,7 @@ const configsReducer = (state, action) => {
       pairedLocks: config.pairedLocks,
       threeCases: loadedThreeCases,
       positionedTracks: config.positionedTracks,
+      positionedTracksToCaseUid: config.positionedTracksToCaseUid,
       chromInfoPath,
       viewConfigs: loadedViewConfigs,
       numViews: config.numViews,
@@ -621,9 +684,14 @@ const ConfigProvider = (props) => {
     // updatedTracks is a list of object with the format
     // uid: trackUid
     // options: [{name: optionName, value: optionValue}]
-    console.log(updatedTracks);
+    console.log("UPDATE_TRACKS", updatedTracks);
     // FIXME: bool type option need to convert 'false' to false
-    dispatchConfigsAction({ type: "UPDATE_TRACKS", updatedTracks, xyDomains });
+    dispatchConfigsAction({
+      type: "UPDATE_TRACKS",
+      updatedTracks,
+      xyDomains,
+      hgcRefs,
+    });
   };
 
   const loadConfigHandler = (config, g3dBlobs) => {
@@ -635,6 +703,7 @@ const ConfigProvider = (props) => {
     pairedLocks: configs.pairedLocks,
     threeCases: configs.threeCases,
     positionedTracks: configs.positionedTracks,
+    positionedTracksToCaseUid: configs.positionedTracksToCaseUid,
     chromInfoPath: configs.chromInfoPath,
     viewConfigs: configs.viewConfigs,
     numViews: configs.numViews,

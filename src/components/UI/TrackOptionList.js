@@ -16,6 +16,7 @@ const TrackOptionList = (props) => {
       forms.push(
         <DisplayOptions
           key={trackUids[0]}
+          caseUid={props.caseUid}
           trackUid={trackUids[0]}
           trackName={trackName}
           auxTrackUids={trackUids.slice(1)}

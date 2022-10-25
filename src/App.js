@@ -354,6 +354,7 @@ export default function App() {
       cases: configCtx.cases,
       pairedLocks: configCtx.pairedLocks,
       positionedTracks: configCtx.positionedTracks,
+      positionedTracksToCaseUid: configCtx.positionedTracksToCaseUid,
       threeCases: configCtx.threeCases,
       genomeAssembly: genomeAssembly,
       // viewConfigs: configCtx.viewConfigs,
@@ -467,7 +468,7 @@ export default function App() {
             genomeAssembly={genomeAssembly}
           />
         )}
-        <div>
+        <div className="content">
           {configCtx.cases.map((caseUids) => {
             return (
               <>
