@@ -185,31 +185,51 @@ const configsReducer = (state, action) => {
 
     // FIXME: linear-2d-rectangle-domains aliases are "horizontal-2d-rectangle-domains"
     // and "vertical-2d-rectangle-domains"
+    // TODO: check track alias to get the name for horizontal and vertical track --
+    // line => horizontal-line, vertical-line
+    // point => horizontal-point, vertical-point
+    // bar => horizontal-bar, vertical-bar
+    // 1d-heatmap => horizontal-1d-heatmap, vertical-1d-heatmap
+    // gene-annotations => horizontal-gene-annotations, vertical-gene-annotations
+    // linear-2d-rectangle-domains => horizontal-2d-rectangle-domains, vertical-2d-rectangle-domains
+    // chromosome-labels => horizontal-chromosome-labels, vertical-chromosome-labels
+    // -----------------------------------------------------------------------------
     // FIXME: need to add position (hor/ver) to enable select on 1d tracks
     // create default track options for 1d tracks
     for (const track of view["1d"]) {
       for (const position in track.positions) {
         const trackUid = track.positions[position];
+        // positioned track type from alias
+        let positionedTrackType = track.type;
+        const ori = positionToOrientation(position); // orientation
+        const aliases = TRACKS_INFO_BY_TYPE[track.type].aliases;
+        if (aliases && ori) {
+          const alias = aliases.find((el) => el.startsWith(ori));
+          if (alias) {
+            positionedTrackType = alias;
+          }
+        }
         positionedTracks[trackUid] = {
           uid: trackUid,
-          type: positionToOrientation(position) + "-" + track.type,
+          // type: positionToOrientation(position) + "-" + track.type,
+          type: positionedTrackType,
           options: { ...addDefaultOptions(track.type), name: track.name },
         };
         if (track.type !== "chromosome-labels") {
           positionedTracks[trackUid].server = track.server;
           positionedTracks[trackUid].tilesetUid = track.tilesetUid;
-          if (positionToOrientation(position) === "horizontal") {
+          if (ori === "horizontal") {
             positionedTracks[trackUid].height = 60;
             // positionedTracks[trackUid].width = 150;
-          } else {
+          } else if (ori === "vertical") {
             positionedTracks[trackUid].width = 60;
             // positionedTracks[trackUid].height = 150;
           }
         } else {
           positionedTracks[trackUid].chromInfoPath = chromInfoPath;
-          if (positionToOrientation(position) === "horizontal") {
+          if (ori === "horizontal") {
             positionedTracks[trackUid].height = 30;
-          } else {
+          } else if (ori === "vertical") {
             positionedTracks[trackUid].width = 30;
           }
         }
