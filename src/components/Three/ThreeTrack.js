@@ -252,7 +252,7 @@ const ThreeTrack = (props) => {
   const [categories, setCategories] = useState();
   const category = threed.category;
   const [segmentData, setSegmentData] = useState();
-  const [zoomSegmentData, setZoomSegmentData] = useState({});
+  const [zoomSegmentData, setZoomSegmentData] = useState();
   const [g3dChroms, setG3dChroms] = useState();
   // const [chromColors, setChromColors] = useState();
   const chromColors = threed.colormap;
@@ -412,6 +412,7 @@ const ThreeTrack = (props) => {
   }
 
   useEffect(() => {
+    /*
     if (!zoomChroms || zoomChroms.length < 1) {
       return;
     }
@@ -424,6 +425,7 @@ const ThreeTrack = (props) => {
     if (toLoadChroms.length < 1) {
       return;
     }
+    */
     const parseData = (data) => {
       const cats = Object.keys(data);
       const chroms = Object.keys(data[cats[0]]);
@@ -490,7 +492,7 @@ const ThreeTrack = (props) => {
         }
         bins[cat] = catBins;
       }
-
+      /*
       setZoomSegmentData((prevZoomSegmentData) => {
         console.log("load zoomSegmentData");
         if (category in prevZoomSegmentData) {
@@ -502,8 +504,18 @@ const ThreeTrack = (props) => {
         }
         return bins;
       });
+      */
+      setZoomSegmentData(bins);
     };
-    g3dFile.current.readData(zoomResolution, parseData, category, toLoadChroms);
+    if (
+      props.zoomLocation.xDomain &&
+      props.zoomLocation.yDomain &&
+      zoomResolution &&
+      !zoomSegmentData
+    ) {
+      g3dFile.current.readData(zoomResolution, parseData, category);
+    }
+    // g3dFile.current.readData(zoomResolution, parseData, category, toLoadChroms);
   }, [props.zoomLocation]);
 
   // convert overlays
@@ -535,6 +547,7 @@ const ThreeTrack = (props) => {
 
   // TODO: make load data into a custom hook with its own load ready state
   const isZoomSegmentDataLoaded = (chroms) => {
+    /*
     if (!(category in zoomSegmentData)) {
       return false;
     }
@@ -544,6 +557,11 @@ const ThreeTrack = (props) => {
       }
     }
     return true;
+    */
+    if (zoomSegmentData) {
+      return true;
+    }
+    return false;
   };
 
   // find the camera postions of all chromosomes
@@ -591,12 +609,21 @@ const ThreeTrack = (props) => {
   // }, [zoomSegmentData, category]);
   const zoomCameraPosition = getZoomBounds(
     zoomBinRanges,
-    zoomSegmentData[category]
+    zoomSegmentData && zoomSegmentData[category]
   );
 
   // TODO: find zoom camera position using start, end and middle points
   console.log("cameraPosition", cameraPosition);
   // console.log("zoomCameraPosition", zoomCameraPosition);
+
+  console.log("zoomLocation", props.zoomLocation);
+
+  console.log(
+    "show zoom",
+    props.zoomLocation,
+    isZoomSegmentDataLoaded(zoomChroms),
+    zoomCameraPosition
+  );
 
   return (
     <>
