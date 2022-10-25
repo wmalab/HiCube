@@ -35,11 +35,12 @@ const DisplayOptions = (props) => {
       value = value.join(":");
     }
 
-    options.push({ name: option, value: value });
+    // options.push({ name: option, value: value });
 
     // gather all available option values
     optionItems[option] = {};
     if (option in OPTIONS_INFO) {
+      options.push({ name: option, value: value });
       optionItems[option].label = OPTIONS_INFO[option].name;
       let availableValues = {};
       for (const key in OPTIONS_INFO[option].inlineOptions) {
@@ -61,7 +62,7 @@ const DisplayOptions = (props) => {
           value: val,
         };
       }
-      // TODO: generate options if exists ------------------------
+      // generate options if exists ------------------------
       if (OPTIONS_INFO[option].generateOptions) {
         const trackObj = ctx.hgcRefs.current[caseUid].api.getTrackObject(
           "aa",
@@ -80,9 +81,12 @@ const DisplayOptions = (props) => {
       // ---------------------------------------------------------
 
       optionItems[option].availableValues = availableValues;
-    } else {
+    } 
+    /*
+    else {
       optionItems[option].label = camelCaseToTitleCase(option);
     }
+    */
   }
 
   // what submited is an array of { name, value } options
