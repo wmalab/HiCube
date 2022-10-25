@@ -8,6 +8,8 @@ HiCube provides following unique features and functionality:
 - Zoom view at higher resolution
 - Add configurable annotations
 
+[Demo site](https://hicube-86906.web.app/)
+
 ![Overview](docs/img/figure-1.png)
 
 ## Installation
