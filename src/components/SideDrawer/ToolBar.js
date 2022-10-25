@@ -62,7 +62,7 @@ const ToolBar = (props) => {
               Enter genomic intervals (1 per line):
             </label>
             <textarea
-              cols={38}
+              cols={35}
               rows={6}
               onChange={textareaChangeHandler}
               value={enteredText}

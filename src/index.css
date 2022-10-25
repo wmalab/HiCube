@@ -40,18 +40,22 @@ button, input, select {
 } */
 
 .content {
-  display: flex;
+  /* display: flex; */
+  display: grid;
+  grid-template-columns: 280px 280px 280px 280px;
+  gap: 10px;
+  margin-left: 5px;
 }
 
 .content-item {
   /* height: 400px; */
-  display: block;
-  float: left;
+  /* display: block; */
+  /* float: left; */
   /* border: 1px solid #EEEEEE; */
   /* border-radius: 10px; */
-  width: 350px;
-  margin-right: 10px;
-  margin-top: 10px;
+  /* width: 280px; */
+  /* margin-right: 5px; */
+  margin-top: 5px;
 }
 
 .hgc {
