@@ -44,7 +44,8 @@ const HiGlassCase = (props, ref) => {
     }
     const xDomain = [...dataRange[0]];
     const yDomain = dataRange[1] ? [...dataRange[1]] : [...dataRange[0]];
-    return { xDomain, yDomain };
+    const dim = dataRange[1] ? 2 : 1;
+    return { xDomain, yDomain, dim };
   };
 
   const subscribeZoomLocation = () => {
@@ -348,14 +349,17 @@ const HiGlassCase = (props, ref) => {
       //   overlays: props.overlays,
       // });
       // mainLocation (local) can be null when init
+      // BEWARE: zoomLocation is local value,
+      // props.rangeSelection is passed as props
+      // they have different name
       configCtx.updateOverlays(props.overlays, [
         {
           xDomain: props.mainLocation.xDomain,
           yDomain: props.mainLocation.yDomain,
         },
         {
-          xDomain: props.zoomLocation && props.zoomLocation.xDomain,
-          yDomain: props.zoomLocation && props.zoomLocation.yDomain,
+          xDomain: props.rangeSelection && props.rangeSelection.xDomain,
+          yDomain: props.rangeSelection && props.rangeSelection.yDomain,
         },
       ]);
     }

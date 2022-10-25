@@ -246,7 +246,31 @@ export default function App() {
     if (appendData.enteredText) {
       convertStrToOverlays(appendData.enteredText);
     }
-    setMouseTool("add_overlay");
+    // setMouseTool("add_overlay");
+    // get range selection 1D or 2D ------------------
+    const caseUids = configCtx.cases.map((val) => val.uid);
+    let newOverlay;
+    for (const caseUid of caseUids) {
+      const range = configCtx.hgcRefs.current[caseUid].getRangeSelection();
+      if (range) {
+        newOverlay = range;
+      }
+    }
+    if (newOverlay) {
+      if (newOverlay.dim === 1) {
+        dispatchOverlaysAction({
+          type: "ADD_1D",
+          extent: [...newOverlay.xDomain],
+        });
+      } else if (newOverlay.dim === 2) {
+        dispatchOverlaysAction({
+          type: "ADD_2D",
+          extent: [...newOverlay.xDomain, ...newOverlay.yDomain],
+        });
+      }
+    }
+    // -----------------------------------------------------
+    setMouseTool("move");
   };
 
   const clearOverlaysHandler = () => {
@@ -358,7 +382,6 @@ export default function App() {
       setGenomeAssembly(config.genomeAssembly);
       setTrackSourceServers(config.trackSourceServers);
       configCtx.loadConfig(config, g3dBlobs);
-      dispatchOverlaysAction({ type: "REPLACE", overlays: config.overlays });
       setMainLocation({
         xDomain: config.mainXDomain,
         yDomain: config.mainYDomain,
@@ -370,6 +393,7 @@ export default function App() {
         yDomain: config.zoomYDomain,
         fromId: "loaded",
       });
+      dispatchOverlaysAction({ type: "REPLACE", overlays: config.overlays });
     });
   };
 
@@ -429,8 +453,9 @@ export default function App() {
       <div className="main">
         {rangeSelection && rangeSelection.xDomain && (
           <GenomePositionBar
+            onPositionChange={rangeSelectionChangeHandler.bind(null, "UPDATE")}
             positions={rangeSelection}
-            name="Zoom view"
+            name="Zoom Position"
             genomeAssembly={genomeAssembly}
           />
         )}
@@ -438,7 +463,7 @@ export default function App() {
           <GenomePositionBar
             onPositionChange={locationChangeHandler}
             positions={mainLocation}
-            name="Base view"
+            name="Base Position"
             genomeAssembly={genomeAssembly}
           />
         )}
@@ -446,7 +471,10 @@ export default function App() {
           {configCtx.cases.map((caseUids) => {
             return (
               <>
-                <div key={caseUids.uid + "-higlass"} className="content-item hgc">
+                <div
+                  key={caseUids.uid + "-higlass"}
+                  className="content-item hgc"
+                >
                   {/* <ErrorBoundary> */}
                   <HiGlassCase
                     id={caseUids.uid}
