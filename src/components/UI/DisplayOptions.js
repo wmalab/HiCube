@@ -68,6 +68,8 @@ const DisplayOptions = (props) => {
           "aa",
           trackUid
         );
+        console.log("trackObj", trackObj);
+        
         const generatedOptions = OPTIONS_INFO[option].generateOptions(trackObj); // returned an array
         for (const generatedOption of generatedOptions) {
           availableValues[generatedOption.value] = {

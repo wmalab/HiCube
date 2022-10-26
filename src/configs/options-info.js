@@ -613,13 +613,18 @@ const OPTIONS_INFO = {
       none: { name: "None", value: null },
     },
     generateOptions: (track) => {
-      if (!track) {
+      if (!track || !track.tilesetInfo) {
         return [];
       }
       const { tilesetInfo } = track;
-      if (tilesetInfo && tilesetInfo["max_zoom"]) {
+      let maxZoom;
+      if (tilesetInfo.resolutions) {
+        maxZoom = tilesetInfo.resolutions.length - 1;
+      } else {
+        maxZoom = tilesetInfo["max_zoom"];
+      }
+      if (maxZoom) {
         const inlineOptions = [];
-        const maxZoom = tilesetInfo["max_zoom"];
 
         for (let i = 0; i <= maxZoom; i++) {
           const maxWidth = tilesetInfo["max_width"];
