@@ -70,6 +70,11 @@ const TrackSourceManager = (props) => {
             onFocus={focusHandler}
             placeholder="Enter HiGlass API server URL..."
           ></input>
+          {isLoading && (
+            <div className={classes.loading}>
+              <p>Loading...</p>
+            </div>
+          )}
           {errorMsg && (
             <div className={classes.error}>
               <p>Invalid server: {errorMsg}</p>
