@@ -4,7 +4,7 @@ import DisplayOptionForm from "./DisplayOptionForm";
 import Collapsible from "./Collapsible";
 import TRACKS_INFO_BY_TYPE from "../../configs/tracks-info-by-type";
 import OPTIONS_INFO from "../../configs/options-info";
-import { camelCaseToTitleCase } from "../../utils";
+import { camelCaseToTitleCase, truncateString } from "../../utils";
 
 const DisplayOptions = (props) => {
   const { trackUid, trackName, caseUid } = props;
@@ -69,7 +69,7 @@ const DisplayOptions = (props) => {
           trackUid
         );
         console.log("trackObj", trackObj);
-        
+
         const generatedOptions = OPTIONS_INFO[option].generateOptions(trackObj); // returned an array
         for (const generatedOption of generatedOptions) {
           availableValues[generatedOption.value] = {
@@ -83,7 +83,7 @@ const DisplayOptions = (props) => {
       // ---------------------------------------------------------
 
       optionItems[option].availableValues = availableValues;
-    } 
+    }
     /*
     else {
       optionItems[option].label = camelCaseToTitleCase(option);
@@ -135,7 +135,7 @@ const DisplayOptions = (props) => {
   };
 
   return (
-    <Collapsible title={trackName} defaultCollapsed>
+    <Collapsible title={truncateString(trackName, 30)} defaultCollapsed>
       <DisplayOptionForm
         options={options}
         optionItems={optionItems}
