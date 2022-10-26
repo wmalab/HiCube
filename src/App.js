@@ -452,6 +452,7 @@ export default function App() {
         onExportAnnotations={exportAnnotationsHandler}
       />
       <div className="main">
+        <div className="genome-position-header">
         {rangeSelection && rangeSelection.xDomain && (
           <GenomePositionBar
             onPositionChange={rangeSelectionChangeHandler.bind(null, "UPDATE")}
@@ -468,6 +469,7 @@ export default function App() {
             genomeAssembly={genomeAssembly}
           />
         )}
+        </div>
         <div className="content">
           {configCtx.cases.map((caseUids) => {
             return (

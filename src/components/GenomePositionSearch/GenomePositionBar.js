@@ -69,7 +69,7 @@ const GenomePositionBar = (props) => {
   return (
     <div>
       <form onSubmit={positionSubmitHandler}>
-        <span className={classes["title"]}>{props.name}</span>
+        <span className={classes["title"]}>{props.name} : </span>
         <div className={classes["position"]}>
           <span className={classes["sep"]}>X =</span>
           <input

@@ -6,6 +6,7 @@ body {
   font-family: "Overpass", sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  /* background-color: whitesmoke; */
 }
 
 code {
@@ -42,9 +43,9 @@ button, input, select {
 .content {
   /* display: flex; */
   display: grid;
-  grid-template-columns: 280px 280px 280px 280px;
-  gap: 10px;
-  margin-left: 5px;
+  grid-template-columns: 290px 290px 290px 290px;
+  gap: 5px;
+  margin-left: 3px;
 }
 
 .content-item {
@@ -60,6 +61,15 @@ button, input, select {
 
 .hgc {
   border: 1px solid lightgray;
+  border-radius: 6px;
+  box-shadow: 0 1px 8px rgba(0, 0, 0, 0.25);
+}
+
+.genome-position-header {
+  /* border: 1px solid lightgray; */
+  /* border-radius: 6px; */
+  box-shadow: 0 4px 2px -2px rgba(0, 0, 0, 0.25);
+  /* margin-left: auto; */
 }
 
 .control-section {

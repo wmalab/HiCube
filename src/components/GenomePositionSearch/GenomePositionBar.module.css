@@ -1,22 +1,27 @@
 .position {
-  background: #dee1e2;
+  /* background: #dee1e2; */
   display: inline-block;
-  border: 1px solid lightgray;
+  /* border: 1px solid lightgray; */
+  padding-top: 5px;
+  padding-bottom: 5px;
 }
 
 input.position-bar {
   width: 220px;
   text-align: left;
-  font-size: 13px;
   /* border-radius: 4px; */
-  line-height: 1.5;
+  /* line-height: 1.5; */
   padding: 5px 5px;
-  transition: box-shadow 100ms ease-in, border 100ms ease-in,
-    background-color 100ms ease-in;
+  /* transition: box-shadow 100ms ease-in, border 100ms ease-in,
+    background-color 100ms ease-in; */
   border: 2px solid #dee1e2;
-  color: rgb(14, 14, 16);
+  /* border: none; */
+  /* color: rgb(14, 14, 16); */
+  color: gray;
   background: #dee1e2;
-  height: 12px;
+  /* background-color: #EEEEEE; */
+  height: 14px;
+  font-weight: bold;
 }
 
 /* input.position-bar:hover {
@@ -26,9 +31,9 @@ input.position-bar:focus {
   border-color: #9147ff;
 } */
 
-input.position-bar:focus {
+/* input.position-bar:focus {
   background-color: whitesmoke;
-}
+} */
 
 .sep {
   margin-left: 10px;
