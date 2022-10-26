@@ -2,6 +2,7 @@ import React from "react";
 import { useFormikContext } from "formik";
 import TrackSelector from "./TrackSelector";
 import Collapsible from "./Collapsible";
+import { truncateString } from "../../utils";
 import classes from "./PairedTrackSelector.module.css";
 
 const PairedTrackSelector = (props) => {
@@ -15,7 +16,10 @@ const PairedTrackSelector = (props) => {
   };
 
   return (
-    <Collapsible title={pairTrack.name} className={classes.enterfield}>
+    <Collapsible
+      title={truncateString(pairTrack.name, 30)}
+      className={classes.enterfield}
+    >
       <div>
         <label>Data type:</label>
         <span className={classes.value}>{pairTrack.datatype}</span>
