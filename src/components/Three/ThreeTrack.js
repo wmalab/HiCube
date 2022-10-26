@@ -27,6 +27,7 @@ import { Line, OrbitControls } from "@react-three/drei";
 import { ChromosomeInfo } from "higlass";
 import Backbone from "./Backbone";
 import OverlaysTrack from "./OverlaysTrack";
+import g3dDataParser from "./g3d-data-parser";
 import classes from "./ThreeTrack.module.css";
 
 const getBounds = (chroms, data, category) => {
@@ -36,6 +37,9 @@ const getBounds = (chroms, data, category) => {
   for (const chr of chroms) {
     const { max, min } = data[category][chr];
     for (const axis of axes) {
+      maxBound[axis] = maxBound[axis] > max[axis] ? maxBound[axis] : max[axis];
+      minBound[axis] = minBound[axis] < min[axis] ? minBound[axis] : min[axis];
+      /*
       if (axis in maxBound) {
         maxBound[axis] = Math.max(maxBound[axis], max[axis]);
       } else {
@@ -46,6 +50,7 @@ const getBounds = (chroms, data, category) => {
       } else {
         minBound[axis] = min[axis];
       }
+      */
     }
   }
   return { max: maxBound, min: minBound };
@@ -55,6 +60,7 @@ const lastElem = (arr) => {
   return arr[arr.length - 1];
 };
 
+/*
 const getZoomBounds = (binRanges, data) => {
   if (!binRanges || !data) {
     return undefined;
@@ -67,11 +73,13 @@ const getZoomBounds = (binRanges, data) => {
       const startSegment = binToSegment[startBin];
       const endBin = binRange[1] - 1;
       const endSegment = binToSegment[endBin];
+      console.log(startBin, startSegment, segments[startSegment]); // startSegment can be the last non-segment (=length)
       const startPoint =
         segments[startSegment].points[
           Math.max(0, startBin - segments[startSegment].start)
         ];
       let endPoint = lastElem(lastElem(segments).points);
+      console.log(endBin, endSegment, segments[endSegment]);
       if (endSegment < segments.length) {
         if (endBin >= segments[endSegment].start) {
           endPoint =
@@ -99,6 +107,80 @@ const getZoomBounds = (binRanges, data) => {
   yCenter /= xyzCenters.length;
   zCenter /= xyzCenters.length;
   return [-xCenter, -yCenter, -zCenter];
+};
+*/
+
+// get approx viewing regin data bounds
+const getDataBounds = (binRanges, data) => {
+  // binRanges: { chrom: [[binStart, binEnd (exclude)], ...] }
+  // data: { chrom: { segments, binToSegment, max, min }}
+  if (!binRanges || !data) {
+    return undefined;
+  }
+  const maxBound = {};
+  const minBound = {};
+  const axes = ["x", "y", "z"];
+
+  for (const chr in binRanges) {
+    if (!(chr in data)) {
+      // if that chr is missing
+      continue;
+    }
+    for (const binRange of binRanges[chr]) {
+      console.log(data, chr);
+      const { binToSegment, segments } = data[chr];
+      const b1 = binRange[0];
+      // TODO: need to check if bin is on last non-segment
+      const s1 = binToSegment[b1];
+      const b2 = binRange[1] - 1;
+      const s2 = binToSegment[b2];
+      // BEWARE: the startBin and endBin could all end on same non-segment
+      // so its actually empty
+      if (s1 >= segments.length) {
+        continue;
+      }
+      const segment1 = segments[s1];
+      const start = Math.max(0, b1 - segment1.start);
+      let p1, p2;
+      if (s1 === s2) {
+        // on the same segment, make sure b2 is after segment start, otherwise its empty
+        const end = b2 - segment1.start + 1;
+        if (start < end) {
+          p1 = segment1.points[start];
+          p2 = segment1.points[end - 1];
+        }
+      } else {
+        // on different segment
+        p1 = segment1.points[start];
+        // s1 < s2
+        p2 = lastElem(segments[s2 - 1].points);
+        // if bin2 is on segment
+        if (s2 < segments.length) {
+          const segment2 = segments[s2];
+          const end = b2 - segment2.start + 1;
+          if (end > 0) {
+            p2 = segment2.points[end - 1];
+          }
+        }
+      }
+      axes.forEach((axis, index) => {
+        if (p1) {
+          maxBound[axis] =
+            maxBound[axis] > p1[index] ? maxBound[axis] : p1[index];
+          minBound[axis] =
+            minBound[axis] < p1[index] ? minBound[axis] : p1[index];
+        }
+        if (p2) {
+          maxBound[axis] =
+            maxBound[axis] > p2[index] ? maxBound[axis] : p2[index];
+          minBound[axis] =
+            minBound[axis] < p2[index] ? minBound[axis] : p2[index];
+        }
+      });
+      // --------------------------------------------------------
+    }
+  }
+  return { max: maxBound, min: minBound };
 };
 
 // DONE: use chromInfoPath from genomeAssemply props
@@ -128,6 +210,7 @@ const MainScene = (props) => {
   }, [props.exportSvg]);
 
   const {
+    groupPosition,
     g3dChroms,
     segmentData,
     chromColors,
@@ -140,7 +223,7 @@ const MainScene = (props) => {
   } = props;
 
   return (
-    <>
+    <group position={groupPosition}>
       <group>
         {g3dChroms &&
           segmentData &&
@@ -173,7 +256,7 @@ const MainScene = (props) => {
           />
         )}
       </group>
-    </>
+    </group>
   );
 };
 
@@ -207,11 +290,31 @@ const ZoomScene = (props) => {
     zoomResolution,
   } = props;
 
+  console.log(zoomChroms);
+
+  const backbones = [];
+  if (zoomChroms) {
+    zoomChroms.forEach((chrom) => {
+      if (chrom in zoomSegmentData[category]) {
+        backbones.push(
+          <Backbone
+            key={chrom}
+            segmentData={zoomSegmentData[category][chrom]}
+            color={chromColors[chrom]}
+            visible={true}
+            showViewRangeOnly={true}
+            binRanges={zoomBinRanges[chrom]}
+          />
+        );
+      }
+    });
+  }
+
   return (
     <>
       <group position={zoomCameraPosition}>
         <group>
-          {zoomChroms &&
+          {/* {zoomChroms &&
             zoomChroms.map((chrom) => {
               return (
                 <Backbone
@@ -223,7 +326,8 @@ const ZoomScene = (props) => {
                   binRanges={zoomBinRanges[chrom]}
                 />
               );
-            })}
+            })} */}
+          {backbones}
         </group>
         <group>
           {zoomSegmentData && (
@@ -257,6 +361,8 @@ const ThreeTrack = (props) => {
   // const [chromColors, setChromColors] = useState();
   const chromColors = threed.colormap;
 
+  // FIXME: some chromosome may be missing
+
   useEffect(() => {
     g3dFile.current.readHeader().then(() => {
       setResolutions(g3dFile.current.meta.resolutions);
@@ -272,6 +378,7 @@ const ThreeTrack = (props) => {
     }
   }, [chromInfoPath, resolutions]);
 
+  /*
   const parseG3dData = useCallback(
     (data) => {
       const cats = Object.keys(data);
@@ -346,25 +453,19 @@ const ThreeTrack = (props) => {
     },
     [resolution, chromInfo]
   );
+  */
 
-  // load data
+  // load base data
   useEffect(() => {
     if (!chromInfo) {
       return;
     }
-    g3dFile.current.readData(resolution, parseG3dData, category);
-  }, [chromInfo, resolution, parseG3dData, category]);
-
-  // setup chromosome colors
-  // useEffect(() => {
-  //   if (g3dChroms) {
-  //     const colors = {};
-  //     for (const chrom of g3dChroms) {
-  //       colors[chrom] = [Math.random(), Math.random(), Math.random()];
-  //     }
-  //     setChromColors(colors);
-  //   }
-  // }, [g3dChroms]);
+    const parser = (data) => {
+      console.log("load base g3d data");
+      g3dDataParser(data, chromInfo, resolution, setSegmentData, setG3dChroms);
+    };
+    g3dFile.current.readData(resolution, parser, category);
+  }, [chromInfo, resolution, category]);
 
   // get viewing chromosomes from binRanges
   let viewingChroms = [];
@@ -426,6 +527,8 @@ const ThreeTrack = (props) => {
       return;
     }
     */
+
+    /*
     const parseData = (data) => {
       const cats = Object.keys(data);
       const chroms = Object.keys(data[cats[0]]);
@@ -492,7 +595,7 @@ const ThreeTrack = (props) => {
         }
         bins[cat] = catBins;
       }
-      /*
+      
       setZoomSegmentData((prevZoomSegmentData) => {
         console.log("load zoomSegmentData");
         if (category in prevZoomSegmentData) {
@@ -504,19 +607,29 @@ const ThreeTrack = (props) => {
         }
         return bins;
       });
-      */
+      
       setZoomSegmentData(bins);
     };
-    if (
-      props.zoomLocation.xDomain &&
-      props.zoomLocation.yDomain &&
-      zoomResolution &&
-      !zoomSegmentData
-    ) {
-      g3dFile.current.readData(zoomResolution, parseData, category);
+    */
+    if (!props.zoomLocation.xDomain || !props.zoomLocation.yDomain) {
+      // TODO: need to empty data
+      return;
     }
+    if (zoomSegmentData) {
+      return;
+    }
+    if (!resolutions || !chromInfo || !category) {
+      return;
+    }
+    // TODO: zoom resolution should be able to be set as props
+    const zoomRes = Math.min(...resolutions);
+    const parser = (data) => {
+      console.log("load zoom g3d data");
+      g3dDataParser(data, chromInfo, zoomRes, setZoomSegmentData);
+    };
+    g3dFile.current.readData(zoomRes, parser, category);
     // g3dFile.current.readData(zoomResolution, parseData, category, toLoadChroms);
-  }, [props.zoomLocation]);
+  }, [props.zoomLocation, resolutions, chromInfo, category, zoomSegmentData]);
 
   // convert overlays
   // const overlays1d = useMemo(() => {
@@ -565,7 +678,7 @@ const ThreeTrack = (props) => {
   };
 
   // find the camera postions of all chromosomes
-  const cameraPosition = useMemo(() => {
+  const position = useMemo(() => {
     if (g3dChroms && segmentData) {
       // const maxBound = {};
       // const minBound = {};
@@ -589,7 +702,18 @@ const ThreeTrack = (props) => {
       const xLen = bounds.max.x - bounds.min.x;
       const yLen = bounds.max.y - bounds.min.y;
       const zLen = bounds.max.z - bounds.min.z;
-      return [xLen / 2, yLen / 2, bounds.max.z + zLen / 3];
+      // return [xLen / 2, yLen / 2, bounds.max.z + zLen / 3];
+      const cx = (bounds.max.x + bounds.min.x) / 2;
+      const cy = (bounds.max.y + bounds.min.y) / 2;
+      const cz = (bounds.max.z + bounds.min.z) / 2;
+      return {
+        groupPosition: [-cx, -cy, -cz],
+        cameraPosition: [
+          xLen / 2,
+          yLen / 2,
+          Math.max(...Object.values(bounds.max)),
+        ],
+      };
     } else {
       return undefined;
     }
@@ -607,23 +731,63 @@ const ThreeTrack = (props) => {
   //     return undefined;
   //   }
   // }, [zoomSegmentData, category]);
-  const zoomCameraPosition = getZoomBounds(
-    zoomBinRanges,
-    zoomSegmentData && zoomSegmentData[category]
-  );
+  // const zoomCameraPosition = getZoomBounds(
+  //   zoomBinRanges,
+  //   zoomSegmentData && zoomSegmentData[category]
+  // );
+
+  const getZoomPosition = () => {
+    if (!zoomBinRanges || !zoomSegmentData || !zoomSegmentData[category]) {
+      return undefined;
+    }
+    console.log(zoomSegmentData);
+    const bounds = getDataBounds(
+      zoomBinRanges,
+      zoomSegmentData && zoomSegmentData[category]
+    );
+    if (!bounds) {
+      return undefined;
+    }
+
+    const xLen = bounds.max.x - bounds.min.x;
+    const yLen = bounds.max.y - bounds.min.y;
+    const zLen = bounds.max.z - bounds.min.z;
+
+    const cx = (bounds.max.x + bounds.min.x) / 2;
+    const cy = (bounds.max.y + bounds.min.y) / 2;
+    const cz = (bounds.max.z + bounds.min.z) / 2;
+
+    if (isNaN(xLen) || isNaN(yLen) || isNaN(zLen)) {
+      return undefined;
+    }
+
+    return {
+      groupPosition: [-cx, -cy, -cz],
+      // cameraPosition: [xLen / 2, yLen / 2, bounds.max.z + zLen / 3],
+      cameraPosition: [
+        xLen / 2,
+        yLen / 2,
+        Math.max(...Object.values(bounds.max)),
+      ],
+    };
+  };
+
+  const zoomPosition = getZoomPosition();
 
   // TODO: find zoom camera position using start, end and middle points
-  console.log("cameraPosition", cameraPosition);
+  // console.log("cameraPosition", cameraPosition);
   // console.log("zoomCameraPosition", zoomCameraPosition);
+  console.log("zoomPosition", zoomPosition);
 
   console.log("zoomLocation", props.zoomLocation);
+  console.log("zoomSegmentData", zoomSegmentData);
 
-  console.log(
-    "show zoom",
-    props.zoomLocation,
-    isZoomSegmentDataLoaded(zoomChroms),
-    zoomCameraPosition
-  );
+  // console.log(
+  //   "show zoom",
+  //   props.zoomLocation,
+  //   isZoomSegmentDataLoaded(zoomChroms),
+  //   zoomCameraPosition
+  // );
 
   return (
     <>
@@ -631,15 +795,16 @@ const ThreeTrack = (props) => {
         props.zoomLocation.yDomain &&
         isZoomSegmentDataLoaded(zoomChroms) && (
           <div className={classes.threeview}>
-            {zoomCameraPosition && (
+            {zoomPosition && (
               <Canvas
                 gl={{ preserveDrawingBuffer: true }}
-                pixelRatio={[1, 2]}
+                camera={{ position: zoomPosition.cameraPosition }}
+                // pixelRatio={[1, 2]}
                 // camera={{ position: zoomCameraPosition }}
                 // camera={{position: [0, 0, 0]}}
               >
                 <ZoomScene
-                  zoomCameraPosition={zoomCameraPosition}
+                  zoomCameraPosition={zoomPosition.groupPosition}
                   zoomChroms={zoomChroms}
                   zoomSegmentData={zoomSegmentData}
                   category={category}
@@ -654,16 +819,24 @@ const ThreeTrack = (props) => {
                 <OrbitControls zoomSpeed={0.5} />
               </Canvas>
             )}
+            {zoomPosition === undefined && (
+              <p className={classes.message}>
+                No available 3D structure data in this region.
+              </p>
+            )}
           </div>
         )}
       <div className={classes.threeview}>
-        {cameraPosition && (
+        {position && (
           <Canvas
             gl={{ preserveDrawingBuffer: true }}
-            pixelRatio={[1, 2]}
-            camera={{ position: cameraPosition }}
+            camera={{ position: position.cameraPosition }}
+            // pixelRatio={[1, 2]}
+            // camera={{ position: cameraPosition }}
+            // camera={{position: [0, 0, 1]}}
           >
             <MainScene
+              groupPosition={position.groupPosition}
               g3dChroms={g3dChroms}
               segmentData={segmentData}
               chromColors={chromColors}
