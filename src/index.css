@@ -41,10 +41,11 @@ button, input, select {
 } */
 
 .content {
-  /* display: flex; */
-  display: grid;
-  grid-template-columns: 290px 290px 290px 290px;
-  gap: 5px;
+  display: flex;
+  align-items: flex-start;
+  /* display: grid;
+  grid-template-columns: 450px 450px 450px 450px;
+  gap: 5px; */
   margin-left: 3px;
 }
 
@@ -54,7 +55,7 @@ button, input, select {
   /* float: left; */
   /* border: 1px solid #EEEEEE; */
   /* border-radius: 10px; */
-  /* width: 280px; */
+  width: 380px;
   /* margin-right: 5px; */
   margin-top: 5px;
 }

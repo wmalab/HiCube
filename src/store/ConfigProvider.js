@@ -14,6 +14,9 @@ import OPTIONS_INFO from "../configs/options-info";
 // TODO: where to add zoomview and overlays in caseUids?
 // TODO: 1d, 2d and 3d tracks in caseUids?
 
+const MIN_HORIZONTAL_HEIGHT = 20;
+const MIN_VERTICAL_WIDTH = 20;
+
 const defaultConfigs = {
   cases: [],
   pairedLocks: {},
@@ -132,6 +135,31 @@ const viewsToViewConfig = (views, positionedTracks, chromInfoPath) => {
   return viewConfig;
 };
 
+const defaultHeightWidth = (trackType, position) => {
+  const orientation = positionToOrientation(position);
+  if (!orientation) {
+    return undefined; // center track
+  }
+  const trackInfo = TRACKS_INFO_BY_TYPE[trackType];
+  const defaultOptions = (trackInfo && trackInfo.defaultOptions) || {};
+  if (orientation === "horizontal") {
+    let height;
+    height = defaultOptions.minHeight;
+    if (height === undefined) {
+      height = (trackInfo && trackInfo.defaultHeight) || MIN_HORIZONTAL_HEIGHT;
+    }
+    return height;
+  }
+  if (orientation === "vertical") {
+    let width;
+    width = defaultOptions.minWidth;
+    if (width === undefined) {
+      width = (trackInfo && trackInfo.defaultWidth) || MIN_VERTICAL_WIDTH;
+    }
+    return width;
+  }
+};
+
 const configsReducer = (state, action) => {
   console.log("config reduce");
   if (action.type === "ADD_CASE" || action.type === "ADD_CASE_PAIRED") {
@@ -178,7 +206,7 @@ const configsReducer = (state, action) => {
       server: view["2d"].contents[0].server,
       tilesetUid: view["2d"].contents[0].tilesetUid,
       // TODO: dynamically calculate the height so the heatmap is square
-      height: 300,
+      height: 170,
       // width: 260,
       options: {
         ...addDefaultOptions(view["2d"].contents[0].type),
@@ -189,6 +217,9 @@ const configsReducer = (state, action) => {
     positionedTracksToCaseUid[view["2d"].contents[0].uid] = {
       caseUid: caseUid,
     };
+
+    // let cumHeight = 0;
+    // let cumWidth = 0;
 
     // FIXME: linear-2d-rectangle-domains aliases are "horizontal-2d-rectangle-domains"
     // and "vertical-2d-rectangle-domains"
@@ -223,6 +254,17 @@ const configsReducer = (state, action) => {
           type: positionedTrackType,
           options: { ...addDefaultOptions(track.type), name: track.name },
         };
+        positionedTracks[trackUid].server = track.server;
+        positionedTracks[trackUid].tilesetUid = track.tilesetUid;
+        const defaultHW = defaultHeightWidth(track.type, position);
+        if (ori === "horizontal") {
+          positionedTracks[trackUid].height = defaultHW;
+          // cumHeight += defaultHW;
+        } else if (ori === "vertical") {
+          positionedTracks[trackUid].width = defaultHW;
+          // cumWidth += defaultHW;
+        }
+        /*
         if (track.type !== "chromosome-labels") {
           positionedTracks[trackUid].server = track.server;
           positionedTracks[trackUid].tilesetUid = track.tilesetUid;
@@ -241,8 +283,19 @@ const configsReducer = (state, action) => {
             positionedTracks[trackUid].width = 30;
           }
         }
+        */
       }
     }
+    /*
+    if (cumHeight > 250 || cumWidth > 250) {
+      // TODO: dynamically change canvas size
+      throw new Error("Too many tracks");
+    }
+    const centerHeight = 300 - cumWidth;
+    positionedTracks[view["2d"].contents[0].uid].height = 200;
+    console.log("centerHeight", centerHeight);
+    */
+
     const views = [
       {
         ...view,
