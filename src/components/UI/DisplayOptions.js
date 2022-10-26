@@ -15,6 +15,13 @@ const DisplayOptions = (props) => {
 
   for (const option of TRACKS_INFO_BY_TYPE[track.type].availableOptions) {
     let value = track.options[option];
+    // convert colorRange to a string
+    // also the available option value to a string
+    // then split them back into an array when submit
+    // DEWARE: colorRange can be undefined
+    if (option === "colorRange" && value) {
+      value = value.join(":");
+    }
     // set undefined (which is not set) and null (actual value)
     // to string, so they can be select normally
     // need to filter "undefined" and convert "null" to null
@@ -27,12 +34,6 @@ const DisplayOptions = (props) => {
       value === false
     ) {
       value = String(value);
-    }
-    // convert colorRange to a string
-    // also the available option value to a string
-    // then split them back into an array when submit
-    if (option === "colorRange") {
-      value = value.join(":");
     }
 
     // options.push({ name: option, value: value });
