@@ -10,7 +10,34 @@ HiCube provides following unique features and functionality:
 
 ![Overview](docs/img/figure-1.png)
 
+[Demo site](https://hicube-86906.web.app/)
+
 ## Installation
+
+Download the [build version](https://drive.google.com/file/d/1Z-k3tGMK0_rlbONuqD-OUT6Wybnhq__g/view?usp=sharing), unzip it, then use a static site server to run it:
+
+For Node.js serve:
+
+```bash
+# install a static site server
+npm install -g serve
+# on macOS may need to use sudo to install globally
+sudo npm install -g serve
+# start the server
+serve -s HiCube
+```
+then go to the URL the command print out.
+
+If you have `python3` installed, it also provides a static site server:
+
+```bash
+cd HiCube
+python -m http.server
+```
+
+then go to http://localhost:8000
+
+### Development
 
 Install the LTS version of [Node.js](https://nodejs.org/en/download/).
 
@@ -24,27 +51,6 @@ In the project directory, first run `npm install` to install all the dependencie
 
 Open [http://localhost:3000](http://localhost:3000) to use HiCube in your browser.
 
-Or download the [build version](https://drive.google.com/file/d/1Z-k3tGMK0_rlbONuqD-OUT6Wybnhq__g/view?usp=sharing), unzip it, then use a static site server to run it:
-
-```bash
-# install a static site server
-npm install -g serve
-# on macOS may need to use sudo to install globally
-sudo npm install -g serve
-# start the server
-serve -s HiCube
-```
-
-If you have `python3` installed, it also provides a static site server:
-
-```bash
-cd HiCube
-python -m http.server
-```
-
-then go to http://localhost:8000
-
-[Demo site](https://hicube-86906.web.app/)
 
 ## Usage
 
