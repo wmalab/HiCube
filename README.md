@@ -8,21 +8,34 @@ HiCube provides following unique features and functionality:
 - Zoom view at higher resolution
 - Add configurable annotations
 
-[Demo site](https://hicube-86906.web.app/)
-
 ![Overview](docs/img/figure-1.png)
 
 ## Installation
 
+Install the LTS version of [Node.js](https://nodejs.org/en/download/).
+
 Clone the repository to local:
 
-```
+```bash
 git clone https://github.com/wmalab/HiCube.git
 ```
 
 In the project directory, first run `npm install` to install all the dependencies, then `npm start` to start the app.
 
 Open [http://localhost:3000](http://localhost:3000) to use HiCube in your browser.
+
+Or download the [build version](https://drive.google.com/file/d/1Z-k3tGMK0_rlbONuqD-OUT6Wybnhq__g/view?usp=sharing), unzip it, then
+
+```bash
+# install a static site server
+npm install -g serve
+# on macOS may need to use sudo to install globally
+sudo npm install -g serve
+# start the server
+serve -s HiCube
+```
+
+[Demo site](https://hicube-86906.web.app/)
 
 ## Usage
 
