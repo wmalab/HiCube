@@ -37,6 +37,7 @@ const PairedTrackSelector = (props) => {
           onDatasetChange={datasetChangeHandler}
         />
       </div>
+      {props.error && <p className={classes.error}>{props.error}</p>}
     </Collapsible>
   );
 };

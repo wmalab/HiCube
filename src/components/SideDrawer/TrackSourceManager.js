@@ -84,8 +84,8 @@ const TrackSourceManager = (props) => {
       </ul>
       <div className={classes.example}>
         <p>Example:</p>
-        <p>http://higlass.io/api/v1</p>
-        <p>http://localhost:8888/api/v1</p>
+        <p>https://higlass.io/api/v1</p>
+        <p>http://localhost:8888/api/v1 (local mode only)</p>
       </div>
     </Collapsible>
   );

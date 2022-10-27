@@ -69,12 +69,19 @@ const MatrixSelectComponent = ({ field, form, ...props }) => {
         trackSourceServers={props.trackSourceServers}
         onDatasetChange={datasetChangeHandler}
       />
+      {props.error && <p className={classes.error}>{props.error}</p>}
     </Collapsible>
   );
 };
 
 const validate = (values) => {
   const errors = {};
+  if (!values.centerHiC.tilesetUid) {
+    errors.centerHiC = "Must choose a Hi-C track";
+  }
+  if (values.threed.fileObj === "") {
+    errors.threed = "Must choose a .g3d file";
+  }
   errors.tracks = [];
   for (const track of values.tracks) {
     if (track.datatype === "") {
@@ -89,7 +96,11 @@ const validate = (values) => {
       errors.tracks.push(undefined);
     }
   }
-  if (errors.tracks.every((val) => val === undefined)) {
+  if (
+    errors.tracks.every((val) => val === undefined) &&
+    errors.threed === undefined &&
+    errors.centerHiC === undefined
+  ) {
     return undefined;
   }
   return errors;
@@ -128,6 +139,7 @@ const AddCaseForm = (props) => {
   return (
     <Formik
       validateOnChange={false}
+      validateOnBlur={false}
       validate={validate}
       initialValues={{
         initialXDomain: "",
@@ -165,8 +177,13 @@ const AddCaseForm = (props) => {
             component={MatrixSelectComponent}
             assemblyName={assemblyName}
             trackSourceServers={props.trackSourceServers}
+            error={errors && errors.centerHiC}
           />
-          <FileUploader name="threed" className={classes.enterfield} />
+          <FileUploader
+            name="threed"
+            className={classes.enterfield}
+            error={errors && errors.threed}
+          />
           <Collapsible title="Additional Datasets">
             <FieldArray name="tracks">
               {(arrayHelpers) => (

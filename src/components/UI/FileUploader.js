@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { useFormikContext, Field } from "formik";
 import G3dFile from "../Three/g3djs/g3dFile";
 import Collapsible from "./Collapsible";
+import classes from "./FileUploader.module.css";
 
 // Upload g3d file and
 // display meta information of resolutions and categories for selection
@@ -60,6 +61,7 @@ const FileUploader = (props) => {
           </Field>
         </div>
       )}
+      {props.error && <p className={classes.error}>{props.error}</p>}
     </Collapsible>
   );
 };

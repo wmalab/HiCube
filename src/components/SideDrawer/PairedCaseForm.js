@@ -4,6 +4,32 @@ import PairedTrackSelector from "../UI/PairedTrackSelector";
 import FileUploader from "../UI/FileUploader";
 import classes from "./PairedCaseForm.module.css";
 
+const validate = (values) => {
+  const errors = {};
+  if (!values.centerHiC.tilesetUid) {
+    errors.centerHiC = "Must choose a Hi-C track";
+  }
+  if (values.threed.fileObj === "") {
+    errors.threed = "Must choose a .g3d file";
+  }
+  errors.tracks = [];
+  for (const track of values.tracks) {
+    if (!track.tilesetUid) {
+      errors.tracks.push("Must choose a paired track");
+    } else {
+      errors.tracks.push(undefined);
+    }
+  }
+  if (
+    errors.tracks.every((val) => val === undefined) &&
+    errors.threed === undefined &&
+    errors.centerHiC === undefined
+  ) {
+    return undefined;
+  }
+  return errors;
+};
+
 const PairedCaseForm = (props) => {
   const {
     genomeAssembly: { assemblyName, chromInfoPath },
@@ -15,6 +41,9 @@ const PairedCaseForm = (props) => {
 
   return (
     <Formik
+      validateOnChange={false}
+      validateOnBlur={false}
+      validate={validate}
       initialValues={{
         centerHiC: {
           // only one center hic dataset
@@ -61,7 +90,7 @@ const PairedCaseForm = (props) => {
         }, 400);
       }}
     >
-      {({ values }) => (
+      {({ values, errors }) => (
         <Form>
           <PairedTrackSelector
             name="centerHiC"
@@ -69,8 +98,13 @@ const PairedCaseForm = (props) => {
             datatype={values.centerHiC.datatype}
             assemblyName={assemblyName}
             trackSourceServers={trackSourceServers}
+            error={errors && errors.centerHiC}
           />
-          <FileUploader name="threed" className={classes.enterfield} />
+          <FileUploader
+            name="threed"
+            className={classes.enterfield}
+            error={errors && errors.threed}
+          />
           {values.tracks.map((track, index) => (
             <PairedTrackSelector
               key={index}
@@ -79,6 +113,7 @@ const PairedCaseForm = (props) => {
               datatype={track.datatype}
               assemblyName={assemblyName}
               trackSourceServers={trackSourceServers}
+              error={errors && errors.tracks && errors.tracks[index]}
             />
           ))}
           <div className={classes.footer}>
