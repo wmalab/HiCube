@@ -11,6 +11,10 @@ const getPoints = (anchor1, anchor2, segmentData) => {
     // throw Error("1D annotation should be within one chromosome.");
     return points;
   }
+  // check if chr is missing
+  if (!segmentData || !(chr in segmentData)) {
+    return points;
+  }
   const s1 = segmentData[chr].binToSegment[anchor1.bin];
   const s2 = segmentData[chr].binToSegment[anchor2.bin];
   // TODO: assume both anchors are on the same chromosomes now
@@ -188,15 +192,16 @@ const OverlaysTrack = (props) => {
     const point1 = segment1.points[anchor1.bin - segment1.start];
     const point2 = segment2.points[anchor2.bin - segment2.start];
     */
-
-    tracks2d.push(
-      <Overlay2dTrack
-        key={overlay.uid}
-        anchor1={points1}
-        anchor2={points2}
-        options={overlay.options}
-      />
-    );
+    if (points1.length > 0 || points2.length > 0) {
+      tracks2d.push(
+        <Overlay2dTrack
+          key={overlay.uid}
+          anchor1={points1}
+          anchor2={points2}
+          options={overlay.options}
+        />
+      );
+    }
   });
 
   return (

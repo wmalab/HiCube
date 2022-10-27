@@ -264,6 +264,11 @@ const ThreeTrack = (props) => {
   const [zoomSegmentData, setZoomSegmentData] = useState();
   const [g3dChroms, setG3dChroms] = useState();
   const chromColors = threed.colormap;
+  const [viewingChroms, setViewingChroms] = useState();
+  const [viewingBinRanges, setViewingBinRanges] = useState();
+  const [zoomResolution, setZoomResolution] = useState();
+  const [zoomChroms, setZoomChroms] = useState();
+  const [zoomBinRanges, setZoomBinRanges] = useState();
 
   // FIXME: some chromosome may be missing
 
@@ -296,6 +301,7 @@ const ThreeTrack = (props) => {
 
   // get viewing chromosomes from binRanges
   // TODO: refactor this
+  /*
   let viewingChroms = [];
   let viewingBinRanges = {};
   if (chromInfo && segmentData && g3dChroms) {
@@ -311,10 +317,30 @@ const ThreeTrack = (props) => {
       resolution
     );
   }
+  */
+
+  useEffect(() => {
+    if (chromInfo && g3dChroms) {
+      const chrs = chromInfo.mergeChromsFromRanges(
+        props.mainLocation.xDomain,
+        props.mainLocation.yDomain
+      );
+      // need to exclude chrom not in g3d file
+      setViewingChroms(chrs.filter((chrom) => g3dChroms.includes(chrom)));
+      setViewingBinRanges(
+        chromInfo.mergeBinsFromRanges(
+          props.mainLocation.xDomain,
+          props.mainLocation.yDomain,
+          resolution
+        )
+      );
+    }
+  }, [props.mainLocation, chromInfo, g3dChroms, resolution]);
 
   // get zoom-in chromosomes from location
   // get zoom-in binRanges from location
   // TODO: refactor this
+  /*
   let zoomResolution = undefined;
   let zoomChroms = [];
   let zoomBinRanges = {};
@@ -337,6 +363,35 @@ const ThreeTrack = (props) => {
       zoomResolution
     );
   }
+  */
+
+  useEffect(() => {
+    if (resolutions && resolutions.length > 0) {
+      setZoomResolution(Math.min(...resolutions));
+    }
+  }, [resolutions]);
+
+  useEffect(() => {
+    if (
+      chromInfo &&
+      props.zoomLocation.xDomain &&
+      props.zoomLocation.yDomain &&
+      zoomResolution
+    ) {
+      const chrs = chromInfo.mergeChromsFromRanges(
+        props.zoomLocation.xDomain,
+        props.zoomLocation.yDomain
+      );
+      setZoomChroms(chrs.filter((chrom) => g3dChroms.includes(chrom)));
+      setZoomBinRanges(
+        chromInfo.mergeBinsFromRanges(
+          props.zoomLocation.xDomain,
+          props.zoomLocation.yDomain,
+          zoomResolution
+        )
+      );
+    }
+  }, [props.zoomLocation, chromInfo, zoomResolution, g3dChroms]);
 
   useEffect(() => {
     if (!props.zoomLocation.xDomain || !props.zoomLocation.yDomain) {
