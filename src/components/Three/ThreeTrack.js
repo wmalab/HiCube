@@ -376,7 +376,8 @@ const ThreeTrack = (props) => {
       chromInfo &&
       props.zoomLocation.xDomain &&
       props.zoomLocation.yDomain &&
-      zoomResolution
+      zoomResolution &&
+      g3dChroms
     ) {
       const chrs = chromInfo.mergeChromsFromRanges(
         props.zoomLocation.xDomain,
@@ -499,7 +500,7 @@ const ThreeTrack = (props) => {
           {zoomPosition && zoomSegmentData && (
             <Canvas
               gl={{ preserveDrawingBuffer: true }}
-              camera={{ position: zoomPosition.cameraPosition }}
+              // camera={{ position: zoomPosition.cameraPosition }}
             >
               <color attach="background" args={["white"]} />
               <ambientLight />
