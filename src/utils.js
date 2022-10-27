@@ -1,3 +1,5 @@
+import colormap from "colormap";
+
 // source: https://dev.to/roblevintennis/comment/1ol48
 export const uid = () =>
   String(Date.now().toString(32) + Math.random().toString(16)).replace(
@@ -10,7 +12,7 @@ const RGB2Color = (r, g, b) => {
     "rgb(" + Math.round(r) + "," + Math.round(g) + "," + Math.round(b) + ")"
   );
 };
-
+/*
 export const makeColorGradient = (
   len,
   frequency1 = 0.3,
@@ -31,6 +33,16 @@ export const makeColorGradient = (
     colors.push(RGB2Color(red, grn, blu));
   }
   return colors;
+};
+*/
+
+export const makeColorGradient = (len, map = "rainbow") => {
+  return colormap({
+    colormap: map,
+    nshades: len,
+    format: "hex",
+    alpha: 1,
+  });
 };
 
 export const numberWithCommas = (num) => {
