@@ -60,3 +60,7 @@ export const truncateString = (str, num) => {
   }
   return str.slice(0, num) + "...";
 };
+
+export const lastElem = (arr) => {
+  return arr[arr.length - 1];
+};

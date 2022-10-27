@@ -1,35 +1,15 @@
-/*
-The ThreeTrack consists of two major components: 
-data loader and structure render
-data loader:
-- g3d format using g3djs
-- other format can be converted to g3d
-  - use python library g3dtools
-- multivec format using HiGlass server
-structure render:
-- use a similar viewConfig as HiGlass
-  - ThreeTrack parse the viewConfig and setup the views and options
-  - ThreeView render each view with options
-*/
-
-import React, {
-  useRef,
-  useState,
-  useEffect,
-  useMemo,
-  useCallback,
-} from "react";
+import React, { useRef, useState, useEffect, useMemo } from "react";
 import G3dFile from "./g3djs/g3dFile";
 import ChromInfo from "./ChromInfo";
-import Segment from "./g3djs/segment";
-import { Canvas, useFrame, useThree } from "@react-three/fiber";
-import { Line, OrbitControls } from "@react-three/drei";
+import { Canvas } from "@react-three/fiber";
+import { OrbitControls } from "@react-three/drei";
 import { ChromosomeInfo } from "higlass";
-import Backbone from "./Backbone";
-import OverlaysTrack from "./OverlaysTrack";
+import Scene from "./Scene";
 import g3dDataParser from "./g3d-data-parser";
+import { getBounds, getDataBounds } from "./get-data-bound";
 import classes from "./ThreeTrack.module.css";
 
+/*
 const getBounds = (chroms, data, category) => {
   const maxBound = {};
   const minBound = {};
@@ -39,77 +19,13 @@ const getBounds = (chroms, data, category) => {
     for (const axis of axes) {
       maxBound[axis] = maxBound[axis] > max[axis] ? maxBound[axis] : max[axis];
       minBound[axis] = minBound[axis] < min[axis] ? minBound[axis] : min[axis];
-      /*
-      if (axis in maxBound) {
-        maxBound[axis] = Math.max(maxBound[axis], max[axis]);
-      } else {
-        maxBound[axis] = max[axis];
-      }
-      if (axis in minBound) {
-        minBound[axis] = Math.min(minBound[axis], min[axis]);
-      } else {
-        minBound[axis] = min[axis];
-      }
-      */
     }
   }
   return { max: maxBound, min: minBound };
 };
-
-const lastElem = (arr) => {
-  return arr[arr.length - 1];
-};
-
-/*
-const getZoomBounds = (binRanges, data) => {
-  if (!binRanges || !data) {
-    return undefined;
-  }
-  const xyzCenters = [];
-  for (const chr in binRanges) {
-    for (const binRange of binRanges[chr]) {
-      const { binToSegment, segments, max } = data[chr];
-      const startBin = binRange[0];
-      const startSegment = binToSegment[startBin];
-      const endBin = binRange[1] - 1;
-      const endSegment = binToSegment[endBin];
-      console.log(startBin, startSegment, segments[startSegment]); // startSegment can be the last non-segment (=length)
-      const startPoint =
-        segments[startSegment].points[
-          Math.max(0, startBin - segments[startSegment].start)
-        ];
-      let endPoint = lastElem(lastElem(segments).points);
-      console.log(endBin, endSegment, segments[endSegment]);
-      if (endSegment < segments.length) {
-        if (endBin >= segments[endSegment].start) {
-          endPoint =
-            segments[endSegment].points[endBin - segments[endSegment].start];
-        } else {
-          endPoint = lastElem(segments[endSegment - 1].points);
-        }
-      }
-      xyzCenters.push([
-        (startPoint[0] + endPoint[0]) / 2,
-        (startPoint[1] + endPoint[1]) / 2,
-        (startPoint[2] + endPoint[2]) / 2,
-      ]);
-    }
-  }
-  let xCenter = 0;
-  let yCenter = 0;
-  let zCenter = 0;
-  for (let i = 0; i < xyzCenters.length; i++) {
-    xCenter += xyzCenters[i][0];
-    yCenter += xyzCenters[i][1];
-    zCenter += xyzCenters[i][2];
-  }
-  xCenter /= xyzCenters.length;
-  yCenter /= xyzCenters.length;
-  zCenter /= xyzCenters.length;
-  return [-xCenter, -yCenter, -zCenter];
-};
 */
 
+/*
 // get approx viewing regin data bounds
 const getDataBounds = (binRanges, data) => {
   // binRanges: { chrom: [[binStart, binEnd (exclude)], ...] }
@@ -127,7 +43,7 @@ const getDataBounds = (binRanges, data) => {
       continue;
     }
     for (const binRange of binRanges[chr]) {
-      console.log(data, chr);
+      // console.log(data, chr);
       const { binToSegment, segments } = data[chr];
       const b1 = binRange[0];
       // TODO: need to check if bin is on last non-segment
@@ -182,6 +98,7 @@ const getDataBounds = (binRanges, data) => {
   }
   return { max: maxBound, min: minBound };
 };
+*/
 
 // DONE: use chromInfoPath from genomeAssemply props
 // const chromInfoPath = "https://s3.amazonaws.com/pkerp/data/hg19/chromSizes.tsv";
@@ -190,7 +107,7 @@ const getDataBounds = (binRanges, data) => {
 // TODO: add zoom view
 // FIXME: when init with partial genome regions, chromosomes not visible will always be grey
 // TODO: different resolutions from base and zoom-in views
-
+/*
 const MainScene = (props) => {
   const gl = useThree((state) => state.gl);
 
@@ -259,7 +176,9 @@ const MainScene = (props) => {
     </group>
   );
 };
+*/
 
+/*
 const ZoomScene = (props) => {
   const gl = useThree((state) => state.gl);
 
@@ -314,19 +233,6 @@ const ZoomScene = (props) => {
     <>
       <group position={zoomCameraPosition}>
         <group>
-          {/* {zoomChroms &&
-            zoomChroms.map((chrom) => {
-              return (
-                <Backbone
-                  key={chrom}
-                  segmentData={zoomSegmentData[category][chrom]}
-                  color={chromColors[chrom]}
-                  visible={true}
-                  showViewRangeOnly={true}
-                  binRanges={zoomBinRanges[chrom]}
-                />
-              );
-            })} */}
           {backbones}
         </group>
         <group>
@@ -343,12 +249,11 @@ const ZoomScene = (props) => {
     </>
   );
 };
+*/
 
 const ThreeTrack = (props) => {
-  const {
-    genomeAssembly: { chromInfoPath },
-    threed,
-  } = props;
+  const threed = props.threed;
+  const { chromInfoPath } = props.genomeAssembly;
   const [chromInfo, setChromInfo] = useState();
   const g3dFile = useRef(new G3dFile({ blob: threed.fileObj }));
   const [resolutions, setResolutions] = useState();
@@ -358,7 +263,6 @@ const ThreeTrack = (props) => {
   const [segmentData, setSegmentData] = useState();
   const [zoomSegmentData, setZoomSegmentData] = useState();
   const [g3dChroms, setG3dChroms] = useState();
-  // const [chromColors, setChromColors] = useState();
   const chromColors = threed.colormap;
 
   // FIXME: some chromosome may be missing
@@ -378,86 +282,9 @@ const ThreeTrack = (props) => {
     }
   }, [chromInfoPath, resolutions]);
 
-  /*
-  const parseG3dData = useCallback(
-    (data) => {
-      const cats = Object.keys(data);
-      const chroms = Object.keys(data[cats[0]]);
-
-      const bins = {}; // index by category
-
-      for (const cat of cats) {
-        const catBins = {}; // index by chr
-
-        for (const chr of chroms) {
-          const segments = [];
-          const segmentIndex = new Array(
-            chromInfo.getChromBins(chr, resolution)
-          );
-          const currData = data[cat][chr];
-          let bi, x, y, z;
-          let maxX = currData.x[0];
-          let minX = maxX;
-          let maxY = currData.y[0];
-          let minY = maxY;
-          let maxZ = currData.z[0];
-          let minZ = maxZ;
-          let currSegment = new Segment();
-          let currStop = 0;
-
-          for (let i = 0; i < currData.start.length; i++) {
-            bi = Math.floor(currData.start[i] / resolution);
-            x = currData.x[i];
-            y = currData.y[i];
-            z = currData.z[i];
-            if (!currSegment.add(bi, [x, y, z])) {
-              // if not the next of current segment
-              // save the current segment and start a new one
-              segments.push(currSegment);
-              currSegment = new Segment(bi, [x, y, z]);
-            }
-            // update the max and min of coordinates for current chr
-            maxX = Math.max(maxX, x);
-            maxY = Math.max(maxY, y);
-            maxZ = Math.max(maxZ, z);
-            minX = Math.min(minX, x);
-            minY = Math.min(minY, y);
-            minZ = Math.min(minZ, z);
-          }
-          if (!currSegment.isEmpty()) {
-            segments.push(currSegment);
-          }
-
-          segments.forEach((segment, index) => {
-            segmentIndex.fill(index, currStop, segment.end + 1);
-            currStop = segment.end + 1;
-          });
-
-          if (currStop < segmentIndex.length) {
-            segmentIndex.fill(segments.length, currStop);
-          }
-
-          catBins[chr] = {
-            segments,
-            binToSegment: segmentIndex,
-            max: { x: maxX, y: maxY, z: maxZ },
-            min: { x: minX, y: minY, z: minZ },
-          };
-        }
-        bins[cat] = catBins;
-      }
-
-      setG3dChroms([...chroms]);
-
-      setSegmentData(bins);
-    },
-    [resolution, chromInfo]
-  );
-  */
-
   // load base data
   useEffect(() => {
-    if (!chromInfo) {
+    if (!chromInfo || !resolution || !category) {
       return;
     }
     const parser = (data) => {
@@ -468,6 +295,7 @@ const ThreeTrack = (props) => {
   }, [chromInfo, resolution, category]);
 
   // get viewing chromosomes from binRanges
+  // TODO: refactor this
   let viewingChroms = [];
   let viewingBinRanges = {};
   if (chromInfo && segmentData && g3dChroms) {
@@ -475,21 +303,18 @@ const ThreeTrack = (props) => {
       props.mainLocation.xDomain,
       props.mainLocation.yDomain
     );
-    // FIXME: need to exclude chrom not in g3d file
+    // need to exclude chrom not in g3d file
     viewingChroms = viewingChroms.filter((chrom) => g3dChroms.includes(chrom));
     viewingBinRanges = chromInfo.mergeBinsFromRanges(
       props.mainLocation.xDomain,
       props.mainLocation.yDomain,
       resolution
     );
-    // console.log(props.mainLocation, resolution, viewingBinRanges);
   }
 
-  // TODO: set zoom-in view resolution to the highest, make changeable later
   // get zoom-in chromosomes from location
-  // check if need to load data from g3dfile
-  // check if need to delete old data
   // get zoom-in binRanges from location
+  // TODO: refactor this
   let zoomResolution = undefined;
   let zoomChroms = [];
   let zoomBinRanges = {};
@@ -505,6 +330,7 @@ const ThreeTrack = (props) => {
       props.zoomLocation.xDomain,
       props.zoomLocation.yDomain
     );
+    // FIXME: need to filter chrom not in g3d file
     zoomBinRanges = chromInfo.mergeBinsFromRanges(
       props.zoomLocation.xDomain,
       props.zoomLocation.yDomain,
@@ -513,104 +339,6 @@ const ThreeTrack = (props) => {
   }
 
   useEffect(() => {
-    /*
-    if (!zoomChroms || zoomChroms.length < 1) {
-      return;
-    }
-    let toLoadChroms = [...zoomChroms]; // zoomChroms that need to load
-    if (category in zoomSegmentData) {
-      toLoadChroms = zoomChroms.filter(
-        (chr) => !(chr in zoomSegmentData[category])
-      );
-    }
-    if (toLoadChroms.length < 1) {
-      return;
-    }
-    */
-
-    /*
-    const parseData = (data) => {
-      const cats = Object.keys(data);
-      const chroms = Object.keys(data[cats[0]]);
-
-      const bins = {}; // index by category
-
-      for (const cat of cats) {
-        const catBins = {}; // index by chr
-
-        for (const chr of chroms) {
-          const segments = [];
-          const segmentIndex = new Array(
-            chromInfo.getChromBins(chr, zoomResolution)
-          );
-          const currData = data[cat][chr];
-          let bi, x, y, z;
-          let maxX = currData.x[0];
-          let minX = maxX;
-          let maxY = currData.y[0];
-          let minY = maxY;
-          let maxZ = currData.z[0];
-          let minZ = maxZ;
-          let currSegment = new Segment();
-          let currStop = 0;
-
-          for (let i = 0; i < currData.start.length; i++) {
-            bi = Math.floor(currData.start[i] / zoomResolution);
-            x = currData.x[i];
-            y = currData.y[i];
-            z = currData.z[i];
-            if (!currSegment.add(bi, [x, y, z])) {
-              // if not the next of current segment
-              // save the current segment and start a new one
-              segments.push(currSegment);
-              currSegment = new Segment(bi, [x, y, z]);
-            }
-            // update the max and min of coordinates for current chr
-            maxX = Math.max(maxX, x);
-            maxY = Math.max(maxY, y);
-            maxZ = Math.max(maxZ, z);
-            minX = Math.min(minX, x);
-            minY = Math.min(minY, y);
-            minZ = Math.min(minZ, z);
-          }
-          if (!currSegment.isEmpty()) {
-            segments.push(currSegment);
-          }
-
-          segments.forEach((segment, index) => {
-            segmentIndex.fill(index, currStop, segment.end + 1);
-            currStop = segment.end + 1;
-          });
-
-          if (currStop < segmentIndex.length) {
-            segmentIndex.fill(segments.length, currStop);
-          }
-
-          catBins[chr] = {
-            segments,
-            binToSegment: segmentIndex,
-            max: { x: maxX, y: maxY, z: maxZ },
-            min: { x: minX, y: minY, z: minZ },
-          };
-        }
-        bins[cat] = catBins;
-      }
-      
-      setZoomSegmentData((prevZoomSegmentData) => {
-        console.log("load zoomSegmentData");
-        if (category in prevZoomSegmentData) {
-          for (const chr in prevZoomSegmentData[category]) {
-            if (zoomChroms.includes(chr)) {
-              bins[category][chr] = prevZoomSegmentData[category][chr];
-            }
-          }
-        }
-        return bins;
-      });
-      
-      setZoomSegmentData(bins);
-    };
-    */
     if (!props.zoomLocation.xDomain || !props.zoomLocation.yDomain) {
       // TODO: need to empty data
       return;
@@ -631,73 +359,18 @@ const ThreeTrack = (props) => {
     // g3dFile.current.readData(zoomResolution, parseData, category, toLoadChroms);
   }, [props.zoomLocation, resolutions, chromInfo, category, zoomSegmentData]);
 
-  // convert overlays
-  // const overlays1d = useMemo(() => {
-  //   if (!chromInfo || props.overlays.length < 1) {
-  //     return [];
-  //   }
-  //   return props.overlays
-  //     .filter((overlay) => overlay.extent.length === 2)
-  //     .map((overlay) => {
-  //       const anchor1 = chromInfo.absToBin(overlay.extent[0], resolution);
-  //       const anchor2 = chromInfo.absToBin(overlay.extent[1], resolution);
-  //       return { anchor1, anchor2, uid: overlay.uid };
-  //     });
-  // }, [props.overlays, chromInfo, resolution]);
-
-  // const overlays2d = useMemo(() => {
-  //   if (!chromInfo || props.overlays.length < 1) {
-  //     return [];
-  //   }
-  //   return props.overlays
-  //     .filter((overlay) => overlay.extent.length > 2)
-  //     .map((overlay) => {
-  //       const anchor1 = chromInfo.absToBin(overlay.extent[0], resolution);
-  //       const anchor2 = chromInfo.absToBin(overlay.extent[2], resolution);
-  //       return { anchor1, anchor2, uid: overlay.uid };
-  //     });
-  // }, [props.overlays, chromInfo, resolution]);
-
-  // TODO: make load data into a custom hook with its own load ready state
+  /*
   const isZoomSegmentDataLoaded = (chroms) => {
-    /*
-    if (!(category in zoomSegmentData)) {
-      return false;
-    }
-    for (const chr of chroms) {
-      if (!(chr in zoomSegmentData[category])) {
-        return false;
-      }
-    }
-    return true;
-    */
     if (zoomSegmentData) {
       return true;
     }
     return false;
   };
+  */
 
   // find the camera postions of all chromosomes
   const position = useMemo(() => {
     if (g3dChroms && segmentData) {
-      // const maxBound = {};
-      // const minBound = {};
-      // const axes = ["x", "y", "z"];
-      // for (const chr of g3dChroms) {
-      //   const { max, min } = segmentData[category][chr];
-      //   for (const axis of axes) {
-      //     if (axis in maxBound) {
-      //       maxBound[axis] = Math.max(maxBound[axis], max[axis]);
-      //     } else {
-      //       maxBound[axis] = max[axis];
-      //     }
-      //     if (axis in minBound) {
-      //       minBound[axis] = Math.min(minBound[axis], min[axis]);
-      //     } else {
-      //       minBound[axis] = min[axis];
-      //     }
-      //   }
-      // }
       const bounds = getBounds(g3dChroms, segmentData, category);
       const xLen = bounds.max.x - bounds.min.x;
       const yLen = bounds.max.y - bounds.min.y;
@@ -706,6 +379,9 @@ const ThreeTrack = (props) => {
       const cx = (bounds.max.x + bounds.min.x) / 2;
       const cy = (bounds.max.y + bounds.min.y) / 2;
       const cz = (bounds.max.z + bounds.min.z) / 2;
+      if (isNaN(xLen) || isNaN(yLen) || isNaN(zLen)) {
+        return undefined;
+      }
       return {
         groupPosition: [-cx, -cy, -cz],
         cameraPosition: [
@@ -719,28 +395,11 @@ const ThreeTrack = (props) => {
     }
   }, [g3dChroms, segmentData, category]);
 
-  // find carmera positon for zoom-in chromosomes
-  // const zoomCarmeraPosition = useMemo(() => {
-  //   if (zoomChroms && zoomSegmentData) {
-  //     const bounds = getBounds(zoomChroms, zoomSegmentData, category);
-  //     const xLen = bounds.max.x - bounds.min.x;
-  //     const yLen = bounds.max.y - bounds.min.y;
-  //     const zLen = bounds.max.z - bounds.min.z;
-  //     return [xLen / 2, yLen / 2, bounds.max.z];
-  //   } else {
-  //     return undefined;
-  //   }
-  // }, [zoomSegmentData, category]);
-  // const zoomCameraPosition = getZoomBounds(
-  //   zoomBinRanges,
-  //   zoomSegmentData && zoomSegmentData[category]
-  // );
-
   const getZoomPosition = () => {
     if (!zoomBinRanges || !zoomSegmentData || !zoomSegmentData[category]) {
       return undefined;
     }
-    console.log(zoomSegmentData);
+
     const bounds = getDataBounds(
       zoomBinRanges,
       zoomSegmentData && zoomSegmentData[category]
@@ -774,80 +433,68 @@ const ThreeTrack = (props) => {
 
   const zoomPosition = getZoomPosition();
 
-  // TODO: find zoom camera position using start, end and middle points
-  // console.log("cameraPosition", cameraPosition);
-  // console.log("zoomCameraPosition", zoomCameraPosition);
   console.log("zoomPosition", zoomPosition);
-
   console.log("zoomLocation", props.zoomLocation);
   console.log("zoomSegmentData", zoomSegmentData);
 
-  // console.log(
-  //   "show zoom",
-  //   props.zoomLocation,
-  //   isZoomSegmentDataLoaded(zoomChroms),
-  //   zoomCameraPosition
-  // );
-
   return (
     <>
-      {props.zoomLocation.xDomain &&
-        props.zoomLocation.yDomain &&
-        isZoomSegmentDataLoaded(zoomChroms) && (
-          <div className={classes.threeview}>
-            {zoomPosition && (
-              <Canvas
-                gl={{ preserveDrawingBuffer: true }}
-                camera={{ position: zoomPosition.cameraPosition }}
-                // pixelRatio={[1, 2]}
-                // camera={{ position: zoomCameraPosition }}
-                // camera={{position: [0, 0, 0]}}
-              >
-                <ZoomScene
-                  zoomCameraPosition={zoomPosition.groupPosition}
-                  zoomChroms={zoomChroms}
-                  zoomSegmentData={zoomSegmentData}
-                  category={category}
-                  chromColors={chromColors}
-                  zoomBinRanges={zoomBinRanges}
-                  overlays={props.overlays}
-                  chromInfo={chromInfo}
-                  zoomResolution={zoomResolution}
-                  exportSvg={props.exportSvg && props.exportSvg[2]}
-                  onFinishExportSvg={props.onFinishExportSvg}
-                />
-                <OrbitControls zoomSpeed={0.5} />
-              </Canvas>
-            )}
-            {zoomPosition === undefined && (
-              <p className={classes.message}>
-                No available 3D structure data in this region.
-              </p>
-            )}
-          </div>
-        )}
+      {props.zoomLocation.xDomain && props.zoomLocation.yDomain && (
+        <div className={classes.threeview}>
+          {zoomPosition && zoomSegmentData && (
+            <Canvas
+              gl={{ preserveDrawingBuffer: true }}
+              camera={{ position: zoomPosition.cameraPosition }}
+            >
+              <color attach="background" args={["white"]} />
+              <ambientLight />
+              <Scene
+                groupPosition={zoomPosition.groupPosition}
+                chroms={g3dChroms}
+                segmentData={zoomSegmentData[category]}
+                chromColors={chromColors}
+                viewingBinRanges={zoomBinRanges}
+                viewingChroms={zoomChroms}
+                showViewRangeOnly={true}
+                overlays={props.overlays}
+                chromInfo={chromInfo}
+                resolution={zoomResolution}
+                exportSvg={props.exportSvg && props.exportSvg[2]}
+                onFinishExportSvg={props.onFinishExportSvg}
+                svgName="3D-Zoom"
+              />
+              <OrbitControls zoomSpeed={0.5} />
+            </Canvas>
+          )}
+          {zoomPosition === undefined && (
+            <p className={classes.message}>
+              No available 3D structure data in this region.
+            </p>
+          )}
+        </div>
+      )}
       <div className={classes.threeview}>
-        {position && (
+        {position && segmentData && (
           <Canvas
             gl={{ preserveDrawingBuffer: true }}
             camera={{ position: position.cameraPosition }}
-            // pixelRatio={[1, 2]}
-            // camera={{ position: cameraPosition }}
-            // camera={{position: [0, 0, 1]}}
           >
-            <MainScene
+            <color attach="background" args={["white"]} />
+            <ambientLight />
+            <Scene
               groupPosition={position.groupPosition}
-              g3dChroms={g3dChroms}
-              segmentData={segmentData}
+              chroms={g3dChroms}
+              segmentData={segmentData[category]}
               chromColors={chromColors}
-              category={category}
               viewingBinRanges={viewingBinRanges}
               viewingChroms={viewingChroms}
+              showViewRangeOnly={false}
               overlays={props.overlays}
               chromInfo={chromInfo}
               resolution={resolution}
               exportSvg={props.exportSvg && !props.exportSvg[2]}
               onFinishExportSvg={props.onFinishExportSvg}
+              svgName="3D-Base"
             />
             <OrbitControls zoomSpeed={0.5} />
           </Canvas>
