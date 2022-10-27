@@ -6,14 +6,14 @@ const DATA_TYPES = {
   matrix: {
     "track-type": ["linear-heatmap"],
   },
-  "2d-rectangle-domains": {
-    "track-type": ["2d-rectangle-domains", "linear-2d-rectangle-domains"],
-  },
+  // "2d-rectangle-domains": {
+  //   "track-type": ["2d-rectangle-domains", "linear-2d-rectangle-domains"],
+  // },
   vector: {
     "track-type": ["line", "bar", "point", "1d-heatmap"],
   },
   chromsizes: {
-    "track-type": ["chromosome-labels", "2d-chromosome-grid"],
+    "track-type": ["chromosome-labels"],
   },
 };
 

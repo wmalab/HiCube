@@ -35,11 +35,11 @@ const HiGlassCase = (props, ref) => {
 
   const getRangeSelection = () => {
     const { dataRange } = hgcRef.current.api.getRangeSelection();
-    // if no selection, dataRange = undefined
+    // if no selection, dataRange = undefined or [null, null]
     // if 1D selection, dataRange = [Array(2), null]
     // if 2D selection, dataRange = [Array(2), Array(2)]
 
-    if (dataRange === undefined) {
+    if (dataRange === undefined || !dataRange[0]) {
       return undefined;
     }
     const xDomain = [...dataRange[0]];
