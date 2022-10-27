@@ -39,6 +39,8 @@ serve -s HiCube
 
 ## Usage
 
+See [docs/README.md](/docs/README.md) for how to recreate figure 1.
+
 ### Prepare datasets
 
 The example datasets can be downloaded at [drive](https://drive.google.com/drive/folders/12_kfP9tELVEPKOw7ODgx8x2MVYUvi59T?usp=sharing).
