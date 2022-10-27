@@ -1,5 +1,7 @@
 # How to Recreate Figure 1
 
+## Add datasets to API server
+
 All datasets used to create figure 1 can be downloaded from [shared drive folder](https://drive.google.com/drive/folders/12_kfP9tELVEPKOw7ODgx8x2MVYUvi59T?usp=sharing).
 
 
@@ -38,7 +40,8 @@ docker exec higlass-container python higlass-server/manage.py ingest_tileset --f
 ```
 
 If you're using the [build version](https://drive.google.com/file/d/1Z-k3tGMK0_rlbONuqD-OUT6Wybnhq__g/view?usp=sharing) of HiCube, inside the directory where you download and unzip `HiCube.zip`, run the following command to start the app:
-(make sure you have already installed Node.js)
+
+Use Node.js serve:
 
 ```bash
 # if serve is not installed
@@ -48,6 +51,28 @@ npm install -g serve
 serve -s HiCube
 ```
 
+or use python3 serve:
 
+```bash
+cd HiCube
+python -m http.server
+```
+then open the link to HiCube.
 
+## Add datasets to HiCube
 
+- Add the local API server: http://localhost:8888/api/v1 (it could take a few seconds to initialize).
+- Choose `hg19` from the genome assembly selection list. 
+- Click `Add A New Case`
+- Genome position section enter `chr11:1,402,364-2,714,572` for X axis
+- Select `Rao et al. (2014) Diploid Maternal` from Hi-C dataset selection list
+- Choose file `GSM3271351_gm12878_05.impute3.round4.clean.g3d` for 3D genome structure model and select category to be `maternal`, resolution to be `1000000`
+- Click `Add A New Dataset`
+- Select data type to be `gene-annotation`, check `top` and `left` positions
+- Click `Add A New Dataset`
+- Select data type to be `chromsizes`, check `top` and `left` positions
+- Click `Add A New Case` (the first case has been added)
+- Click `Add A Paired Case`
+- Choose `Rao et al. (2014) Diploid Paternal` as paired dataset for Hi-C track
+- Choose file `GSM3271351_gm12878_05.impute3.round4.clean.g3d` for 3D genome structure model and select category to be `paternal`, resolution to be `1000000`
+- Click `Add A Paired Case` (the second case has been added)

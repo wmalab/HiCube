@@ -24,7 +24,7 @@ In the project directory, first run `npm install` to install all the dependencie
 
 Open [http://localhost:3000](http://localhost:3000) to use HiCube in your browser.
 
-Or download the [build version](https://drive.google.com/file/d/1Z-k3tGMK0_rlbONuqD-OUT6Wybnhq__g/view?usp=sharing), unzip it, then
+Or download the [build version](https://drive.google.com/file/d/1Z-k3tGMK0_rlbONuqD-OUT6Wybnhq__g/view?usp=sharing), unzip it, then use a static site server to run it:
 
 ```bash
 # install a static site server
@@ -34,6 +34,15 @@ sudo npm install -g serve
 # start the server
 serve -s HiCube
 ```
+
+If you have `python3` installed, it also provides a static site server:
+
+```bash
+cd HiCube
+python -m http.server
+```
+
+then go to http://localhost:8000
 
 [Demo site](https://hicube-86906.web.app/)
 
