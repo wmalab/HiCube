@@ -58,7 +58,7 @@ See [docs/README.md](/docs/README.md) for how to recreate figure 1.
 
 ### Prepare datasets
 
-The example datasets can be downloaded at [shared drive folder](https://drive.google.com/file/d/1t54sOPitpwS0WyMEDFhFJLAE2R1MplmS/view?usp=sharing).
+The example datasets can be downloaded at [shared drive folder](https://drive.google.com/drive/folders/1AUXLnVqJlWQhbLqnyKM5Oe4kzZ-XRvlX?usp=sharing).
 
 #### Hi-C, 1D or 2D datasets
 
