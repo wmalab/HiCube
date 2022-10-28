@@ -350,12 +350,21 @@ export default function App() {
   };
 
   const exportConfigHandler = () => {
+    // three config need file name
+    const exportThreeCases = {};
+    for (const caseUid in configCtx.threeCases) {
+      exportThreeCases[caseUid] = { ...configCtx.threeCases[caseUid] };
+      exportThreeCases[caseUid].fileObj = {
+        name: configCtx.threeCases[caseUid].fileObj.name,
+      };
+    }
     const config = {
       cases: configCtx.cases,
       pairedLocks: configCtx.pairedLocks,
       positionedTracks: configCtx.positionedTracks,
       positionedTracksToCaseUid: configCtx.positionedTracksToCaseUid,
-      threeCases: configCtx.threeCases,
+      // threeCases: configCtx.threeCases,
+      threeCases: exportThreeCases,
       genomeAssembly: genomeAssembly,
       // viewConfigs: configCtx.viewConfigs,
       numViews: configCtx.numViews,
@@ -426,6 +435,56 @@ export default function App() {
   console.log("mainLocation", mainLocation);
   console.log("rangeselection", rangeSelection);
 
+  const caselist = [];
+  for (const caseConfig of configCtx.cases) {
+    const caseUid = caseConfig.uid;
+    if (caseUid && configCtx.viewConfigs[caseUid]) {
+      caselist.push(
+        <div key={`${caseUid}-higlass`} className="content-item hgc">
+          <HiGlassCase
+            id={caseUid}
+            ref={(el) => (configCtx.hgcRefs.current[caseUid] = el)}
+            options={options}
+            viewConfig={configCtx.viewConfigs[caseUid]}
+            mainLocation={mainLocation}
+            onMainLocationChange={locationChangeHandler}
+            mouseTool={mouseTool}
+            exportSvg={
+              exportSvg &&
+              exportSvg[0] === caseUid &&
+              exportSvg[1] === "higlass"
+            }
+            onFinishExportSvg={finishExportSvgHandler}
+            rangeSelection={rangeSelection}
+            onRangeSelection={rangeSelectionChangeHandler}
+            onCreateOverlay={createOverlayHandler}
+            overlays={overlays}
+          />
+        </div>
+      );
+    }
+    if (caseUid && configCtx.threeCases[caseUid]) {
+      caselist.push(
+        <div key={`${caseUid}-threed`} className="content-item">
+          <ThreeTrack
+            threed={configCtx.threeCases[caseUid]}
+            genomeAssembly={genomeAssembly}
+            mainLocation={mainLocation}
+            zoomLocation={rangeSelection}
+            overlays={overlays}
+            exportSvg={
+              exportSvg &&
+              exportSvg[0] === caseUid &&
+              exportSvg[1] === "threed" &&
+              exportSvg
+            }
+            onFinishExportSvg={finishExportSvgHandler}
+          />
+        </div>
+      );
+    }
+  }
+
   return (
     <div>
       <ControlPanel
@@ -453,32 +512,34 @@ export default function App() {
       />
       <div className="main">
         <div className="genome-position-header">
-        {rangeSelection && rangeSelection.xDomain && (
-          <GenomePositionBar
-            onPositionChange={rangeSelectionChangeHandler.bind(null, "UPDATE")}
-            positions={rangeSelection}
-            name="Zoom Position"
-            genomeAssembly={genomeAssembly}
-          />
-        )}
-        {mainLocation && mainLocation.xDomain && (
-          <GenomePositionBar
-            onPositionChange={locationChangeHandler}
-            positions={mainLocation}
-            name="Base Position"
-            genomeAssembly={genomeAssembly}
-          />
-        )}
+          {rangeSelection && rangeSelection.xDomain && (
+            <GenomePositionBar
+              onPositionChange={rangeSelectionChangeHandler.bind(
+                null,
+                "UPDATE"
+              )}
+              positions={rangeSelection}
+              name="Zoom Position"
+              genomeAssembly={genomeAssembly}
+            />
+          )}
+          {mainLocation && mainLocation.xDomain && (
+            <GenomePositionBar
+              onPositionChange={locationChangeHandler}
+              positions={mainLocation}
+              name="Base Position"
+              genomeAssembly={genomeAssembly}
+            />
+          )}
         </div>
         <div className="content">
-          {configCtx.cases.map((caseUids) => {
+          {/* {configCtx.cases.map((caseUids) => {
             return (
               <>
                 <div
                   key={caseUids.uid + "-higlass"}
                   className="content-item hgc"
                 >
-                  {/* <ErrorBoundary> */}
                   <HiGlassCase
                     id={caseUids.uid}
                     ref={(el) => (configCtx.hgcRefs.current[caseUids.uid] = el)}
@@ -498,7 +559,6 @@ export default function App() {
                     onCreateOverlay={createOverlayHandler}
                     overlays={overlays}
                   />
-                  {/* </ErrorBoundary> */}
                 </div>
                 <div key={caseUids.uid + "-3d"} className="content-item">
                   <ThreeTrack
@@ -518,7 +578,8 @@ export default function App() {
                 </div>
               </>
             );
-          })}
+          })} */}
+          {caselist}
         </div>
       </div>
     </div>

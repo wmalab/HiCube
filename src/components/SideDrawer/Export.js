@@ -24,7 +24,7 @@ const Export = (props) => {
         const caseUid = userCase.uid;
 
         return (
-          <Collapsible title={`Case #${index + 1}`}>
+          <Collapsible key={caseUid} title={`Case #${index + 1}`}>
             <div className={classes.action}>
               <button
                 onClick={props.onExportSvg.bind(null, caseUid, "higlass")}

@@ -349,6 +349,12 @@ const configsReducer = (state, action) => {
       }
     }
 
+    // TODO: if no threed.fileObj, do not add to config
+    const updatedThreeCases = { ...state.threeCases };
+    if (threed.fileObj) {
+      updatedThreeCases[caseUid] = { ...threed, colormap };
+    }
+
     const updatedConfigs = {
       cases: state.cases.concat({ uid: caseUid, views: views }),
       pairedLocks: { ...state.pairedLocks, ...pairedLocks },
@@ -357,10 +363,11 @@ const configsReducer = (state, action) => {
         ...state.positionedTracksToCaseUid,
         ...positionedTracksToCaseUid,
       },
-      threeCases: {
-        ...state.threeCases,
-        [caseUid]: { ...threed, colormap },
-      },
+      threeCases: updatedThreeCases,
+      // threeCases: {
+      //   ...state.threeCases,
+      //   [caseUid]: { ...threed, colormap },
+      // },
       chromInfoPath: chromInfoPath,
       viewConfigs: { ...state.viewConfigs, [caseUid]: viewConfig },
       numViews: state.numViews || 1,
@@ -666,14 +673,40 @@ const configsReducer = (state, action) => {
         chromInfoPath
       );
       loadedViewConfigs[ca.uid] = viewConfig;
-      if (g3dBlobs.length > 0) {
-        loadedThreeCases[ca.uid] = config.threeCases[ca.uid];
-        if (i < g3dBlobs.length) {
-          loadedThreeCases[ca.uid].fileObj = g3dBlobs[i];
+
+      if (ca.uid in config.threeCases) {
+        let blob;
+        // if we can find the file with the same name
+        const filename = config.threeCases[ca.uid].fileObj.name;
+        if (g3dBlobs.length > 0) {
+          console.log("g3d filename", filename);
+          // BEWARE: FileList has only .length and .item()
+          for (let fileIndex = 0; fileIndex < g3dBlobs.length; fileIndex += 1) {
+            if (g3dBlobs.item(fileIndex).name === filename) {
+              blob = g3dBlobs.item(fileIndex);
+              break;
+            }
+          }
+        }
+        if (blob !== undefined) {
+          loadedThreeCases[ca.uid] = { ...config.threeCases[ca.uid] };
+          loadedThreeCases[ca.uid].fileObj = blob;
         } else {
-          loadedThreeCases[ca.uid].fileObj = g3dBlobs[g3dBlobs.length - 1];
+          console.warn(`Cannot find .g3d file ${filename}`);
         }
       }
+      /*
+      if (g3dBlobs.length > 0) {
+        if (ca.uid in config.threeCases) {
+          loadedThreeCases[ca.uid] = config.threeCases[ca.uid];
+          if (i < g3dBlobs.length) {
+            loadedThreeCases[ca.uid].fileObj = g3dBlobs[i];
+          } else {
+            loadedThreeCases[ca.uid].fileObj = g3dBlobs[g3dBlobs.length - 1];
+          }
+        }
+      }
+      */
     }
 
     const loadedConfigs = {

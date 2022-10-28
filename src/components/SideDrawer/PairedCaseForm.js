@@ -2,6 +2,7 @@ import React from "react";
 import { Formik, Form } from "formik";
 import PairedTrackSelector from "../UI/PairedTrackSelector";
 import FileUploader from "../UI/FileUploader";
+import useChromInfo from "../../hooks/use-chrominfo";
 import classes from "./PairedCaseForm.module.css";
 
 const validate = (values) => {
@@ -9,9 +10,9 @@ const validate = (values) => {
   if (!values.centerHiC.tilesetUid) {
     errors.centerHiC = "Must choose a Hi-C track";
   }
-  if (values.threed.fileObj === "") {
-    errors.threed = "Must choose a .g3d file";
-  }
+  // if (values.threed.fileObj === "") {
+  //   errors.threed = "Must choose a .g3d file";
+  // }
   errors.tracks = [];
   for (const track of values.tracks) {
     if (!track.tilesetUid) {
@@ -31,13 +32,10 @@ const validate = (values) => {
 };
 
 const PairedCaseForm = (props) => {
-  const {
-    genomeAssembly: { assemblyName, chromInfoPath },
-    mainLocation: { xDomain, yDomain },
-    trackSourceServers,
-    centerHiC,
-    tracks,
-  } = props;
+  const { trackSourceServers, centerHiC, tracks } = props;
+  const { assemblyName, chromInfoPath } = props.genomeAssembly;
+
+  const { chroms } = useChromInfo(chromInfoPath);
 
   return (
     <Formik
@@ -79,11 +77,12 @@ const PairedCaseForm = (props) => {
         setTimeout(() => {
           props.onSubmit({
             ...values,
-            initialXDomain: xDomain,
-            initialYDomain: yDomain,
+            initialXDomain: props.mainLocation.xDomain,
+            initialYDomain: props.mainLocation.yDomain,
             zoomXDomain: props.zoomLocation.xDomain,
             zoomYDomain: props.zoomLocation.yDomain,
             chromInfoPath,
+            chroms: chroms,
           });
           setSubmitting(false);
           props.onClose();

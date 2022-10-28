@@ -79,9 +79,9 @@ const validate = (values) => {
   if (!values.centerHiC.tilesetUid) {
     errors.centerHiC = "Must choose a Hi-C track";
   }
-  if (values.threed.fileObj === "") {
-    errors.threed = "Must choose a .g3d file";
-  }
+  // if (values.threed.fileObj === "") {
+  //   errors.threed = "Must choose a .g3d file";
+  // }
   errors.tracks = [];
   for (const track of values.tracks) {
     if (track.datatype === "") {
