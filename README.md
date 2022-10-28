@@ -14,24 +14,28 @@ HiCube provides following unique features and functionality:
 
 ## Installation
 
-Download the [build version](https://drive.google.com/file/d/1Z-k3tGMK0_rlbONuqD-OUT6Wybnhq__g/view?usp=sharing), unzip it, then use a static site server to run it:
+Download the [build version](https://drive.google.com/file/d/1Z-k3tGMK0_rlbONuqD-OUT6Wybnhq__g/view?usp=sharing), unzip it, then use a static site server, for example serve from Node.js or http.server from python, to run it:
 
-For Node.js serve:
+For Node.js [serve](https://npm.io/package/serve):
 
 ```bash
 # install a static site server
 npm install -g serve
 # on macOS may need to use sudo to install globally
 sudo npm install -g serve
+# change the current directory to HiCube
+cd HiCube
 # start the server
-serve -s HiCube
+serve -s
 ```
 then go to the URL the command print out.
 
 If you have `python3` installed, it also provides a static site server:
 
 ```bash
+# change the current directory to HiCube
 cd HiCube
+# start the server
 python -m http.server
 ```
 
@@ -88,6 +92,8 @@ docker exec higlass-container python higlass-server/manage.py ingest_tileset \
 --filename /data/GSE63525_GM12878_diploid_paternal.mcool \
 --filetype cooler --datatype matrix --coordSystem hg19
 ```
+
+> `--volume ~/hg-data:/data` and `--volume ~/hg-tmp:/tmp` mount the local directories (path before `:`) to a path inside the container (path after `:`), make sure the path before `:` is an **absolute path** to the directory you store datasets, for example, if you store them at `~/Documents/hg-data`, then use `~/Documents/hg-data` before `:`
 
 #### 3D genome structure datasets
 

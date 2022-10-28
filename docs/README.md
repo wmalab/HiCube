@@ -14,6 +14,8 @@ All datasets used to create figure 1 can be downloaded from [shared drive folder
 
 Move all the data files to folder `~/hg-data`, download and start docker container:
 
+> `--volume ~/hg-data:/data` and `--volume ~/hg-tmp:/tmp` mount the local directories (path before `:`) to a path inside the container (path after `:`), make sure the path before `:` is an **absolute path** to the directory you store datasets, for example, if you store them at `~/Documents/hg-data`, then use `~/Documents/hg-data` before `:`
+
 ```bash
 # Pull the latest image of higlass-docker
 docker pull higlass/higlass-docker
@@ -47,17 +49,22 @@ Use Node.js serve:
 # if serve is not installed
 # if on macOS may need to use sudo
 npm install -g serve
+# change current directory to HiCube
+cd HiCube
 # start app
-serve -s HiCube
+serve -s
 ```
 
 or use python3 serve:
 
 ```bash
+# change current directory to HiCube
 cd HiCube
+# start app
 python -m http.server
 ```
-then open the link to HiCube.
+
+then open the printed link to HiCube.
 
 ## Add datasets to HiCube
 
@@ -90,3 +97,5 @@ then open the link to HiCube.
 - Change `Zoom limit` to `25000`, and `Transforms` to `VC`, click `Update`
 
 ## Add annotations
+
+- 
