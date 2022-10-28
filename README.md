@@ -14,7 +14,7 @@ HiCube provides following unique features and functionality:
 
 ## Installation
 
-Download the [build version](https://drive.google.com/file/d/1Z-k3tGMK0_rlbONuqD-OUT6Wybnhq__g/view?usp=sharing), unzip it, then use a static site server to run it:
+Download the [build version](https://drive.google.com/file/d/1t54sOPitpwS0WyMEDFhFJLAE2R1MplmS/view?usp=sharing), unzip it, then use a static site server to run it:
 
 For Node.js serve:
 
@@ -58,14 +58,14 @@ See [docs/README.md](/docs/README.md) for how to recreate figure 1.
 
 ### Prepare datasets
 
-The example datasets can be downloaded at [drive](https://drive.google.com/drive/folders/12_kfP9tELVEPKOw7ODgx8x2MVYUvi59T?usp=sharing).
+The example datasets can be downloaded at [shared drive folder](https://drive.google.com/file/d/1t54sOPitpwS0WyMEDFhFJLAE2R1MplmS/view?usp=sharing).
 
 #### Hi-C, 1D or 2D datasets
 
 The 1D and 2D datasets need to be served with [HiGlass Server](https://github.com/higlass/higlass-server) for access. There are two public availalbe HiGlass API servers: http://higlass.io/api/v1 and https://higlass.4dnucleome.org/api/v1 that can be used to access vast amount of public datasets. 
 To serve local datasets, the easiest way is to setup a local HiGlass API server with [Docker](https://www.docker.com/) using the [higlass-docker](https://github.com/higlass/higlass-docker) image, and the local API server can be accessed at http://localhost:8888/api/v1 for HiCube.
 
-Create a directory (e.g. `~/hg-data`) to store the cooler files (example files can be downloaded from [drive](https://drive.google.com/drive/folders/12_kfP9tELVEPKOw7ODgx8x2MVYUvi59T?usp=sharing)):
+Create a directory (e.g. `~/hg-data`) to store the cooler files, example files can be downloaded from [shared drive folder](https://drive.google.com/drive/folders/1AUXLnVqJlWQhbLqnyKM5Oe4kzZ-XRvlX?usp=sharing)
 
 ```bash
 # Pull the latest image of higlass-docker
@@ -103,7 +103,7 @@ g3dtools 3dg GSM3271351_gm12878_05.impute3.round4.clean.3dg.txt.gz \
 -s 2,3,4,5,6,7,8,9,10,25,50
 ```
 
-A processed example .g3d file can be downloaded from [drive](https://drive.google.com/drive/folders/12_kfP9tELVEPKOw7ODgx8x2MVYUvi59T?usp=sharing).
+A processed example .g3d file can be downloaded from [shared drive folder](https://drive.google.com/drive/folders/1AUXLnVqJlWQhbLqnyKM5Oe4kzZ-XRvlX?usp=sharing).
 
 ### Visualize datasets in HiCube
 

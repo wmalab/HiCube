@@ -2,7 +2,7 @@
 
 ## Add datasets to API server
 
-All datasets used to create figure 1 can be downloaded from [shared drive folder](https://drive.google.com/drive/folders/12_kfP9tELVEPKOw7ODgx8x2MVYUvi59T?usp=sharing).
+All datasets used to create figure 1 can be downloaded from [shared drive folder](https://drive.google.com/drive/folders/1AUXLnVqJlWQhbLqnyKM5Oe4kzZ-XRvlX?usp=sharing).
 
 
 - Gene annotation track: `gene-annotations-hg19.db`
@@ -39,7 +39,7 @@ docker exec higlass-container python higlass-server/manage.py ingest_tileset --f
 docker exec higlass-container python higlass-server/manage.py ingest_tileset --filename /data/GSE63525_GM12878_diploid_paternal.mcool --filetype cooler --datatype matrix --coordSystem hg19 --name "Rao et al. (2014) Diploid Paternal"
 ```
 
-If you're using the [build version](https://drive.google.com/file/d/1Z-k3tGMK0_rlbONuqD-OUT6Wybnhq__g/view?usp=sharing) of HiCube, inside the directory where you download and unzip `HiCube.zip`, run the following command to start the app:
+If you're using the [build version](https://drive.google.com/file/d/1t54sOPitpwS0WyMEDFhFJLAE2R1MplmS/view?usp=sharing) of HiCube, inside the directory where you download and unzip `HiCube.zip`, run the following command to start the app:
 
 Use Node.js serve:
 
@@ -76,3 +76,17 @@ then open the link to HiCube.
 - Choose `Rao et al. (2014) Diploid Paternal` as paired dataset for Hi-C track
 - Choose file `GSM3271351_gm12878_05.impute3.round4.clean.g3d` for 3D genome structure model and select category to be `paternal`, resolution to be `1000000`
 - Click `Add A Paired Case` (the second case has been added)
+
+## Add zoom view
+
+- Click the third button on the sidebar
+- Click `Select Zoom Region`, then press and hold down the left mouse button to select the region to zoom on the Hi-C track
+- Click `Create Zoom View` 
+
+## Configure track display options
+
+- Click the second button on the sidebar
+- Click the `Rao et al. (2014) Diploid Maternal` track, it will show its display options
+- Change `Zoom limit` to `25000`, and `Transforms` to `VC`, click `Update`
+
+## Add annotations
