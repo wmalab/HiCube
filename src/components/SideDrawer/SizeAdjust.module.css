@@ -1,0 +1,48 @@
+.option label {
+  font-size: 14px;
+}
+
+.option input {
+  text-align: left;
+  background-color: whitesmoke;
+  border: 1px solid gray;
+  border-radius: 3px;
+  margin-left: auto;
+}
+
+.option span.unit {
+  font-size: 12px;
+  margin-left: 3px;
+}
+
+div.option {
+  display: flex;
+  margin-bottom: 5px;
+  align-items: center;
+}
+
+.action button {
+  width: 100%;
+  background-color: #dddddd;
+  border: 1px solid dimgrey;
+  padding-top: 5px;
+  padding-bottom: 5px;
+  cursor: pointer;
+  font-weight: 500;
+}
+
+p.title {
+  font-size: 14px;
+  font-weight: bold;
+  margin-bottom: 2px;
+  margin-top: 5px;
+}
+
+p.error {
+  font-size: 12px;
+  color: red;
+  margin-top: 1px;
+  margin-bottom: 3px;
+  margin-left: 0px;
+  font-weight: bold;
+}

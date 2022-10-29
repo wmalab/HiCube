@@ -31,6 +31,8 @@ const ControlPanel = (props) => {
         <EditOptions
           mainLocation={props.mainLocation}
           zoomLocation={props.zoomLocation}
+          panelSizes={props.panelSizes}
+          onSizeChange={props.onSizeChange}
         />
       )}
       {panel === "ToolBar" && (

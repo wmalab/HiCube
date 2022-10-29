@@ -1,9 +1,9 @@
 div.threeview {
-  height: 380px;
+  /* height: 380px; */
   /* width: 450px; */
   border: 1px solid lightgray;
-  border-radius: 6px;
-  margin-bottom: 5px;
+  /* border-radius: 6px; */
+  /* margin-bottom: 5px; */
   box-shadow: 0 1px 8px rgba(0, 0, 0, 0.25);
 }
 

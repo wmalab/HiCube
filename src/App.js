@@ -131,6 +131,16 @@ export default function App() {
 
   const [mouseTool, setMouseTool] = useState("move");
   const [exportSvg, setExportSvg] = useState(false);
+  const [panelSizes, setPanelSizes] = useState({
+    width2d: 350,
+    width3d: 350,
+    height3d: 350,
+  });
+
+  const sizeChangeHandler = (sizes) => {
+    setPanelSizes(sizes);
+  };
+
   const [rangeSelection, setRangeSelection] = useState({
     type: null,
     xDomain: null,
@@ -452,7 +462,11 @@ export default function App() {
     const caseUid = caseConfig.uid;
     if (caseUid && configCtx.viewConfigs[caseUid]) {
       caselist.push(
-        <div key={`${caseUid}-higlass`} className="content-item hgc">
+        <div
+          key={`${caseUid}-higlass`}
+          className="content-item hgc"
+          style={{ width: panelSizes.width2d }}
+        >
           <HiGlassCase
             id={caseUid}
             ref={(el) => (configCtx.hgcRefs.current[caseUid] = el)}
@@ -477,7 +491,11 @@ export default function App() {
     }
     if (caseUid && configCtx.threeCases[caseUid]) {
       caselist.push(
-        <div key={`${caseUid}-threed`} className="content-item">
+        <div
+          key={`${caseUid}-threed`}
+          className="content-item"
+          style={{ width: panelSizes.width3d }}
+        >
           <ThreeTrack
             threed={configCtx.threeCases[caseUid]}
             genomeAssembly={genomeAssembly}
@@ -491,6 +509,7 @@ export default function App() {
               exportSvg
             }
             onFinishExportSvg={finishExportSvgHandler}
+            style={{ height: panelSizes.height3d }}
           />
         </div>
       );
@@ -521,6 +540,8 @@ export default function App() {
         onExportSvg={exportSvgHandler}
         onExportConfig={exportConfigHandler}
         onExportAnnotations={exportAnnotationsHandler}
+        panelSizes={panelSizes}
+        onSizeChange={sizeChangeHandler}
       />
       <div className="main">
         <div className="genome-position-header">

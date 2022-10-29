@@ -3,6 +3,7 @@ import ConfigContext from "../../store/config-context";
 import Collapsible from "../UI/Collapsible";
 import DisplayOptions from "../UI/DisplayOptions";
 import TrackOptionList from "../UI/TrackOptionList";
+import SizeAdjust from "./SizeAdjust";
 
 // TODO: group by cases, then the main heatmap options
 // then list of other tracks
@@ -226,6 +227,10 @@ const CaseOptions = (props) => {
         mainLocation={props.mainLocation}
         zoomLocation={props.zoomLocation}
       /> */}
+      <SizeAdjust
+        panelSizes={props.panelSizes}
+        onSizeChange={props.onSizeChange}
+      />
       <DisplayOptions
         caseUid={props.caseUid}
         trackUid={props.views[0]["2d"].contents[0].uid}
@@ -234,7 +239,7 @@ const CaseOptions = (props) => {
         zoomLocation={props.zoomLocation}
       />
       <TrackOptionList
-        caseUid={props.caseUid} 
+        caseUid={props.caseUid}
         config={props.views[0]["1d"]}
         mainLocation={props.mainLocation}
         zoomLocation={props.zoomLocation}
@@ -261,6 +266,8 @@ const EditOptions = (props) => {
             views={caseConfig.views}
             mainLocation={props.mainLocation}
             zoomLocation={props.zoomLocation}
+            panelSizes={props.panelSizes}
+            onSizeChange={props.onSizeChange}
           />
         </Collapsible>
       ))}
