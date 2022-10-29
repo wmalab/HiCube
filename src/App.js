@@ -387,6 +387,18 @@ export default function App() {
   };
 
   const loadConfigHandler = (configBlob, g3dBlobs) => {
+    configCtx.deleteAllCases();
+    setMainLocation({
+      xDomain: null,
+      yDomain: null,
+      fromId: null,
+    });
+    setRangeSelection({
+      type: null,
+      xDomain: null,
+      yDomain: null,
+      fromId: null,
+    });
     configBlob.text().then((text) => {
       const config = JSON.parse(text);
       setGenomeAssembly(config.genomeAssembly);
@@ -512,7 +524,7 @@ export default function App() {
       />
       <div className="main">
         <div className="genome-position-header">
-          {rangeSelection && rangeSelection.xDomain && (
+          {caselist.length > 0 && rangeSelection && rangeSelection.xDomain && (
             <GenomePositionBar
               onPositionChange={rangeSelectionChangeHandler.bind(
                 null,
@@ -523,7 +535,7 @@ export default function App() {
               genomeAssembly={genomeAssembly}
             />
           )}
-          {mainLocation && mainLocation.xDomain && (
+          {caselist.length > 0 && mainLocation && mainLocation.xDomain && (
             <GenomePositionBar
               onPositionChange={locationChangeHandler}
               positions={mainLocation}

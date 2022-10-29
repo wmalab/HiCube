@@ -2,6 +2,7 @@ import React from "react";
 
 const ConfigContext = React.createContext({
   cases: [],
+  pairedLocks: {},
   threeCases: {},
   positionedTracks: {},
   positionedTracksToCaseUid: {},
@@ -10,6 +11,9 @@ const ConfigContext = React.createContext({
   numViews: 0,
   hgcRefs: {},
   addCase: () => {},
+  addPairedCase: () => {},
+  deleteCase: () => {},
+  deleteAllCases: () => {},
   addZoomView: () => {},
   removeZoomView: () => {},
   updateOverlays: () => {},

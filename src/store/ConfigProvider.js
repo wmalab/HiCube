@@ -95,6 +95,22 @@ const allTrackUids = (view) => {
   return trackUids;
 };
 
+const getAllPositionedTrackUids = (view) => {
+  // 2d contents uid
+  // 1d positions values
+  // BEWARE: base view (aa) and zoom (view) share track uids
+  const positionedUids = [];
+  for (const track2d of view["2d"].contents) {
+    positionedUids.push(track2d.uid);
+  }
+  for (const track1d of view["1d"]) {
+    for (const pos in track1d.positions) {
+      positionedUids.push(track1d.positions[pos]);
+    }
+  }
+  return positionedUids;
+};
+
 const viewsToViewConfig = (views, positionedTracks, chromInfoPath) => {
   const viewConfig = {
     editable: false,
@@ -720,6 +736,83 @@ const configsReducer = (state, action) => {
       numViews: config.numViews,
     };
     return loadedConfigs;
+  } else if (action.type === "DELETE_CASE") {
+    const deleteCaseUid = action.caseUid;
+    // if none case left, just return the defaultConfigs
+    if (state.cases.length === 0) {
+      return state;
+    }
+    if (state.cases.length === 1) {
+      if (state.cases[0].uid === deleteCaseUid) {
+        return defaultConfigs;
+      } else {
+        return state;
+      }
+    }
+    // TODO: remove tracks from pairedLocks
+    // TODO: remove tracks from positionedTracks
+    // TODO: remove tracks from positionedTracksToCaseUid
+
+    // find the case to delete
+    const caseIndex = state.cases.findIndex((el) => el.uid === deleteCaseUid);
+    if (caseIndex < 0) {
+      // no such caseUid, don't do anything
+      return state;
+    }
+    // delete case from threeCases
+    const updatedThreeCases = {};
+    for (const caseUid in state.threeCases) {
+      if (caseUid !== deleteCaseUid) {
+        updatedThreeCases[caseUid] = state.threeCases[caseUid];
+      }
+    }
+    // delete case from viewConfigs
+    const updatedViewConfigs = {};
+    for (const caseUid in state.viewConfigs) {
+      if (caseUid !== deleteCaseUid) {
+        updatedViewConfigs[caseUid] = state.viewConfigs[caseUid];
+      }
+    }
+    // update tracks options
+    const positionedTrackUids = new Set(
+      getAllPositionedTrackUids(state.cases[caseIndex].views[0])
+    );
+    const updatedPositionedTracks = {};
+    for (const trackUid in state.positionedTracks) {
+      if (!positionedTrackUids.has(trackUid)) {
+        updatedPositionedTracks[trackUid] = state.positionedTracks[trackUid];
+      }
+    }
+    // update track to case uid
+    const updatedPositionedTracksToCaseUid = {};
+    for (const trackUid in state.positionedTracksToCaseUid) {
+      if (!positionedTrackUids.has(trackUid)) {
+        updatedPositionedTracksToCaseUid[trackUid] =
+          state.positionedTracksToCaseUid[trackUid];
+      }
+    }
+
+    // last step: delete case from cases
+    const updatedCases = [];
+    for (let i = 0; i < state.cases.length; i += 1) {
+      if (i !== caseIndex) {
+        updatedCases.push(state.cases[i]);
+      }
+    }
+
+    const updatedConfigs = {
+      cases: updatedCases,
+      pairedLocks: {}, // TODO: new only 2 case so delete any one should empty the locks
+      positionedTracks: updatedPositionedTracks, // uid indexed track config
+      positionedTracksToCaseUid: updatedPositionedTracksToCaseUid,
+      threeCases: updatedThreeCases,
+      chromInfoPath: state.chromInfoPath,
+      viewConfigs: updatedViewConfigs,
+      numViews: state.numViews,
+    };
+    return updatedConfigs;
+  } else if (action.type === "DELETE_ALL_CASES") {
+    return defaultConfigs;
   }
   return defaultConfigs;
 };
@@ -784,6 +877,14 @@ const ConfigProvider = (props) => {
     dispatchConfigsAction({ type: "LOAD_CONFIG", config, g3dBlobs });
   };
 
+  const deleteCaseHandler = (caseUid) => {
+    dispatchConfigsAction({ type: "DELETE_CASE", caseUid });
+  };
+
+  const deleteAllCasesHandler = () => {
+    dispatchConfigsAction({ type: "DELETE_ALL_CASES" });
+  };
+
   const configContext = {
     cases: configs.cases,
     pairedLocks: configs.pairedLocks,
@@ -796,6 +897,8 @@ const ConfigProvider = (props) => {
     hgcRefs: hgcRefs,
     addCase: addCaseHandler,
     addPairedCase: addPairedCaseHandler,
+    deleteCase: deleteCaseHandler,
+    deleteAllCases: deleteAllCasesHandler,
     addZoomView: addZoomViewHandler,
     removeZoomView: removeZoomViewHandler,
     updateOverlays: updateOverlaysHandler,

@@ -5,6 +5,7 @@ import AssemblySelector from "../UI/AssemblySelector";
 import AddCaseForm from "./AddCaseForm";
 import PairedCaseForm from "./PairedCaseForm";
 import Collapsible from "../UI/Collapsible";
+import CaseManager from "./CaseManager";
 import classes from "./AddCase.module.css";
 
 const AddCase = (props) => {
@@ -108,6 +109,9 @@ const AddCase = (props) => {
           onSubmit={pairedSubmitHandler}
           onClose={handleClose}
         />
+      )}
+      {!hasZeroCase && (
+        <CaseManager />
       )}
     </>
   );
