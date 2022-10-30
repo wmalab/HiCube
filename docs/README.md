@@ -1,10 +1,19 @@
-# How to Recreate Figure 1
+# How to Recreate the Figure
 
 ![overview](img/figure-1.png)
 
-## Add datasets to API server
+## Table of contents
 
-All datasets used to create figure 1 can be downloaded from [shared drive folder](https://drive.google.com/drive/folders/12_kfP9tELVEPKOw7ODgx8x2MVYUvi59T?usp=sharing).
+- [1. Add datasets to API server]()
+- [2. Add datasets to HiCube]()
+- [3. Add zoom view]()
+- [4. Configure track display options]()
+- [5. Add annotations]()
+	- [5.1 Configure annotation display options]()
+
+## 1. Add datasets to API server
+
+All datasets used to create the figure can be downloaded from [shared drive folder](https://drive.google.com/drive/folders/12_kfP9tELVEPKOw7ODgx8x2MVYUvi59T?usp=sharing).
 
 
 - Gene annotation track: `gene-annotations-hg19.db`
@@ -45,7 +54,7 @@ docker exec higlass-container python higlass-server/manage.py ingest_tileset --f
 
 If you're using the [build version](https://drive.google.com/file/d/1Z-k3tGMK0_rlbONuqD-OUT6Wybnhq__g/view?usp=sharing) of HiCube, inside the directory where you download and unzip `HiCube.zip`, run the following command to start the app:
 
-Use Node.js serve:
+**Option 1:** use [Node.js](https://nodejs.org/en/download/) (LTS version):
 
 ```bash
 # if serve is not installed
@@ -57,7 +66,7 @@ cd HiCube
 serve -s
 ```
 
-or use python3 serve:
+**Option 2:** use python3:
 
 ```bash
 # change current directory to HiCube
@@ -68,14 +77,14 @@ python -m http.server
 
 then open the printed link to HiCube.
 
-## Add datasets to HiCube
+## 2. Add datasets to HiCube
 
-- Add the local API server: http://localhost:8888/api/v1 (it could take a few seconds to initialize).
-- Choose `hg19` from the genome assembly selection list. 
+- Enter the local API server: http://localhost:8888/api/v1 (it could take a few seconds to initialize), click the **+** icon on the left side to add to **Track Source Servers**
+- Choose `hg19` from the **Genome Assembly** selection list
 - Click `Add A New Case`
-- Genome position section enter `chr11:1,402,364-2,714,572` for X axis
-- Select `Rao et al. (2014) Diploid Maternal` from Hi-C dataset selection list
-- Choose file `GSM3271351_gm12878_05.impute3.round4.clean.g3d` for 3D genome structure model and select category to be `maternal`, resolution to be `1000000`
+- Under **Genome Positions** section, enter `chr11:723,695-7,167,876` for X axis, and `chr11:568,970-7,270,918` for Y axis
+- Select `Rao et al. (2014) Diploid Maternal` from **Hi-C dataset** selection list
+- Choose file `GSM3271351_gm12878_05.impute3.round4.clean.g3d` for **3D genome structure model** and select category to be `maternal`, resolution to be `1000000`
 - Click `Add A New Dataset`
 - Select data type to be `gene-annotation`, check `top` and `left` positions
 - Click `Add A New Dataset`
@@ -86,18 +95,41 @@ then open the printed link to HiCube.
 - Choose file `GSM3271351_gm12878_05.impute3.round4.clean.g3d` for 3D genome structure model and select category to be `paternal`, resolution to be `1000000`
 - Click `Add A Paired Case` (the second case has been added)
 
-## Add zoom view
+## 3. Add zoom view
 
-- Click the third button on the sidebar
-- Click `Select Zoom Region`, then press and hold down the left mouse button to select the region to zoom on the Hi-C track
+- Click the **third button** on the sidebar
+- Click `Select Zoom Region`, then press and hold down the left mouse button to select the region to zoom on the **center** Hi-C track
 - Click `Create Zoom View` 
+- Enter `chr11:1,578,998-2,320,598` on X axis and `chr11:1,606,495-2,377,759` on Y axis on the **Zoom Position** bar at the top, then click **Go**
 
-## Configure track display options
+## 4. Configure track display options
 
-- Click the second button on the sidebar
+- Click the **second button** on the sidebar
 - Click the `Rao et al. (2014) Diploid Maternal` track, it will show its display options
 - Change `Zoom limit` to `25000`, and `Transforms` to `VC`, click `Update`
 
-## Add annotations
+## 5. Add annotations
 
-- 
+- Click the **third button** on the sidebar
+- Add annotations via
+	- Click **Select Annotation Region**, then press and hold down the left mouse button to select the region on the **top** or **left** 1D tracks, then click **Add Annotation**
+	- **Or** copy the below annotation regions into **Enter genomic intervals** textarea, then click **Add Annotation**
+
+```
+chr11 1,700,000 chr11 2,022,700
+chr11 2,022,700 chr11 2,179,621
+```
+
+### 5.1 Configure annotation display options
+
+- Click on **Annotation #1**
+	- Under **2D Options**, change **Fill Opacity** to 0.1, and **Stroke Width** to 1
+	- Under **3D Options -> Line**, uncheck **Draw Line**
+	- Under **3D Options -> Anchor 1**, check **Draw Anchor 1**, enter **Label** to be `HIDAD`
+	- Click **Update**
+- Click on **Annotation #2**
+	- Under **2D Options**, change **Fill Opacity** to 0.1, and **Fill Color** to Green, **Stroke Width** to 1, **Stroke Color** to Green
+	- Under **3D Options -> Line**, uncheck **Draw Line**
+	- Under **3D Options -> Anchor 1**, check **Draw Anchor 1**, enter **Label** to be `H19`, change **Color** to be Orange
+	- Under **3D Options -> Anchor 2**, check **Draw Anchor 2**, enter **Label** to be `IGF2`, change **Color** to be Green
+	- Click **Update**
