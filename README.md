@@ -10,30 +10,31 @@ HiCube provides following unique features and functionality:
 
 ![Overview](docs/img/figure-1.png)
 
-See [docs/README.md](/docs/README.md) for how to recreate figure 1.
+See [docs/README.md](/docs/README.md) for how to recreate the above figure.
 
 [Demo site](https://hicube-86906.web.app/)
 
 ## Table of contents
 
-- [1. Installation]()
-	- [1.1 Run from pre-built]()
+- [1 Installation]()
+	- [1.1 From pre-built]()
 		- [1.1.1 Option 1: Node.js]()
 		- [1.1.2 Option 2: Python]()
-	- [1.2 Run from source code]()
-- [2. Usage]()
-	- [2.1 Prepare datasets]()
-		- [2.1.1 Hi-C, 1D or 2D datasets]()
+	- [1.2 From source code]()
+- [2 Usage]()
+	- [2.1 Prepare input datasets and API server]()
+		- [2.1.1 Hi-C and 1D datasets]()
 		- [2.1.2 3D genome structure datasets]()
 	- [2.2 Visualize datasets in HiCube]()
 		- [2.2.1 Add datasets to create a case]()
-		- [2.2.2 Add paired datasets to create a paired case]()
-		- [2.2.3 Add zoom view]()
-		- [2.2.4 Add annotations]()
+		- [2.2.2 Create a paired case]()
+		- [2.2.3 Navigation]()
+		- [2.2.4 Add zoom view]()
+		- [2.2.5 Add annotations]()
 
-## 1. Installation
+## 1 Installation
 
-### 1.1 Run from pre-built
+### 1.1 From pre-built
 
 Download the [build version](https://drive.google.com/file/d/1Z-k3tGMK0_rlbONuqD-OUT6Wybnhq__g/view?usp=sharing), unzip it, then use a static site server, for example, you can choose `serve` from Node.js or `http.server` from python, to run HiCube:
 
@@ -72,7 +73,7 @@ python -m http.server
 
 then go to http://localhost:8000
 
-### 1.2 Run from source code
+### 1.2 From source code
 
 If you want to run HiCube from its source code, first clone the repository to your computer:
 
@@ -92,17 +93,18 @@ npm start
 
 Open [http://localhost:3000](http://localhost:3000) to use HiCube in your browser.
 
-## 2. Usage
-### 2.1 Prepare datasets
+## 2 Usage
+### 2.1 Prepare input datasets and API server
 
-The example datasets can be downloaded at [shared drive folder](https://drive.google.com/drive/folders/12_kfP9tELVEPKOw7ODgx8x2MVYUvi59T?usp=sharing).
+All example datasets can be downloaded at [shared drive folder](https://drive.google.com/drive/folders/12_kfP9tELVEPKOw7ODgx8x2MVYUvi59T?usp=sharing).
 
-#### 2.1.1 Hi-C, 1D or 2D datasets
+#### 2.1.1 Hi-C and 1D datasets
 
-The 1D and 2D datasets need to be served with [HiGlass Server](https://github.com/higlass/higlass-server) for access. There are two public availalbe HiGlass API servers: http://higlass.io/api/v1 and https://higlass.4dnucleome.org/api/v1 that can be used to access vast amount of public datasets. 
+The Hi-C and other 1D datasets need to be served with [HiGlass Server](https://github.com/higlass/higlass-server) for access. There are two public availalbe HiGlass API servers: http://higlass.io/api/v1 and https://higlass.4dnucleome.org/api/v1 that can be used to access vast amount of public datasets. 
+
 To serve local datasets, the easiest way is to setup a local HiGlass API server with [Docker](https://www.docker.com/) using the [higlass-docker](https://github.com/higlass/higlass-docker) image, and the local API server can be accessed at http://localhost:8888/api/v1 for HiCube.
 
-Create a directory (e.g. `~/hg-data`) to store the cooler files, example files can be downloaded from [shared drive folder](https://drive.google.com/drive/folders/12_kfP9tELVEPKOw7ODgx8x2MVYUvi59T?usp=sharing)
+Create a directory (e.g. `~/hg-data`) to store the datasets, example files can be downloaded from [shared drive folder](https://drive.google.com/drive/folders/12_kfP9tELVEPKOw7ODgx8x2MVYUvi59T?usp=sharing).
 
 ```bash
 # Pull the latest image of higlass-docker
@@ -116,14 +118,24 @@ docker run --detach \
 	--name higlass-container \
 	higlass/higlass-docker
 
+# Add chromosome size file to server
+docker exec higlass-container python higlass-server/manage.py ingest_tileset \
+--filename /data/hg19.chrom.sizes --filetype chromsizes-tsv \
+--datatype chromsizes --coordSystem hg19 --name "Chromosomes (hg19)"
+
+# Add gene annotation file to server
+docker exec higlass-container python higlass-server/manage.py ingest_tileset \
+--filename /data/gene-annotations-hg19.db --filetype beddb \
+--datatype gene-annotation --coordSystem hg19 --name "Gene Annotations (hg19)"
+
 # Add cooler files to server
 docker exec higlass-container python higlass-server/manage.py ingest_tileset \
---filename /data/GSE63525_GM12878_diploid_maternal.mcool \
---filetype cooler --datatype matrix --coordSystem hg19
+--filename /data/GSE63525_GM12878_diploid_maternal.mcool --filetype cooler \
+--datatype matrix --coordSystem hg19 --name "Rao et al. (2014) Diploid Maternal"
 
 docker exec higlass-container python higlass-server/manage.py ingest_tileset \
---filename /data/GSE63525_GM12878_diploid_paternal.mcool \
---filetype cooler --datatype matrix --coordSystem hg19
+--filename /data/GSE63525_GM12878_diploid_paternal.mcool --filetype cooler \
+--datatype matrix --coordSystem hg19 --name "Rao et al. (2014) Diploid Paternal"
 ```
 
 > `--volume ~/hg-data:/data` and `--volume ~/hg-tmp:/tmp` mount the local directories (path before `:`) to a path inside the container (path after `:`), make sure the path before `:` is an **absolute path** to the directory you store datasets, for example, if you store them at `~/Documents/hg-data`, then use `~/Documents/hg-data` before `:`
@@ -146,7 +158,9 @@ A processed example .g3d file can be downloaded from [shared drive folder](https
 
 ### 2.2 Visualize datasets in HiCube
 
-Before adding datasets to HiCube, users will first need to add public or local API servers (created with Docker) URLs to the **Track Source Servers**, and select a **Genome Assembly** e.g. hg19, mm10, for your datasets. 
+Before adding datasets to HiCube, users will first need to enter public or local API servers (created with Docker) URLs to the **Track Source Servers**, click the **+** icon on the left side to add the server.
+
+Then select a **Genome Assembly** e.g. hg19, mm10, for your datasets. 
 
 ![Add server](docs/img/add-server.png)
 
@@ -169,13 +183,13 @@ Additionally, a 3D genome structure file (in .g3d format) can be uploaded, and u
 
 ![Hi-C and 3D](docs/img/hic-3d.png)
 
-Other types of datasets, such as gene annotation, chromosome location, bigWig, etc. can also be added, users can select the track type and which track positions (left, right, top, bottom, center) to display the datasets.
+Other types of datasets, such as gene annotation, chromosome location, bigWig, etc. can also be added, users can select the track type and which track positions (left, right, top, bottom) to display the datasets.
 
 ![Additional datasets](docs/img/additional-datasets.png)
 
 Then click **Add A New Case** to display the datasets in the app.
 
-#### 2.2.2 Add paired datasets to create a paired case
+#### 2.2.2 Create a paired case
 
 A second case can be added by clicking the **Add A Paired Case** button, and for each dataset in the existing case, users need to select its paired dataset in the second case.
 
@@ -188,15 +202,25 @@ The following adjustments will be synchronized between cases:
 - annotations
 - display options
 
-#### 2.2.3 Add zoom view
+#### 2.2.3 Navigation
 
-Switch to the **Tools** tab (3rd tab) in the sidebar, users can choose **Select Zoom Region**, then press and hold down the left mouse button to select the region to zoom, then click **Create Zoom View** to create a zoom view for that region.
+- Press and hold down the left mouse button to move around
+- Use scroll wheel to zoom in or zoom out
+- Enter the precise genomic positions inside the genome position bar on the top and click **Go** to move to that region
+
+![Genome position bar](docs/img/genome-position-bar.png)
+
+#### 2.2.4 Add zoom view
+
+Switch to the **Tools** tab (3rd tab) in the sidebar, users can choose **Select Zoom Region**, then press and hold down the left mouse button to select the region on the center Hi-C track, or 1D tracks to zoom, then click **Create Zoom View** to create a zoom view for that region, or click **Cancel** to cancel your selection.
+
+After a zoom view is created, click **Remove Zoom View** will remove the zoom view. Use **Select Zoom Region** and **Create Zoom View** again will replace the current zoom view a new one from selection.
 
 ![Select zoom region](docs/img/zoom-select.png)
 
-#### 2.2.4 Add annotations
+#### 2.2.5 Add annotations
 
-Switch to the **Tools** tab (3rd tab) in the sidebar, users can choose **Select Annotation Region**, then press and hold down the left mouse button to select either 1D (on top, left, right, bottom tracks) or 2D (on center track) region, and click **Add Annotation** to show it.
+Switch to the **Tools** tab (3rd tab) in the sidebar, users can choose **Select Annotation Region**, then press and hold down the left mouse button to select either 1D (on top, left, right, bottom tracks) or 2D (on center track) region, and click **Add Annotation** to add the annotation to all views.
 
 Other ways to add annotations are: enter in the textarea or upload a file contains a list of genomic intervals in the following formats:
 
@@ -209,7 +233,11 @@ chrom start-coordinate chrom end-coordinate
 For 2D annotations:
 
 ```
-chrom x-ax-start-coordinate chrom x-ax-end-coordinate chrom y-ax-start-coordinate chrom y-ax-end-coordinate
+x-ax-chrom x-ax-start-coordinate x-ax-chrom x-ax-end-coordinate y-ax-chrom y-ax-start-coordinate y-ax-chrom y-ax-end-coordinate
 ```
+
+> 1D annotation should only span within the same chromosome, not across multiple chromosomes.
+> 
+> The X axis or Y axis of 2D annotation should only span within the same chromosome, although the chromosomes for X and Y axes can be different.
 
 ![Add annotations](docs/img/add-annotations.png)
