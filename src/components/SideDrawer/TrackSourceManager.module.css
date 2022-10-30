@@ -29,15 +29,16 @@ p.message {
 .serverlist button {
   padding: 5px;
   border: none;
-  border-radius: 5px;
+  border-radius: 3px;
   font-size: 12px;
-  margin-right: 3px;
+  margin-right: 5px;
   cursor: pointer;
+  background-color: #dddddd;
 }
 
-/* .serverlist button:hover {
-  background-color: #ebe4e4;
-} */
+.serverlist button:hover {
+  background-color: lightgray;
+}
 
 .error p {
   font-size: 12px;

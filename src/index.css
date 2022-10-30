@@ -16,6 +16,7 @@ code {
 
 button, input, select {
   font-family: 'Overpass', sans-serif;
+  font-size: 12px;
 }
 
 /* button {

@@ -33,11 +33,16 @@
   height: 50px;
 }
 
+.sidedrawer-control-buttons button:hover {
+  background-color: lightgray;
+}
+
 .sidedrawer-config-panel {
   position: absolute;
   left: 32px;
   top: 0;
   bottom: 0;
+  width: 298px;
   /* padding-left: 10px; */
   overflow-y: auto;
   /* border-right: 1px solid #EEEEEE; */

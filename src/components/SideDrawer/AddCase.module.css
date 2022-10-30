@@ -8,11 +8,9 @@
   font-weight: 500;
 }
 
-/* .action button:hover {
-  background-color: #ebe4e4;
-  border-color: dimgrey;
-  font-weight: bold;
-} */
+.action button:hover {
+  background-color: lightgray;
+}
 
 .enterfield label {
   font-size: 14px;
@@ -43,4 +41,8 @@
   padding-bottom: 5px;
   cursor: pointer;
   font-weight: 500;
+}
+
+.enterfield button.submit:hover {
+  background-color: lightgray;
 }

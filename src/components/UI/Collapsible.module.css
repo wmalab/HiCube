@@ -16,6 +16,10 @@
   background-color: transparent;
 }
 
+.collapsible .header button:hover {
+  background-color: #C8C8C8;
+}
+
 .collapsible .icon {
   font-size: 11px;
 }

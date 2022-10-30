@@ -31,6 +31,10 @@ div.option {
   font-weight: 500;
 }
 
+.action button:hover {
+  background-color: lightgray;
+}
+
 p.title {
   font-size: 14px;
   font-weight: bold;

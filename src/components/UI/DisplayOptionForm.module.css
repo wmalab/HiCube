@@ -7,3 +7,7 @@
   cursor: pointer;
   font-weight: 500;
 }
+
+.action button:hover {
+  background-color: lightgray;
+}

@@ -22,6 +22,16 @@ input.position-bar {
   /* background-color: #EEEEEE; */
   height: 14px;
   font-weight: bold;
+  font-size: 14px;
+}
+
+input.position-bar:hover {
+  background-color: lightgray;
+  border: 2px solid gray;
+}
+
+input.position-bar:focus {
+  background-color: lightgray;
 }
 
 /* input.position-bar:hover {

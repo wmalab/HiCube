@@ -1,18 +1,22 @@
 .action button {
   width: 100%;
   background-color: #dddddd;
-  border: 1px solid #eeeeee;
+  /* border: 1px solid #eeeeee; */
   padding-top: 5px;
   padding-bottom: 5px;
+  margin-bottom: 1px;
   cursor: pointer;
-  font-weight: 500;
+  /* font-weight: 600; */
+  font-size: 12px;
+  border: 1px solid gray;
 }
 
-/* .action button:hover {
-  background-color: #ebe4e4;
-  border-color: dimgrey;
-  font-weight: bold;
-} */
+.action button:hover {
+  /* background-color: #ebe4e4; */
+  /* border-color: dimgrey;
+  font-weight: bold; */
+  background-color: lightgray;
+}
 
 .action label {
   font-size: 14px;
