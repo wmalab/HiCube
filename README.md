@@ -14,21 +14,33 @@ HiCube provides following unique features and functionality:
 
 ## Installation
 
-Download the [build version](https://drive.google.com/file/d/1Z-k3tGMK0_rlbONuqD-OUT6Wybnhq__g/view?usp=sharing), unzip it, then use a static site server, for example serve from Node.js or http.server from python, to run it:
+### Run from pre-built
 
-For Node.js [serve](https://npm.io/package/serve):
+Download the [build version](https://drive.google.com/file/d/1Z-k3tGMK0_rlbONuqD-OUT6Wybnhq__g/view?usp=sharing), unzip it, then use a static site server, for example, you can choose `serve` from Node.js or `http.server` from python, to run HiCube:
+
+#### Option 1: Node.js
+
+First install [Node.js](https://nodejs.org/en/download/) LTS version, then install `serve`: 
 
 ```bash
 # install a static site server
 npm install -g serve
 # on macOS may need to use sudo to install globally
 sudo npm install -g serve
+```
+
+Finally, start the server inside the `HiCube` directory:
+
+```bash
 # change the current directory to HiCube
 cd HiCube
 # start the server
 serve -s
 ```
-then go to the URL the command print out.
+
+then go to the URL it prints out.
+
+#### Option 2: Python
 
 If you have `python3` installed, it also provides a static site server:
 
@@ -41,20 +53,25 @@ python -m http.server
 
 then go to http://localhost:8000
 
-### Development
+### Run from source code
 
-Install the LTS version of [Node.js](https://nodejs.org/en/download/).
-
-Clone the repository to local:
+If you want to run HiCube from its source code, first clone the repository to your computer:
 
 ```bash
 git clone https://github.com/wmalab/HiCube.git
 ```
 
+Install [Node.js](https://nodejs.org/en/download/) LTS version.
+
 In the project directory, first run `npm install` to install all the dependencies, then `npm start` to start the app.
 
-Open [http://localhost:3000](http://localhost:3000) to use HiCube in your browser.
+```bash
+cd HiCube
+npm install
+npm start
+```
 
+Open [http://localhost:3000](http://localhost:3000) to use HiCube in your browser.
 
 ## Usage
 
