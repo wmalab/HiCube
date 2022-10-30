@@ -16,21 +16,21 @@ See [docs/README.md](/docs/README.md) for how to recreate the above figure.
 
 ## Table of contents
 
-- [1 Installation]()
-	- [1.1 From pre-built]()
-		- [1.1.1 Option 1: Node.js]()
-		- [1.1.2 Option 2: Python]()
-	- [1.2 From source code]()
-- [2 Usage]()
-	- [2.1 Prepare input datasets and API server]()
-		- [2.1.1 Hi-C and 1D datasets]()
-		- [2.1.2 3D genome structure datasets]()
-	- [2.2 Visualize datasets in HiCube]()
-		- [2.2.1 Add datasets to create a case]()
-		- [2.2.2 Create a paired case]()
-		- [2.2.3 Navigation]()
-		- [2.2.4 Add zoom view]()
-		- [2.2.5 Add annotations]()
+- [1 Installation](#1-installation)
+	- [1.1 From pre-built](#11-from-pre-built)
+		- [1.1.1 Option 1: Node.js](#111-option-1-nodejs)
+		- [1.1.2 Option 2: Python](#112-option-2-python)
+	- [1.2 From source code](#12-from-source-code)
+- [2 Usage](#2-usage)
+	- [2.1 Prepare input datasets and API server](#21-prepare-input-datasets-and-api-server)
+		- [2.1.1 Hi-C and 1D datasets](#211-hi-c-and-1d-datasets)
+		- [2.1.2 3D genome structure datasets](#212-3d-genome-structure-datasets)
+	- [2.2 Visualize datasets in HiCube](#22-visualize-datasets-in-hicube)
+		- [2.2.1 Add datasets to create a case](#221-add-datasets-to-create-a-case)
+		- [2.2.2 Create a paired case](#222-create-a-paired-case)
+		- [2.2.3 Navigation](#223-navigation)
+		- [2.2.4 Add zoom view](#224-add-zoom-view)
+		- [2.2.5 Add annotations](#225-add-annotations)
 
 ## 1 Installation
 
