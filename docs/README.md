@@ -1,5 +1,7 @@
 # How to Recreate Figure 1
 
+![overview](img/figure-1.png)
+
 ## Add datasets to API server
 
 All datasets used to create figure 1 can be downloaded from [shared drive folder](https://drive.google.com/drive/folders/12_kfP9tELVEPKOw7ODgx8x2MVYUvi59T?usp=sharing).

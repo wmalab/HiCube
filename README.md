@@ -10,15 +10,34 @@ HiCube provides following unique features and functionality:
 
 ![Overview](docs/img/figure-1.png)
 
+See [docs/README.md](/docs/README.md) for how to recreate figure 1.
+
 [Demo site](https://hicube-86906.web.app/)
 
-## Installation
+## Table of contents
 
-### Run from pre-built
+- [1. Installation]()
+	- [1.1 Run from pre-built]()
+		- [1.1.1 Option 1: Node.js]()
+		- [1.1.2 Option 2: Python]()
+	- [1.2 Run from source code]()
+- [2. Usage]()
+	- [2.1 Prepare datasets]()
+		- [2.1.1 Hi-C, 1D or 2D datasets]()
+		- [2.1.2 3D genome structure datasets]()
+	- [2.2 Visualize datasets in HiCube]()
+		- [2.2.1 Add datasets to create a case]()
+		- [2.2.2 Add paired datasets to create a paired case]()
+		- [2.2.3 Add zoom view]()
+		- [2.2.4 Add annotations]()
+
+## 1. Installation
+
+### 1.1 Run from pre-built
 
 Download the [build version](https://drive.google.com/file/d/1Z-k3tGMK0_rlbONuqD-OUT6Wybnhq__g/view?usp=sharing), unzip it, then use a static site server, for example, you can choose `serve` from Node.js or `http.server` from python, to run HiCube:
 
-#### Option 1: Node.js
+#### 1.1.1 Option 1: Node.js
 
 First install [Node.js](https://nodejs.org/en/download/) LTS version, then install `serve`: 
 
@@ -40,7 +59,7 @@ serve -s
 
 then go to the URL it prints out.
 
-#### Option 2: Python
+#### 1.1.2 Option 2: Python
 
 If you have `python3` installed, it also provides a static site server:
 
@@ -53,7 +72,7 @@ python -m http.server
 
 then go to http://localhost:8000
 
-### Run from source code
+### 1.2 Run from source code
 
 If you want to run HiCube from its source code, first clone the repository to your computer:
 
@@ -73,15 +92,12 @@ npm start
 
 Open [http://localhost:3000](http://localhost:3000) to use HiCube in your browser.
 
-## Usage
-
-See [docs/README.md](/docs/README.md) for how to recreate figure 1.
-
-### Prepare datasets
+## 2. Usage
+### 2.1 Prepare datasets
 
 The example datasets can be downloaded at [shared drive folder](https://drive.google.com/drive/folders/12_kfP9tELVEPKOw7ODgx8x2MVYUvi59T?usp=sharing).
 
-#### Hi-C, 1D or 2D datasets
+#### 2.1.1 Hi-C, 1D or 2D datasets
 
 The 1D and 2D datasets need to be served with [HiGlass Server](https://github.com/higlass/higlass-server) for access. There are two public availalbe HiGlass API servers: http://higlass.io/api/v1 and https://higlass.4dnucleome.org/api/v1 that can be used to access vast amount of public datasets. 
 To serve local datasets, the easiest way is to setup a local HiGlass API server with [Docker](https://www.docker.com/) using the [higlass-docker](https://github.com/higlass/higlass-docker) image, and the local API server can be accessed at http://localhost:8888/api/v1 for HiCube.
@@ -112,7 +128,7 @@ docker exec higlass-container python higlass-server/manage.py ingest_tileset \
 
 > `--volume ~/hg-data:/data` and `--volume ~/hg-tmp:/tmp` mount the local directories (path before `:`) to a path inside the container (path after `:`), make sure the path before `:` is an **absolute path** to the directory you store datasets, for example, if you store them at `~/Documents/hg-data`, then use `~/Documents/hg-data` before `:`
 
-#### 3D genome structure datasets
+#### 2.1.2 3D genome structure datasets
 
 HiCube can directly read local 3D genome structure file in .g3d format. Other formats e.g. nucle3d, .3dg, PASTIS output, can be converted to .g3d format using [g3dtools](https://github.com/lidaof/g3d/tree/master/g3dtools). 
 
@@ -128,7 +144,7 @@ g3dtools 3dg GSM3271351_gm12878_05.impute3.round4.clean.3dg.txt.gz \
 
 A processed example .g3d file can be downloaded from [shared drive folder](https://drive.google.com/drive/folders/12_kfP9tELVEPKOw7ODgx8x2MVYUvi59T?usp=sharing).
 
-### Visualize datasets in HiCube
+### 2.2 Visualize datasets in HiCube
 
 Before adding datasets to HiCube, users will first need to add public or local API servers (created with Docker) URLs to the **Track Source Servers**, and select a **Genome Assembly** e.g. hg19, mm10, for your datasets. 
 
@@ -136,7 +152,7 @@ Before adding datasets to HiCube, users will first need to add public or local A
 
 Then users can start to add public or private datasets by clicking the **Add A New Case** button.
 
-#### Add datasets to create a case
+#### 2.2.1 Add datasets to create a case
 
 First users need to enter the genome positions for display at *X axis* (required) and *Y axis* (optional), the accepting formats including: 
 
@@ -159,7 +175,7 @@ Other types of datasets, such as gene annotation, chromosome location, bigWig, e
 
 Then click **Add A New Case** to display the datasets in the app.
 
-#### Add paired datasets to create a paired case
+#### 2.2.2 Add paired datasets to create a paired case
 
 A second case can be added by clicking the **Add A Paired Case** button, and for each dataset in the existing case, users need to select its paired dataset in the second case.
 
@@ -172,13 +188,13 @@ The following adjustments will be synchronized between cases:
 - annotations
 - display options
 
-#### Add zoom view
+#### 2.2.3 Add zoom view
 
 Switch to the **Tools** tab (3rd tab) in the sidebar, users can choose **Select Zoom Region**, then press and hold down the left mouse button to select the region to zoom, then click **Create Zoom View** to create a zoom view for that region.
 
 ![Select zoom region](docs/img/zoom-select.png)
 
-#### Add annotations
+#### 2.2.4 Add annotations
 
 Switch to the **Tools** tab (3rd tab) in the sidebar, users can choose **Select Annotation Region**, then press and hold down the left mouse button to select either 1D (on top, left, right, bottom tracks) or 2D (on center track) region, and click **Add Annotation** to show it.
 
