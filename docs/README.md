@@ -4,12 +4,12 @@
 
 ## Table of contents
 
-- [1. Add datasets to API server]()
-- [2. Add datasets to HiCube]()
-- [3. Add zoom view]()
-- [4. Configure track display options]()
-- [5. Add annotations]()
-	- [5.1 Configure annotation display options]()
+- [1. Add datasets to API server](#1-add-datasets-to-api-server)
+- [2. Add datasets to HiCube](#2-add-datasets-to-hicube)
+- [3. Add zoom view](#3-add-zoom-view)
+- [4. Configure track display options](#4-configure-track-display-options)
+- [5. Add annotations](#5-add-annotations)
+	- [5.1 Configure annotation display options](#51-configure-annotation-display-options)
 
 ## 1. Add datasets to API server
 
