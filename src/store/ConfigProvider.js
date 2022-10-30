@@ -885,6 +885,21 @@ const ConfigProvider = (props) => {
     dispatchConfigsAction({ type: "DELETE_ALL_CASES" });
   };
 
+  const getCasesCopyHandler = (xyDomains) => {
+    const copiedCases = [];
+    for (const ca of configs.cases) {
+      const copiedCase = deepCopy(ca);
+      const views = copiedCase.views;
+      for (let i = 0; i < views.length; i++) {
+        const view = views[i];
+        view.initialXDomain = [...xyDomains[i].xDomain];
+        view.initialYDomain = [...xyDomains[i].yDomain];
+      }
+      copiedCases.push(copiedCase);
+    }
+    return copiedCases;
+  };
+
   const configContext = {
     cases: configs.cases,
     pairedLocks: configs.pairedLocks,
@@ -905,6 +920,7 @@ const ConfigProvider = (props) => {
     removeOverlays: removeOverlaysHandler,
     updateTrackOptions: updateTrackOptionsHandler,
     loadConfig: loadConfigHandler,
+    getCaseCopy: getCasesCopyHandler,
   };
 
   return (

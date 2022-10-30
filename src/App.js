@@ -361,6 +361,7 @@ export default function App() {
 
   const exportConfigHandler = () => {
     // three config need file name
+    // TODO: need to update initialX/Y Domain in views (main and zoom)
     const exportThreeCases = {};
     for (const caseUid in configCtx.threeCases) {
       exportThreeCases[caseUid] = { ...configCtx.threeCases[caseUid] };
@@ -368,8 +369,10 @@ export default function App() {
         name: configCtx.threeCases[caseUid].fileObj.name,
       };
     }
+    const exportCases = configCtx.getCaseCopy([mainLocation, rangeSelection]);
     const config = {
-      cases: configCtx.cases,
+      // cases: configCtx.cases,
+      cases: exportCases,
       pairedLocks: configCtx.pairedLocks,
       positionedTracks: configCtx.positionedTracks,
       positionedTracksToCaseUid: configCtx.positionedTracksToCaseUid,
@@ -384,6 +387,7 @@ export default function App() {
       zoomXDomain: rangeSelection.xDomain,
       zoomYDomain: rangeSelection.yDomain,
       trackSourceServers: trackSourceServers,
+      panelSizes: panelSizes,
     };
     // export as JSON file for downloading
     const blob = new Blob([JSON.stringify(config, null, 2)], {
@@ -411,6 +415,7 @@ export default function App() {
     });
     configBlob.text().then((text) => {
       const config = JSON.parse(text);
+      setPanelSizes(config.panelSizes);
       setGenomeAssembly(config.genomeAssembly);
       setTrackSourceServers(config.trackSourceServers);
       configCtx.loadConfig(config, g3dBlobs);
