@@ -413,6 +413,7 @@ export default function App() {
       yDomain: null,
       fromId: null,
     });
+    dispatchOverlaysAction({ type: "CLEAR" });
     configBlob.text().then((text) => {
       const config = JSON.parse(text);
       setPanelSizes(config.panelSizes);
