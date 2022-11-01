@@ -76,3 +76,23 @@ export const truncateString = (str, num) => {
 export const lastElem = (arr) => {
   return arr[arr.length - 1];
 };
+
+
+// see https://dev.to/nombrekeff/download-file-from-blob-21ho
+// and https://stackoverflow.com/questions/61203503/alternative-to-mssaveoropenblob-on-chrome
+export const download = (blob, filename) => {
+  if (window.navigator && window.navigator.msSaveOrOpenBlob) {
+    // for IE
+    window.navigator.msSaveOrOpenBlob(blob, filename);
+  } else {
+    // for non-IE
+    const blobUrl = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.setAttribute("download", filename);
+    link.setAttribute("href", blobUrl);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(blobUrl);
+  }
+};

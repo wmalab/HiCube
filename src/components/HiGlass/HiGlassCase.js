@@ -9,6 +9,7 @@ import React, {
 import ConfigContext from "../../store/config-context";
 
 import HiGlassWrapper from "./HiGlassWrapper";
+import { download } from "../../utils";
 
 // TODO: may need useCallback for handler function
 // DONE: handle mainLocation sync
@@ -65,10 +66,23 @@ const HiGlassCase = (props, ref) => {
     zoomLocationListener.current = null;
   };
 
+  const exportViewsToSvg = () => {
+    const svgStr = hgcRef.current.api.exportAsSvg();
+    download(new Blob([svgStr], { type: "image/svg+xml" }), "Views2D.svg");
+  };
+
+  const exportViewsToPng = () => {
+    hgcRef.current.api.exportAsPngBlobPromise().then((blob) => {
+      download(blob, "Views2D.png");
+    });
+  };
+
   useImperativeHandle(ref, () => ({
     api: hgcRef.current.api,
     getRangeSelection: getRangeSelection,
     unsubscribeZoomLocation: unsubscribeZoomLocation,
+    exportViewsToSvg: exportViewsToSvg,
+    exportViewsToPng: exportViewsToPng,
   }));
 
   const viewConfigReducer = (state, action) => {

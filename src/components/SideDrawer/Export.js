@@ -13,32 +13,47 @@ const Export = (props) => {
       <Collapsible title="Export Files">
         <div className={classes.action}>
           <button onClick={props.onExportConfig}>
-            Export configuration file (JSON)
+            Export Configuration as JSON
           </button>
           <button onClick={props.onExportAnnotations}>
-            Export annotations
+            Export Annotations
           </button>
         </div>
       </Collapsible>
       {configCtx.cases.map((userCase, index) => {
         const caseUid = userCase.uid;
+        const exportViewsToSvg =
+          configCtx.hgcRefs.current[caseUid] &&
+          configCtx.hgcRefs.current[caseUid].exportViewsToSvg;
+        const exportViewsToPng =
+          configCtx.hgcRefs.current[caseUid] &&
+          configCtx.hgcRefs.current[caseUid].exportViewsToPng;
 
         return (
           <Collapsible key={caseUid} title={`Case #${index + 1}`}>
             <div className={classes.action}>
               <button
-                onClick={props.onExportSvg.bind(null, caseUid, "higlass")}
-                disabled={props.exportSvg}
+                // onClick={props.onExportSvg.bind(null, caseUid, "higlass")}
+                // disabled={props.exportSvg}
+                onClick={exportViewsToPng}
               >
-                Export 2D Hi-C image
+                Export 2D Views as PNG
               </button>
-              <button
-                onClick={props.onExportSvg.bind(null, caseUid, "threed", false)}
-                disabled={props.exportSvg}
-              >
-                Export 3D structure image
-              </button>
-              {configCtx.numViews > 1 && (
+              <button onClick={exportViewsToSvg}>Export 2D Views as SVG</button>
+              {caseUid in configCtx.threeCases && (
+                <button
+                  onClick={props.onExportSvg.bind(
+                    null,
+                    caseUid,
+                    "threed",
+                    false
+                  )}
+                  disabled={props.exportSvg}
+                >
+                  Export 3D Base View as PNG
+                </button>
+              )}
+              {caseUid in configCtx.threeCases && configCtx.numViews > 1 && (
                 <button
                   onClick={props.onExportSvg.bind(
                     null,
@@ -48,7 +63,7 @@ const Export = (props) => {
                   )}
                   disabled={props.exportSvg}
                 >
-                  Export 3D structure zoom image
+                  Export 3D Zoom View as PNG
                 </button>
               )}
             </div>
