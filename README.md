@@ -40,7 +40,7 @@ Download the [build version](https://drive.google.com/file/d/1Z-k3tGMK0_rlbONuqD
 
 #### 1.1.1 Option 1: Node.js
 
-First install [Node.js](https://nodejs.org/en/download/) LTS version, then install `serve`: 
+First install [Node.js](https://nodejs.org/download/release/v16.15.0/) v16.15.0 version, then install `serve`: 
 
 ```bash
 # install a static site server
@@ -81,7 +81,7 @@ If you want to run HiCube from its source code, first clone the repository to yo
 git clone https://github.com/wmalab/HiCube.git
 ```
 
-Install [Node.js](https://nodejs.org/en/download/) LTS version.
+Install [Node.js](https://nodejs.org/download/release/v16.15.0/) v16.15.0 version.
 
 In the project directory, first run `npm install` to install all the dependencies, then `npm start` to start the app.
 
@@ -142,7 +142,13 @@ docker exec higlass-container python higlass-server/manage.py ingest_tileset \
 
 #### 2.1.2 3D genome structure datasets
 
-HiCube can directly read local 3D genome structure file in .g3d format. Other formats e.g. nucle3d, .3dg, PASTIS output, can be converted to .g3d format using [g3dtools](https://github.com/lidaof/g3d/tree/master/g3dtools). 
+A tutorial at [docs/generate_3d_structure.md](/docs/generate_3d_structure.md) demonstrates examples of how to generate the 3D structure from your own data using common softwares.
+
+HiCube can directly read local 3D genome structure file in .g3d format. Other formats e.g. nucle3d, .3dg, PASTIS output, can be converted to .g3d format using [g3dtools](https://github.com/lidaof/g3d/tree/master/g3dtools), which can be installed with `python3` and `pip`:
+
+```bash
+pip install g3dtools
+```
 
 Download example from [GSM3271351](https://www.ncbi.nlm.nih.gov/geo/download/?acc=GSM3271351&format=file&file=GSM3271351%5Fgm12878%5F05%2Eimpute3%2Eround4%2Eclean%2E3dg%2Etxt%2Egz) and convert to .g3d format:
 

@@ -54,7 +54,7 @@ docker exec higlass-container python higlass-server/manage.py ingest_tileset --f
 
 If you're using the [build version](https://drive.google.com/file/d/1Z-k3tGMK0_rlbONuqD-OUT6Wybnhq__g/view?usp=sharing) of HiCube, inside the directory where you download and unzip `HiCube.zip`, run the following command to start the app:
 
-**Option 1:** use [Node.js](https://nodejs.org/en/download/) (LTS version):
+**Option 1:** use [Node.js](https://nodejs.org/download/release/v16.15.0/) (v16.15.0 version):
 
 ```bash
 # if serve is not installed
