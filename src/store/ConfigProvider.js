@@ -356,8 +356,11 @@ const configsReducer = (state, action) => {
     );
 
     let colormap = {};
+    let opacity = 0.1;
     if (state.cases.length > 0 && state.cases[0].uid in state.threeCases) {
+      // if already have a case, inherit its color and opacity setting
       colormap = state.threeCases[state.cases[0].uid].colormap;
+      opacity = state.threeCases[state.cases[0].uid].opacity;
     } else {
       const colors = makeColorGradient(chroms.length);
       for (let i = 0; i < chroms.length; i++) {
@@ -368,7 +371,8 @@ const configsReducer = (state, action) => {
     // TODO: if no threed.fileObj, do not add to config
     const updatedThreeCases = { ...state.threeCases };
     if (threed.fileObj) {
-      updatedThreeCases[caseUid] = { ...threed, colormap };
+      // TODO: make opacity for non-viewing chromosome configurable
+      updatedThreeCases[caseUid] = { ...threed, colormap, opacity };
     }
 
     const updatedConfigs = {
@@ -813,6 +817,28 @@ const configsReducer = (state, action) => {
     return updatedConfigs;
   } else if (action.type === "DELETE_ALL_CASES") {
     return defaultConfigs;
+  } else if (action.type === "UPDATE_THREED_OPTIONS") {
+    const { updatedOptions } = action;
+    const updatedThreeCases = {};
+    for (const caseUid in state.threeCases) {
+      const threeCase = { ...state.threeCases[caseUid] };
+      for (const optionName in updatedOptions) {
+        threeCase[optionName] = updatedOptions[optionName];
+      }
+      updatedThreeCases[caseUid] = threeCase;
+    }
+
+    const updatedConfigs = {
+      cases: state.cases,
+      pairedLocks: state.pairedLocks,
+      threeCases: updatedThreeCases,
+      positionedTracks: state.positionedTracks,
+      positionedTracksToCaseUid: state.positionedTracksToCaseUid,
+      chromInfoPath: state.chromInfoPath,
+      viewConfigs: state.viewConfigs,
+      numViews: state.numViews,
+    };
+    return updatedConfigs;
   }
   return defaultConfigs;
 };
@@ -877,6 +903,7 @@ const ConfigProvider = (props) => {
     dispatchConfigsAction({ type: "LOAD_CONFIG", config, g3dBlobs });
   };
 
+  // TODO: check if need xydomains
   const deleteCaseHandler = (caseUid) => {
     dispatchConfigsAction({ type: "DELETE_CASE", caseUid });
   };
@@ -900,6 +927,15 @@ const ConfigProvider = (props) => {
     return copiedCases;
   };
 
+  // TODO: check if need xyDomains
+  const updateThreedOptionsHandler = (updatedOptions, caseUid) => {
+    dispatchConfigsAction({
+      type: "UPDATE_THREED_OPTIONS",
+      updatedOptions,
+      caseUid,
+    });
+  };
+
   const configContext = {
     cases: configs.cases,
     pairedLocks: configs.pairedLocks,
@@ -921,6 +957,7 @@ const ConfigProvider = (props) => {
     updateTrackOptions: updateTrackOptionsHandler,
     loadConfig: loadConfigHandler,
     getCaseCopy: getCasesCopyHandler,
+    updateThreedOptions: updateThreedOptionsHandler,
   };
 
   return (

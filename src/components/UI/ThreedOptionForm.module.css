@@ -1,0 +1,38 @@
+.option label {
+  font-size: 14px;
+}
+
+.option input {
+  text-align: left;
+  background-color: whitesmoke;
+  border: 1px solid gray;
+  border-radius: 3px;
+  margin-left: auto;
+}
+
+.option span {
+  font-size: 14px;
+  margin-left: auto;
+  border-left: 20px solid #000;
+  padding-left: 10px;
+}
+
+div.option {
+  display: flex;
+  margin-bottom: 5px;
+  align-items: center;
+}
+
+.action button {
+  width: 100%;
+  background-color: #dddddd;
+  border: 1px solid dimgrey;
+  padding-top: 5px;
+  padding-bottom: 5px;
+  cursor: pointer;
+  font-weight: 500;
+}
+
+.action button:hover {
+  background-color: lightgray;
+}

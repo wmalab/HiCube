@@ -4,6 +4,7 @@ import Collapsible from "../UI/Collapsible";
 import DisplayOptions from "../UI/DisplayOptions";
 import TrackOptionList from "../UI/TrackOptionList";
 import SizeAdjust from "./SizeAdjust";
+import ThreedOptions from "../UI/ThreedOptions";
 
 // TODO: group by cases, then the main heatmap options
 // then list of other tracks
@@ -235,6 +236,11 @@ const CaseOptions = (props) => {
         caseUid={props.caseUid}
         trackUid={props.views[0]["2d"].contents[0].uid}
         trackName={props.views[0]["2d"].contents[0].name}
+        mainLocation={props.mainLocation}
+        zoomLocation={props.zoomLocation}
+      />
+      <ThreedOptions 
+        caseUid={props.caseUid}
         mainLocation={props.mainLocation}
         zoomLocation={props.zoomLocation}
       />

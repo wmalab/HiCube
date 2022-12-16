@@ -509,6 +509,7 @@ const ThreeTrack = (props) => {
                 chroms={g3dChroms}
                 segmentData={zoomSegmentData[category]}
                 chromColors={chromColors}
+                opacity={threed.opacity}
                 viewingBinRanges={zoomBinRanges}
                 viewingChroms={zoomChroms}
                 showViewRangeOnly={true}
@@ -542,6 +543,7 @@ const ThreeTrack = (props) => {
               chroms={g3dChroms}
               segmentData={segmentData[category]}
               chromColors={chromColors}
+              opacity={threed.opacity}
               viewingBinRanges={viewingBinRanges}
               viewingChroms={viewingChroms}
               showViewRangeOnly={false}

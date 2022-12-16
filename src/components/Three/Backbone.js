@@ -22,7 +22,7 @@ const Backbone = (props) => {
   const color = color2rgb(props.color);
   const color2 = color2rgb("white"); // for regions that is not visible
   const transparent = !visible;
-  const opacity = transparent ? 0.1 : 1; // TODO make it changeable
+  const opacity = transparent ? props.opacity : 1; // TODO make it changeable
   // TODO: fill invisible chromsome with its chosen color instead of gray
   const segmentColors = {};
 

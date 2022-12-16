@@ -12,6 +12,7 @@ const Scene = (props) => {
     chroms, // all chromosomes
     segmentData, // index by chrom
     chromColors,
+    opacity,
     viewingBinRanges,
     viewingChroms,
     showViewRangeOnly,
@@ -58,6 +59,7 @@ const Scene = (props) => {
           segmentData={segmentData[chrom]}
           color={color}
           visible={isViewing}
+          opacity={opacity}
           showViewRangeOnly={showViewRangeOnly}
           binRanges={viewingBinRanges[chrom]} // this can be undefined for not viewing chroms
         />

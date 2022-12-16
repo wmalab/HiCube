@@ -21,6 +21,7 @@ const ConfigContext = React.createContext({
   updateTrackOptions: () => {},
   loadConfig: () => {},
   getCaseCopy: () => {},
+  updateThreedOptions: () => {},
 });
 
 export default ConfigContext;
