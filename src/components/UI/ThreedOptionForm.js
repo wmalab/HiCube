@@ -26,7 +26,7 @@ const ThreedOptionForm = (props) => {
           </div>
           <Collapsible title="Chromosome Colormap">
             {Object.keys(values.colormap).map((chrom) => (
-              <div className={classes.option}>
+              <div className={classes.option} key={chrom}>
                 <label>{chrom}</label>
                 <span style={{ borderLeftColor: values.colormap[chrom] }}>
                   {values.colormap[chrom]}
