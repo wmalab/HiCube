@@ -10,6 +10,7 @@ import ConfigContext from "../../store/config-context";
 
 import HiGlassWrapper from "./HiGlassWrapper";
 import { download } from "../../utils";
+import { saveSvgAsPng } from "save-svg-as-png";
 
 // TODO: may need useCallback for handler function
 // DONE: handle mainLocation sync
@@ -72,9 +73,13 @@ const HiGlassCase = (props, ref) => {
   };
 
   const exportViewsToPng = () => {
-    hgcRef.current.api.exportAsPngBlobPromise().then((blob) => {
-      download(blob, "Views2D.png");
-    });
+    // hgcRef.current.api.exportAsPngBlobPromise().then((blob) => {
+    //   download(blob, "Views2D.png");
+    // });
+    const svgStr = hgcRef.current.api.exportAsSvg();
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(svgStr, "image/svg+xml");
+    saveSvgAsPng(doc.documentElement, "Views2D.png", { encoderOptions: 1 });
   };
 
   useImperativeHandle(ref, () => ({
@@ -346,7 +351,10 @@ const HiGlassCase = (props, ref) => {
   }, [props.rangeSelection]);
 
   useEffect(() => {
-    if (props.overlays.data1d.length === 0 && props.overlays.data2d.length === 0) {
+    if (
+      props.overlays.data1d.length === 0 &&
+      props.overlays.data2d.length === 0
+    ) {
       // dispatchViewConfigAction({ type: "CLEAR_OVERLAYS" });
       if (mainLocation && mainLocation.xDomain && mainLocation.yDomain) {
         configCtx.removeOverlays([
@@ -366,16 +374,19 @@ const HiGlassCase = (props, ref) => {
       // BEWARE: zoomLocation is local value,
       // props.rangeSelection is passed as props
       // they have different name
-      configCtx.updateOverlays(props.overlays.data1d.concat(props.overlays.data2d), [
-        {
-          xDomain: props.mainLocation.xDomain,
-          yDomain: props.mainLocation.yDomain,
-        },
-        {
-          xDomain: props.rangeSelection && props.rangeSelection.xDomain,
-          yDomain: props.rangeSelection && props.rangeSelection.yDomain,
-        },
-      ]);
+      configCtx.updateOverlays(
+        props.overlays.data1d.concat(props.overlays.data2d),
+        [
+          {
+            xDomain: props.mainLocation.xDomain,
+            yDomain: props.mainLocation.yDomain,
+          },
+          {
+            xDomain: props.rangeSelection && props.rangeSelection.xDomain,
+            yDomain: props.rangeSelection && props.rangeSelection.yDomain,
+          },
+        ]
+      );
     }
   }, [props.overlays]);
 
