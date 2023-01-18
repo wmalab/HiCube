@@ -15,7 +15,7 @@ const GenomePositionInput = ({ label, ...props }) => {
   return (
     <div>
       <div className={classes.position}>
-        <label>{label}:</label>
+        <label>{label}</label>
         <input {...field} {...props} />
       </div>
       {meta.touched && meta.error && (
@@ -26,7 +26,7 @@ const GenomePositionInput = ({ label, ...props }) => {
 };
 
 const OverlayListItem = (props) => {
-  const { uid, extent, options, onSubmit } = props;
+  const { uid, extent, score, options, onSubmit } = props;
   // validate genome location
   // X axis or Y axis should only be on one chromosome
   // convert genome position string back to abs position when submit
@@ -61,6 +61,7 @@ const OverlayListItem = (props) => {
       initialValues={{
         initialXDomain: initialXDomain,
         initialYDomain: initialYDomain,
+        score: score,
         options: options,
       }}
       onSubmit={(values, { setSubmitting }) => {
@@ -75,7 +76,15 @@ const OverlayListItem = (props) => {
               ...getGenomePosition(values.initialYDomain),
             ];
           }
-          onSubmit(uid, newExtent, values.options);
+          // if score is string convert to float or null
+          let newScore = values.score;
+          if (typeof newScore === "string") {
+            newScore = parseFloat(newScore);
+            if (Number.isNaN(newScore)) {
+              newScore = null;
+            }
+          }
+          onSubmit(uid, newExtent, newScore, values.options);
           setSubmitting(false);
         }, 400);
       }}
@@ -84,17 +93,20 @@ const OverlayListItem = (props) => {
         <Form>
           <Collapsible title="Genome Positions">
             <GenomePositionInput
-              label="X axis"
+              label="X Axis"
               name="initialXDomain"
               validate={validateGenomePositionOnSameChrom}
             />
             {extent && extent.length >= 4 && (
               <GenomePositionInput
-                label="Y axis"
+                label="Y Axis"
                 name="initialYDomain"
                 validate={validateGenomePositionOnSameChrom}
               />
             )}
+          </Collapsible>
+          <Collapsible title="Additional Fields">
+            <Option label="Score" name="score" />
           </Collapsible>
           <Collapsible title="2D Options">
             <ColorOption label="Fill Color" name="options.higlass.fill" />
@@ -131,7 +143,11 @@ const OverlayListItem = (props) => {
                 name="options.threed.drawLine"
                 type="checkbox"
               />
-              <ColorOption label="Color" name="options.threed.lineColor" />
+              <ColorOption
+                label="Color"
+                name="options.threed.lineColor"
+                asScore
+              />
               <Option
                 label="Width"
                 name="options.threed.lineWidth"
@@ -147,7 +163,11 @@ const OverlayListItem = (props) => {
                 name="options.threed.drawAnchor1"
                 type="checkbox"
               />
-              <ColorOption label="Color" name="options.threed.anchor1Color" />
+              <ColorOption
+                label="Color"
+                name="options.threed.anchor1Color"
+                asScore
+              />
               <Option
                 label="Radius"
                 name="options.threed.anchor1Radius"
@@ -176,7 +196,11 @@ const OverlayListItem = (props) => {
                 name="options.threed.drawAnchor2"
                 type="checkbox"
               />
-              <ColorOption label="Color" name="options.threed.anchor2Color" />
+              <ColorOption
+                label="Color"
+                name="options.threed.anchor2Color"
+                asScore
+              />
               <Option
                 label="Radius"
                 name="options.threed.anchor2Radius"

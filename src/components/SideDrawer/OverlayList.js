@@ -130,30 +130,157 @@ const OverlayItem = (props) => {
 };
 */
 
+const ColormapForm = (props) => {
+  const colormaps = [
+    "OrRd",
+    "BuGn",
+    "BuPu",
+    "GnBu",
+    "PuBu",
+    "PuBuGn",
+    "Blues",
+    "Greens",
+    "Greys",
+    "PuRd",
+    "RdPu",
+    "YlGn",
+    "YlGnBu",
+    "YlOrBr",
+    "YlOrRd",
+    "Oranges",
+    "Purples",
+    "Reds",
+    "BrBG",
+    "PiYG",
+    "PRGn",
+    "PuOr",
+    "RdBu",
+    "RdGy",
+    "RdYlBu",
+    "RdYlGn",
+    "Spectral",
+  ];
+
+  return (
+    <Formik
+      enableReinitialize
+      initialValues={{
+        name: props.name,
+        vmin: props.vmin,
+        vmax: props.vmax,
+      }}
+      onSubmit={(values, { setSubmitting }) => {
+        setTimeout(() => {
+          props.onSubmit(props.colormapKey, values);
+          setSubmitting(false);
+        }, 400);
+      }}
+    >
+      {({ values }) => (
+        <Form>
+          <div className={classes.option}>
+            <label>Colormap</label>
+            <Field as="select" name="name">
+              {colormaps.map((cmap) => (
+                <option key={cmap} value={cmap}>
+                  {cmap}
+                </option>
+              ))}
+            </Field>
+          </div>
+          <Option label="vmin" name="vmin" />
+          <Option label="vmax" name="vmax" />
+          <div className={classes.action}>
+            <button type="submit">Update</button>
+          </div>
+        </Form>
+      )}
+    </Formik>
+  );
+};
+
 const OverlayList = (props) => {
+  function createOverlayListItem(overlay, index) {
+    return (
+      <Collapsible
+        key={overlay.uid}
+        title={`Annotation #${index + 1}`}
+        onDelete={props.onRemoveOverlay.bind(null, overlay.uid)}
+        defaultCollapsed
+      >
+        <OverlayListItem
+          key={overlay.uid}
+          uid={overlay.uid}
+          extent={overlay.extent}
+          score={overlay.score}
+          options={overlay.options}
+          onSubmit={props.onUpdateOverlay}
+          genomeAssembly={props.genomeAssembly}
+        />
+      </Collapsible>
+    );
+  }
+
+  const overlayList1d = props.overlays.data1d.map(createOverlayListItem);
+  const overlayList2d = props.overlays.data2d.map(createOverlayListItem);
+
   return (
     <>
-      {props.overlays.map((overlay, index) => {
-        return (
-          <Collapsible
-            key={overlay.uid}
-            title={`Annotation #${index + 1}`}
-            onDelete={props.onRemoveOverlay.bind(null, overlay.uid)}
-            defaultCollapsed
-          >
-            <OverlayListItem
-              key={overlay.uid}
-              uid={overlay.uid}
-              extent={overlay.extent}
-              options={overlay.options}
-              onSubmit={props.onUpdateOverlay}
-              genomeAssembly={props.genomeAssembly}
+      <Collapsible title="Annotations Global Configuration">
+        {overlayList1d.length > 0 && (
+          <Collapsible title="1D Annotations Colors">
+            <ColormapForm
+              colormapKey="colormap1d"
+              name={props.overlays.colormap1d.name}
+              vmin={props.overlays.colormap1d.vmin}
+              vmax={props.overlays.colormap1d.vmax}
+              onSubmit={props.onUpdateOverlayCmap}
             />
           </Collapsible>
-        );
-      })}
+        )}
+        {overlayList2d.length > 0 && (
+          <Collapsible title="2D Annotations Colors">
+            <ColormapForm
+              colormapKey="colormap2d"
+              name={props.overlays.colormap2d.name}
+              vmin={props.overlays.colormap2d.vmin}
+              vmax={props.overlays.colormap2d.vmax}
+              onSubmit={props.onUpdateOverlayCmap}
+            />
+          </Collapsible>
+        )}
+      </Collapsible>
+      {overlayList1d.length > 0 && (
+        <Collapsible title="1D Annotations">{overlayList1d}</Collapsible>
+      )}
+      {overlayList2d.length > 0 && (
+        <Collapsible title="2D Annotations">{overlayList2d}</Collapsible>
+      )}
     </>
   );
+  // return (
+  //   <>
+  //     {props.overlays.map((overlay, index) => {
+  //       return (
+  //         <Collapsible
+  //           key={overlay.uid}
+  //           title={`Annotation #${index + 1}`}
+  //           onDelete={props.onRemoveOverlay.bind(null, overlay.uid)}
+  //           defaultCollapsed
+  //         >
+  //           <OverlayListItem
+  //             key={overlay.uid}
+  //             uid={overlay.uid}
+  //             extent={overlay.extent}
+  //             options={overlay.options}
+  //             onSubmit={props.onUpdateOverlay}
+  //             genomeAssembly={props.genomeAssembly}
+  //           />
+  //         </Collapsible>
+  //       );
+  //     })}
+  //   </>
+  // );
 };
 
 export default OverlayList;

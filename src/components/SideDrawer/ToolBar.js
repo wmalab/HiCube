@@ -81,6 +81,7 @@ const ToolBar = (props) => {
           overlays={props.overlays}
           onUpdateOverlay={props.onUpdateOverlay}
           onRemoveOverlay={props.onRemoveOverlay}
+          onUpdateOverlayCmap={props.onUpdateOverlayCmap}
           genomeAssembly={props.genomeAssembly}
         />
       </Collapsible>

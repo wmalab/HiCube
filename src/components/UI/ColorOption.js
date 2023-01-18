@@ -10,6 +10,7 @@ const ColorOption = (props) => {
     <div className={classes.option}>
       <label>{props.label}</label>
       <Field name={props.name} as="select">
+        {props.asScore && <option value="score">* By Score *</option>}
         {colorKeys.map((key) => (
           <option key={key} value={AVAILABLE_COLORS[key].value}>
             {AVAILABLE_COLORS[key].name}

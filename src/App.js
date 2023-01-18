@@ -6,16 +6,26 @@ import GenomePositionBar from "./components/GenomePositionSearch/GenomePositionB
 import { defaultOptions as options } from "./configs/default-config";
 // import GridLayout from "react-grid-layout";
 import ThreeTrack from "./components/Three/ThreeTrack";
-import { uid, strToInt } from "./utils";
+import { uid, strToInt, download } from "./utils";
 import { ChromosomeInfo } from "higlass";
 import ErrorBoundary from "./components/UI/ErrorBoundary";
 // import "../node_modules/react-grid-layout/css/styles.css";
 // import "../node_modules/react-resizable/css/styles.css";
 
 const initOverlay1D = (extent) => {
+  let loc, score;
+  if (extent.length > 2) {
+    loc = extent.slice(0, 2);
+    score = extent[2];
+  } else {
+    loc = extent;
+    score = null;
+  }
+  const defaultColor = score === null ? "blue" : "score";
   return {
     uid: "overlay-1d-" + uid(),
-    extent: extent,
+    extent: loc,
+    score: score,
     options: {
       higlass: {
         fill: "blue",
@@ -25,18 +35,18 @@ const initOverlay1D = (extent) => {
         strokeWidth: 0,
       },
       threed: {
-        lineColor: "blue",
+        lineColor: defaultColor,
         lineWidth: 5,
         drawLine: true,
         drawAnchor1: false,
-        anchor1Color: "blue",
+        anchor1Color: defaultColor,
         anchor1Label: "",
         anchor1LabelSize: "12px",
         anchor1LabelColor: "black",
         anchor1LabelWeight: "600",
         anchor1Radius: 1,
         drawAnchor2: false,
-        anchor2Color: "blue",
+        anchor2Color: defaultColor,
         anchor2Label: "",
         anchor2LabelSize: "12px",
         anchor2LabelColor: "black",
@@ -48,9 +58,19 @@ const initOverlay1D = (extent) => {
 };
 
 const initOverlay2D = (extent) => {
+  let loc, score;
+  if (extent.length > 4) {
+    loc = extent.slice(0, 4);
+    score = extent[4];
+  } else {
+    loc = extent;
+    score = null;
+  }
+  const defaultColor = score === null ? "blue" : "score";
   return {
     uid: "overlay-2d-" + uid(),
-    extent: extent, // this is not nested array
+    extent: loc, // this is not nested array
+    score: score,
     options: {
       higlass: {
         fill: "blue",
@@ -60,18 +80,18 @@ const initOverlay2D = (extent) => {
         strokeWidth: 0,
       },
       threed: {
-        lineColor: "blue",
+        lineColor: defaultColor,
         lineWidth: 1,
         drawLine: true,
         drawAnchor1: true,
-        anchor1Color: "blue",
+        anchor1Color: defaultColor,
         anchor1Label: "",
         anchor1LabelSize: "12px",
         anchor1LabelColor: "black",
         anchor1LabelWeight: "600",
         anchor1Radius: 1,
         drawAnchor2: true,
-        anchor2Color: "blue",
+        anchor2Color: defaultColor,
         anchor2Label: "",
         anchor2LabelSize: "12px",
         anchor2LabelColor: "black",
@@ -82,31 +102,207 @@ const initOverlay2D = (extent) => {
   };
 };
 
+const defaultOverlays = {
+  data1d: [],
+  data2d: [],
+  min1d: Number.POSITIVE_INFINITY,
+  max1d: Number.NEGATIVE_INFINITY,
+  min2d: Number.POSITIVE_INFINITY,
+  max2d: Number.NEGATIVE_INFINITY,
+  colormap1d: { name: "OrRd", vmin: null, vmax: null },
+  colormap2d: { name: "OrRd", vmin: null, vmax: null },
+};
+
+const findNewMinMax = (oldMin, oldMax, data) => {
+  let newMin = oldMin;
+  let newMax = oldMax;
+  let dataArr;
+  if (Array.isArray(data)) {
+    dataArr = data;
+  } else {
+    dataArr = [data];
+  }
+  for (const el of dataArr) {
+    if (el.score !== null && el.score !== undefined) {
+      newMin = Math.min(newMin, el.score);
+      newMax = Math.max(newMax, el.score);
+    }
+  }
+  return [newMin, newMax];
+};
+
+const findNewMin = (data) => {
+  let newMin = Number.POSITIVE_INFINITY;
+  for (const el of data) {
+    if (el.score !== null && el.score !== undefined) {
+      newMin = Math.min(newMin, el.score);
+    }
+  }
+  return newMin;
+};
+
+const findNewMax = (data) => {
+  let newMax = Number.NEGATIVE_INFINITY;
+  for (const el of data) {
+    if (el.score !== null && el.score !== undefined) {
+      newMax = Math.max(newMax, el.score);
+    }
+  }
+  return newMax;
+};
+
 const overlaysReducer = (state, action) => {
   if (action.type === "ADD_1D") {
-    return state.concat(initOverlay1D(action.extent));
-  } else if (action.type === "ADD_2D") {
-    return state.concat(initOverlay2D(action.extent));
-  } else if (action.type === "ADD_BATCH") {
-    return state.concat(
-      action.extent1D.map((extent) => initOverlay1D(extent)),
-      action.extent2D.map((extent) => initOverlay2D(extent))
+    const data1dObj = initOverlay1D(action.extent);
+    const updatedData1d = state.data1d.concat(data1dObj);
+    const [updatedMin1d, updatedMax1d] = findNewMinMax(
+      state.min1d,
+      state.max1d,
+      data1dObj
     );
+    const updatedOverlays = {
+      data1d: updatedData1d,
+      data2d: state.data2d,
+      min1d: updatedMin1d,
+      max1d: updatedMax1d,
+      min2d: state.min2d,
+      max2d: state.max2d,
+      colormap1d: state.colormap1d,
+      colormap2d: state.colormap2d,
+    };
+    return updatedOverlays;
+  } else if (action.type === "ADD_2D") {
+    const data2dObj = initOverlay2D(action.extent);
+    const updatedData2d = state.data2d.concat(data2dObj);
+    const [updatedMin2d, updatedMax2d] = findNewMinMax(
+      state.min2d,
+      state.max2d,
+      data2dObj
+    );
+    const updatedOverlays = {
+      data1d: state.data1d,
+      data2d: updatedData2d,
+      min1d: state.min1d,
+      max1d: state.max1d,
+      min2d: updatedMin2d,
+      max2d: updatedMax2d,
+      colormap1d: state.colormap1d,
+      colormap2d: state.colormap2d,
+    };
+    return updatedOverlays;
+  } else if (action.type === "ADD_BATCH") {
+    const data1dArr = action.extent1D.map((extent) => initOverlay1D(extent));
+    const data2dArr = action.extent2D.map((extent) => initOverlay2D(extent));
+    const updatedData1d = state.data1d.concat(data1dArr);
+    const updatedData2d = state.data2d.concat(data2dArr);
+    const [updatedMin1d, updatedMax1d] = findNewMinMax(
+      state.min1d,
+      state.max1d,
+      data1dArr
+    );
+    const [updatedMin2d, updatedMax2d] = findNewMinMax(
+      state.min2d,
+      state.max2d,
+      data2dArr
+    );
+    const updatedOverlays = {
+      data1d: updatedData1d,
+      data2d: updatedData2d,
+      min1d: updatedMin1d,
+      max1d: updatedMax1d,
+      min2d: updatedMin2d,
+      max2d: updatedMax2d,
+      colormap1d: state.colormap1d,
+      colormap2d: state.colormap2d,
+    };
+    return updatedOverlays;
   } else if (action.type === "CLEAR") {
-    return [];
+    return defaultOverlays;
   } else if (action.type === "REMOVE") {
-    return state.filter((overlay) => overlay.uid !== action.uuid);
+    const updatedOverlays = { ...state };
+    let dataK, minK, maxK;
+    if (action.uuid.startsWith("overlay-1d")) {
+      dataK = "data1d";
+      minK = "min1d";
+      maxK = "max1d";
+    } else if (action.uuid.startsWith("overlay-2d")) {
+      dataK = "data2d";
+      minK = "min2d";
+      maxK = "max2d";
+    } else {
+      return updatedOverlays;
+    }
+    const overlayIndex = state[dataK].findIndex(
+      (overlay) => overlay.uid === action.uuid
+    );
+    if (overlayIndex >= 0) {
+      const score = state[dataK][overlayIndex].score;
+      // delete overlay by uuid
+      updatedOverlays[dataK] = state[dataK].filter(
+        (overlay) => overlay.uid !== action.uuid
+      );
+      // update min or max score if the deleted overlay is min or max
+      if (score === state[minK]) {
+        updatedOverlays[minK] = findNewMin(updatedOverlays[dataK]);
+      }
+      if (score === state[maxK]) {
+        updatedOverlays[maxK] = findNewMax(updatedOverlays[dataK]);
+      }
+    }
+    return updatedOverlays;
   } else if (action.type === "UPDATE") {
-    const { uuid, extent, options } = action;
-    const overlayIndex = state.findIndex((overlay) => overlay.uid === uuid);
-    const overlay = state[overlayIndex];
-    const updatedOverlay = { ...overlay, extent: extent, options: options };
-    const updatedOverlays = [...state];
-    updatedOverlays[overlayIndex] = updatedOverlay;
+    const { uuid, extent, score, options } = action;
+    const updatedOverlays = { ...state };
+    let dataK, minK, maxK;
+    if (uuid.startsWith("overlay-1d")) {
+      dataK = "data1d";
+      minK = "min1d";
+      maxK = "max1d";
+    } else if (uuid.startsWith("overlay-2d")) {
+      dataK = "data2d";
+      minK = "min2d";
+      maxK = "max2d";
+    } else {
+      return updatedOverlays;
+    }
+    const overlayIndex = state[dataK].findIndex(
+      (overlay) => overlay.uid === uuid
+    );
+    if (overlayIndex >= 0) {
+      const overlay = state[dataK][overlayIndex];
+      const updatedOverlay = {
+        ...overlay,
+        score: score,
+        extent: extent,
+        options: options,
+      };
+      updatedOverlays[dataK] = [...state[dataK]];
+      updatedOverlays[dataK][overlayIndex] = updatedOverlay;
+      // update min and max score if need
+      if (score !== null && score > state[maxK]) {
+        updatedOverlays[maxK] = score;
+      }
+      if (score !== null && score < state[minK]) {
+        updatedOverlays[minK] = score;
+      }
+    }
     return updatedOverlays;
   } else if (action.type === "REPLACE") {
     return action.overlays;
+  } else if (action.type === "UPDATE_COLORMAP") {
+    const { colormapKey, options } = action;
+    const updatedOverlays = { ...state };
+    if (colormapKey === "colormap1d" || colormapKey === "colormap2d") {
+      updatedOverlays[colormapKey] = { ...state[colormapKey] };
+      for (const optionName in options) {
+        if (optionName in state[colormapKey]) {
+          updatedOverlays[colormapKey][optionName] = options[optionName];
+        }
+      }
+    }
+    return updatedOverlays;
   }
+  return defaultOverlays;
 };
 
 // TODO: add HGC dynamically with button click
@@ -148,7 +344,10 @@ export default function App() {
     fromId: null,
   });
 
-  const [overlays, dispatchOverlaysAction] = useReducer(overlaysReducer, []);
+  const [overlays, dispatchOverlaysAction] = useReducer(
+    overlaysReducer,
+    defaultOverlays
+  );
 
   const [trackSourceServers, setTrackSourceServers] = useState([]);
 
@@ -219,7 +418,7 @@ export default function App() {
       const add2D = [];
       for (const line of lines) {
         const entries = line.split(/\s+/);
-        if (entries.length === 4) {
+        if (entries.length === 4 || entries.length === 5) {
           // 1D annotation
           const extent = [];
           for (let i = 0; i < 4; i += 2) {
@@ -227,15 +426,21 @@ export default function App() {
               chromInfo.chrToAbs([entries[i], strToInt(entries[i + 1])])
             );
           }
+          if (entries.length === 5) {
+            extent.push(parseFloat(entries[4]));
+          }
           add1D.push(extent);
         }
-        if (entries.length === 8) {
+        if (entries.length === 8 || entries.length === 9) {
           // 2D annotation
           const extent = [];
           for (let i = 0; i < 8; i += 2) {
             extent.push(
               chromInfo.chrToAbs([entries[i], strToInt(entries[i + 1])])
             );
+          }
+          if (entries.length === 9) {
+            extent.push(parseFloat(entries[8]));
           }
           add2D.push(extent);
         }
@@ -305,17 +510,27 @@ export default function App() {
     }
   };
 
-  const updateOverlayHandler = (overlayUid, overlayExtent, overlayOptions) => {
+  const updateOverlayHandler = (
+    overlayUid,
+    overlayExtent,
+    overlayScore,
+    overlayOptions
+  ) => {
     dispatchOverlaysAction({
       type: "UPDATE",
       uuid: overlayUid,
       extent: overlayExtent,
+      score: overlayScore,
       options: overlayOptions,
     });
   };
 
   const removeOverlayHandler = (overlayUid) => {
     dispatchOverlaysAction({ type: "REMOVE", uuid: overlayUid });
+  };
+
+  const updateOverlayCmapHandler = (colormapKey, options) => {
+    dispatchOverlaysAction({ type: "UPDATE_COLORMAP", colormapKey, options });
   };
 
   // const nViews = configCtx.numViews > 1 ? 2 : 1;
@@ -436,25 +651,39 @@ export default function App() {
   };
 
   const exportAnnotationsHandler = () => {
+    // convert old overlays format to new
     // convert overlays to chr positions
-    if (genomeAssembly && overlays.length > 0) {
+    if (genomeAssembly) {
       ChromosomeInfo(genomeAssembly.chromInfoPath, (chromInfo) => {
-        const lines = overlays.map((overlay) => {
-          const { extent } = overlay;
+        const createLines = (overlay) => {
+          const { extent, score } = overlay;
           const loc = [];
           // TODO: what format for exporting annotations? BED-like?
           for (const absPos of extent) {
             const [chrom, pos] = chromInfo.absToChr(absPos);
             loc.push(chrom, pos);
           }
+          if (score !== null) {
+            loc.push(score);
+          }
           return loc.join("\t");
-        });
-        const blob = new Blob([lines.join("\n")], { type: "text/plain" });
-        const blobUrl = URL.createObjectURL(blob);
-        const link = document.createElement("a");
-        link.href = blobUrl;
-        link.download = "annotations.txt";
-        link.click();
+        };
+        let lines = [];
+        if (overlays.data1d.length > 0) {
+          lines = lines.concat(overlays.data1d.map(createLines));
+        }
+        if (overlays.data2d.length > 0) {
+          lines = lines.concat(overlays.data2d.map(createLines));
+        }
+        if (lines.length > 0) {
+          const blob = new Blob([lines.join("\n")], { type: "text/plain" });
+          download(blob, "annotations.txt");
+          // const blobUrl = URL.createObjectURL(blob);
+          // const link = document.createElement("a");
+          // link.href = blobUrl;
+          // link.download = "annotations.txt";
+          // link.click();
+        }
       });
     }
   };
@@ -542,6 +771,7 @@ export default function App() {
         onUpdateOverlay={updateOverlayHandler}
         onRemoveOverlays={clearOverlaysHandler}
         onRemoveOverlay={removeOverlayHandler}
+        onUpdateOverlayCmap={updateOverlayCmapHandler}
         exportSvg={exportSvg}
         onExportSvg={exportSvgHandler}
         onExportConfig={exportConfigHandler}

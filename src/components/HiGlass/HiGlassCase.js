@@ -346,7 +346,7 @@ const HiGlassCase = (props, ref) => {
   }, [props.rangeSelection]);
 
   useEffect(() => {
-    if (props.overlays.length === 0) {
+    if (props.overlays.data1d.length === 0 && props.overlays.data2d.length === 0) {
       // dispatchViewConfigAction({ type: "CLEAR_OVERLAYS" });
       if (mainLocation && mainLocation.xDomain && mainLocation.yDomain) {
         configCtx.removeOverlays([
@@ -366,7 +366,7 @@ const HiGlassCase = (props, ref) => {
       // BEWARE: zoomLocation is local value,
       // props.rangeSelection is passed as props
       // they have different name
-      configCtx.updateOverlays(props.overlays, [
+      configCtx.updateOverlays(props.overlays.data1d.concat(props.overlays.data2d), [
         {
           xDomain: props.mainLocation.xDomain,
           yDomain: props.mainLocation.yDomain,

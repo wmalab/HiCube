@@ -6,10 +6,27 @@
   padding-bottom: 5px;
   cursor: pointer;
   font-weight: 500;
+  margin-bottom: 5px;
 }
 
-/* .action button:hover {
-  background-color: #ebe4e4;
-  border-color: dimgrey;
-  font-weight: bold;
-} */
+.action button:hover {
+  background-color: lightgray;
+}
+
+.option {
+  display: flex;
+  align-items: center;
+  margin-bottom: 5px;
+}
+
+.option label {
+  font-size: 14px;
+}
+
+.option select {
+  text-align: left;
+  background-color: whitesmoke;
+  border: 1px solid gray;
+  border-radius: 3px;
+  margin-left: auto;
+}

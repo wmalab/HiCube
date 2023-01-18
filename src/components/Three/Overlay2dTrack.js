@@ -2,7 +2,23 @@ import React from "react";
 import { Line, Html } from "@react-three/drei";
 
 const Overlay2dTrack = (props) => {
+  function setColor(c) {
+    if (c === "score") {
+      console.log("scoreColor", props.scoreColor);
+      if (props.scoreColor) {
+        return props.scoreColor;
+      }
+      // if no score or valid colormap default color is black
+      return "Black";
+    }
+    // use the manually chosen color
+    return c;
+  }
+
   const { anchor1, anchor2, options } = props;
+  const lineColor = setColor(options.lineColor);
+  const anchor1Color = setColor(options.anchor1Color);
+  const anchor2Color = setColor(options.anchor2Color);
 
   // TODO: take the middle point, allow for more option later
   let point1, point2;
@@ -18,7 +34,7 @@ const Overlay2dTrack = (props) => {
       {options.drawAnchor1 && point1 && (
         <mesh position={point1}>
           <sphereGeometry args={[+options.anchor1Radius, 16, 16]} />
-          <meshBasicMaterial color={options.anchor1Color} />
+          <meshBasicMaterial color={anchor1Color} />
           {options.anchor1Label && (
             <Html
               style={{
@@ -35,7 +51,7 @@ const Overlay2dTrack = (props) => {
       {options.drawAnchor2 && point2 && (
         <mesh position={point2}>
           <sphereGeometry args={[+options.anchor2Radius, 16, 16]} />
-          <meshBasicMaterial color={options.anchor2Color} />
+          <meshBasicMaterial color={anchor2Color} />
           {options.anchor2Label && (
             <Html
               style={{
@@ -54,7 +70,7 @@ const Overlay2dTrack = (props) => {
           points={[point1, point2]}
           lineWidth={+options.lineWidth}
           // dashed={true}
-          color={options.lineColor}
+          color={lineColor}
         />
       )}
     </group>

@@ -77,7 +77,6 @@ export const lastElem = (arr) => {
   return arr[arr.length - 1];
 };
 
-
 // see https://dev.to/nombrekeff/download-file-from-blob-21ho
 // and https://stackoverflow.com/questions/61203503/alternative-to-mssaveoropenblob-on-chrome
 export const download = (blob, filename) => {
