@@ -79,7 +79,10 @@ const HiGlassCase = (props, ref) => {
     const svgStr = hgcRef.current.api.exportAsSvg();
     const parser = new DOMParser();
     const doc = parser.parseFromString(svgStr, "image/svg+xml");
-    saveSvgAsPng(doc.documentElement, "Views2D.png", { encoderOptions: 1 });
+    saveSvgAsPng(doc.documentElement, "Views2D.png", {
+      encoderOptions: 1,
+      scale: 300 / 96,
+    });
   };
 
   useImperativeHandle(ref, () => ({
