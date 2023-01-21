@@ -254,6 +254,18 @@ const HiGlassCase = (props, ref) => {
     if (!fromId || fromId === props.id || !xDomain || !yDomain) {
       return;
     }
+    // id = "user_entered" are location from genome position bar
+    // need to notify the zoomTo location to parent,
+    // so genome position bar can be updated
+    if (fromId === "user_entered") {
+      notify.current = true;
+      try {
+        hgcRef.current.api.zoomTo("aa", ...xDomain, ...yDomain, 1);
+      } catch (error) {
+        console.log(error);
+      }
+      return;
+    }
     if (notifyTimer.current) {
       clearTimeout(notifyTimer.current);
     }
@@ -334,6 +346,18 @@ const HiGlassCase = (props, ref) => {
     } else if (props.rangeSelection.type === "UPDATE") {
       const { xDomain, yDomain, fromId } = props.rangeSelection;
       if (!fromId || fromId === props.id || !xDomain || !yDomain) {
+        return;
+      }
+      // id = "user_entered" are location from genome position bar
+      // need to notify the zoomTo location to parent,
+      // so genome position bar can be updated
+      if (fromId === "user_entered") {
+        notify.current = true;
+        try {
+          hgcRef.current.api.zoomTo("bb", ...xDomain, ...yDomain, 1);
+        } catch (error) {
+          console.log(error);
+        }
         return;
       }
       if (notifyTimer.current) {
