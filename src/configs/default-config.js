@@ -1,4 +1,4 @@
-export const defaultOptions = { bounded: false, mouseTool: "move", globalMousePosition: true };
+export const defaultOptions = { bounded: false, mouseTool: "move", globalMousePosition: true, pixelPreciseMarginPadding: true };
 export const defaultView = {
   initialXDomain: [1, 3200000000],
   autocompleteSource: "/api/v1/suggest/?d=OHJakQICQD6gTD7skx4EWA&",

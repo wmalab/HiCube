@@ -496,7 +496,11 @@ const ThreeTrack = (props) => {
   return (
     <>
       {props.zoomLocation.xDomain && props.zoomLocation.yDomain && (
-        <div className={classes.threeview} style={props.style}>
+        <div
+          className={classes.threeview}
+          style={{ height: props.panelHeight[1] }}
+          // style={props.style}
+        >
           {zoomPosition && zoomSegmentData && (
             <Canvas
               gl={{ preserveDrawingBuffer: true }}
@@ -530,7 +534,11 @@ const ThreeTrack = (props) => {
           )}
         </div>
       )}
-      <div className={classes.threeview} style={props.style}>
+      <div
+        className={classes.threeview}
+        style={{ height: props.panelHeight[0] }}
+        // style={props.style}
+      >
         {position && segmentData && (
           <Canvas
             gl={{ preserveDrawingBuffer: true }}

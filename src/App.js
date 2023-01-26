@@ -327,14 +327,16 @@ export default function App() {
 
   const [mouseTool, setMouseTool] = useState("move");
   const [exportSvg, setExportSvg] = useState(false);
-  const [panelSizes, setPanelSizes] = useState({
-    width2d: 350,
-    width3d: 350,
-    height3d: 350,
-  });
+  // const [panelSizes, setPanelSizes] = useState({
+  //   width2d: 350,
+  //   width3d: 350,
+  //   height3d: 350,
+  // });
+  const panelSizes = configCtx.panelSizes;
 
   const sizeChangeHandler = (sizes) => {
-    setPanelSizes(sizes);
+    // setPanelSizes(sizes);
+    configCtx.updatePanelSizes(sizes, [mainLocation, rangeSelection]);
   };
 
   const [rangeSelection, setRangeSelection] = useState({
@@ -631,7 +633,7 @@ export default function App() {
     dispatchOverlaysAction({ type: "CLEAR" });
     configBlob.text().then((text) => {
       const config = JSON.parse(text);
-      setPanelSizes(config.panelSizes);
+      // setPanelSizes(config.panelSizes);
       setGenomeAssembly(config.genomeAssembly);
       setTrackSourceServers(config.trackSourceServers);
       configCtx.loadConfig(config, g3dBlobs);
@@ -688,6 +690,14 @@ export default function App() {
     }
   };
 
+  const zoomPositionBarChangeHandler = (xyDomain) => {
+    configCtx.updateLocation([mainLocation, xyDomain]);
+  };
+
+  const basePositionBarChangeHandler = (xyDomain) => {
+    configCtx.updateLocation([xyDomain, rangeSelection]);
+  };
+
   console.log("refs", configCtx.hgcRefs);
   console.log("mainLocation", mainLocation);
   console.log("rangeselection", rangeSelection);
@@ -700,7 +710,7 @@ export default function App() {
         <div
           key={`${caseUid}-higlass`}
           className="content-item hgc"
-          style={{ width: panelSizes.width2d }}
+          style={{ width: panelSizes.higlass.width }}
         >
           <HiGlassCase
             id={caseUid}
@@ -729,7 +739,7 @@ export default function App() {
         <div
           key={`${caseUid}-threed`}
           className="content-item"
-          style={{ width: panelSizes.width3d }}
+          style={{ width: panelSizes.threed.width }}
         >
           <ThreeTrack
             threed={configCtx.threeCases[caseUid]}
@@ -744,7 +754,8 @@ export default function App() {
               exportSvg
             }
             onFinishExportSvg={finishExportSvgHandler}
-            style={{ height: panelSizes.height3d }}
+            panelHeight={panelSizes.threed.height}
+            // style={{ height: panelSizes.threed.height[0] }}
           />
         </div>
       );
@@ -783,10 +794,11 @@ export default function App() {
         <div className="genome-position-header">
           {caselist.length > 0 && rangeSelection && rangeSelection.xDomain && (
             <GenomePositionBar
-              onPositionChange={rangeSelectionChangeHandler.bind(
-                null,
-                "UPDATE"
-              )}
+              // onPositionChange={rangeSelectionChangeHandler.bind(
+              //   null,
+              //   "UPDATE"
+              // )}
+              onPositionChange={zoomPositionBarChangeHandler}
               positions={rangeSelection}
               name="Zoom Position"
               genomeAssembly={genomeAssembly}
@@ -794,7 +806,8 @@ export default function App() {
           )}
           {caselist.length > 0 && mainLocation && mainLocation.xDomain && (
             <GenomePositionBar
-              onPositionChange={locationChangeHandler}
+              // onPositionChange={locationChangeHandler}
+              onPositionChange={basePositionBarChangeHandler}
               positions={mainLocation}
               name="Base Position"
               genomeAssembly={genomeAssembly}

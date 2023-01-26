@@ -16,6 +16,11 @@ import OPTIONS_INFO from "../configs/options-info";
 
 const MIN_HORIZONTAL_HEIGHT = 20;
 const MIN_VERTICAL_WIDTH = 20;
+const VIEW_PADDING = 5;
+const DEFAULT_PANEL_WIDTH = 350;
+const DEFAULT_PANEL_HEIGHT = 350;
+const DEFAULT_CENTER_WIDTH = 100;
+const DEFAULT_CENTER_HEIGHT = 100;
 
 const defaultConfigs = {
   cases: [],
@@ -26,6 +31,10 @@ const defaultConfigs = {
   chromInfoPath: "",
   viewConfigs: {},
   numViews: 0,
+  // TODO: panelSizes:
+  // higlass => width, height => [];
+  // threed => width, height => [];
+  panelSizes: {},
 };
 
 const deepCopy = (view) => JSON.parse(JSON.stringify(view));
@@ -176,6 +185,57 @@ const defaultHeightWidth = (trackType, position) => {
   }
 };
 
+function calculateCenterHeight(totalHeight, view, positionedTracks) {
+  let cumHeight = 0;
+  let hasVerticalTrack = false;
+  for (const track of view["1d"]) {
+    for (const position in track.positions) {
+      const orient = positionToOrientation(position);
+      if (orient === "horizontal") {
+        const trackUid = track.positions[position];
+        cumHeight += positionedTracks[trackUid].height;
+      } else if (orient === "vertical") {
+        hasVerticalTrack = true;
+      }
+    }
+  }
+  let centerTrackHeight = totalHeight - 2 * VIEW_PADDING - cumHeight;
+  if (hasVerticalTrack) {
+    centerTrackHeight -= DEFAULT_CENTER_HEIGHT;
+  }
+  return centerTrackHeight;
+}
+
+function calculateHeight(xyDomain, width, view, positionedTracks) {
+  let cumHeight = 0;
+  let cumWidth = 0;
+  let hasVerticalTrack = false;
+  for (const track of view["1d"]) {
+    for (const position in track.positions) {
+      const orient = positionToOrientation(position);
+      if (orient === "horizontal") {
+        const trackUid = track.positions[position];
+        cumHeight += positionedTracks[trackUid].height;
+      } else if (orient === "vertical") {
+        hasVerticalTrack = true;
+        const trackUid = track.positions[position];
+        cumWidth += positionedTracks[trackUid].width;
+      }
+    }
+  }
+  const centerWidth = width - 2 * VIEW_PADDING - cumWidth;
+  const ratio =
+    (xyDomain.yDomain[1] - xyDomain.yDomain[0]) /
+    (xyDomain.xDomain[1] - xyDomain.xDomain[0]);
+  const centerHeight = Math.floor(centerWidth * ratio);
+  let centerTrackHeight = centerHeight;
+  if (hasVerticalTrack) {
+    centerTrackHeight -= DEFAULT_CENTER_HEIGHT;
+  }
+  const totalHeight = centerHeight + cumHeight + 2 * VIEW_PADDING;
+  return { centerTrackHeight, totalHeight };
+}
+
 const configsReducer = (state, action) => {
   console.log("config reduce");
   if (action.type === "ADD_CASE" || action.type === "ADD_CASE_PAIRED") {
@@ -222,7 +282,7 @@ const configsReducer = (state, action) => {
       server: view["2d"].contents[0].server,
       tilesetUid: view["2d"].contents[0].tilesetUid,
       // TODO: dynamically calculate the height so the heatmap is square
-      height: 170,
+      // height: 150,
       // width: 260,
       options: {
         ...addDefaultOptions(view["2d"].contents[0].type),
@@ -234,8 +294,9 @@ const configsReducer = (state, action) => {
       caseUid: caseUid,
     };
 
-    // let cumHeight = 0;
-    // let cumWidth = 0;
+    let cumHeight = 0; // cumulative height of all the horizontal tracks
+    let cumWidth = 0; // cumulative width of all the vertical tracks
+    let hasVerticalTrack = false;
 
     // FIXME: linear-2d-rectangle-domains aliases are "horizontal-2d-rectangle-domains"
     // and "vertical-2d-rectangle-domains"
@@ -275,10 +336,11 @@ const configsReducer = (state, action) => {
         const defaultHW = defaultHeightWidth(track.type, position);
         if (ori === "horizontal") {
           positionedTracks[trackUid].height = defaultHW;
-          // cumHeight += defaultHW;
+          cumHeight += defaultHW;
         } else if (ori === "vertical") {
           positionedTracks[trackUid].width = defaultHW;
-          // cumWidth += defaultHW;
+          cumWidth += defaultHW;
+          hasVerticalTrack = true;
         }
         /*
         if (track.type !== "chromosome-labels") {
@@ -302,15 +364,47 @@ const configsReducer = (state, action) => {
         */
       }
     }
-    /*
+
+    // TODO: recalculate center track height for input domain size ----------
+    // totalHeight = cumHeight (all horizontal tracks) + centerHeight (min=100) + padding (=5*2) eq. (1)
+    // totalWidth = cumWidth (all vertical tracks) + centerWidth (min=100) + padding (=5*2)
+    // totalHeight / totalWidth ~= yDomain / xDomain
+    // totalWidth is determined by panelSizes.width2d
+    // totalHeight is determined by eq. (1) dynamically
     if (cumHeight > 250 || cumWidth > 250) {
       // TODO: dynamically change canvas size
       throw new Error("Too many tracks");
     }
-    const centerHeight = 300 - cumWidth;
-    positionedTracks[view["2d"].contents[0].uid].height = 200;
-    console.log("centerHeight", centerHeight);
-    */
+    let centerTrackHeight;
+    const panelSizes = { ...state.panelSizes };
+    if (state.cases.length > 0) {
+      // TODO: copy height from existed case
+      const existedTrackUid = state.cases[0].views[0]["2d"].contents[0].uid;
+      centerTrackHeight = state.positionedTracks[existedTrackUid].height;
+    } else {
+      const width = DEFAULT_PANEL_WIDTH;
+      const centerWidth = width - 2 * VIEW_PADDING - cumWidth;
+      const ratio =
+        (initialYDomain[1] - initialYDomain[0]) /
+        (initialXDomain[1] - initialXDomain[0]);
+      const centerHeight = Math.floor(centerWidth * ratio);
+      centerTrackHeight = centerHeight;
+      if (hasVerticalTrack) {
+        centerTrackHeight -= DEFAULT_CENTER_HEIGHT;
+      }
+      const totalHeight = centerHeight + cumHeight + 2 * VIEW_PADDING;
+      panelSizes.higlass = {
+        width: width,
+        height: [totalHeight, totalHeight],
+      };
+      panelSizes.threed = {
+        width: width,
+        height: [DEFAULT_PANEL_HEIGHT, DEFAULT_PANEL_HEIGHT],
+      };
+    }
+    positionedTracks[view["2d"].contents[0].uid].height = centerTrackHeight;
+    console.log("centerTrackHeight", centerTrackHeight);
+    // ---------------------------------------------------------------------
 
     const views = [
       {
@@ -391,6 +485,7 @@ const configsReducer = (state, action) => {
       chromInfoPath: chromInfoPath,
       viewConfigs: { ...state.viewConfigs, [caseUid]: viewConfig },
       numViews: state.numViews || 1,
+      panelSizes: panelSizes,
     };
     return updatedConfigs;
   } else if (action.type === "ADD_ZOOMVIEW") {
@@ -451,6 +546,7 @@ const configsReducer = (state, action) => {
       chromInfoPath: chromInfoPath,
       viewConfigs: updatedViewConfigs,
       numViews: 2,
+      panelSizes: state.panelSizes,
     };
     return updatedConfigs;
   } else if (action.type === "REMOVE_ZOOMVIEW") {
@@ -491,6 +587,7 @@ const configsReducer = (state, action) => {
       chromInfoPath: chromInfoPath,
       viewConfigs: updatedViewConfigs,
       numViews: 1,
+      panelSizes: state.panelSizes,
     };
     return updatedConfigs;
   } else if (action.type === "UPDATE_OVERLAYS") {
@@ -540,6 +637,7 @@ const configsReducer = (state, action) => {
       chromInfoPath: chromInfoPath,
       viewConfigs: updatedViewConfigs,
       numViews: state.numViews,
+      panelSizes: state.panelSizes,
     };
     return updatedConfigs;
   } else if (action.type === "REMOVE_OVERLAYS") {
@@ -576,6 +674,7 @@ const configsReducer = (state, action) => {
       chromInfoPath: chromInfoPath,
       viewConfigs: updatedViewConfigs,
       numViews: state.numViews,
+      panelSizes: state.panelSizes,
     };
     return updatedConfigs;
   } else if (action.type === "UPDATE_TRACKS") {
@@ -678,6 +777,7 @@ const configsReducer = (state, action) => {
       chromInfoPath: chromInfoPath,
       viewConfigs: updatedViewConfigs,
       numViews: state.numViews,
+      panelSizes: state.panelSizes,
     };
     return updatedConfigs;
   } else if (action.type === "LOAD_CONFIG") {
@@ -738,6 +838,7 @@ const configsReducer = (state, action) => {
       chromInfoPath,
       viewConfigs: loadedViewConfigs,
       numViews: config.numViews,
+      panelSizes: config.panelSizes,
     };
     return loadedConfigs;
   } else if (action.type === "DELETE_CASE") {
@@ -813,6 +914,7 @@ const configsReducer = (state, action) => {
       chromInfoPath: state.chromInfoPath,
       viewConfigs: updatedViewConfigs,
       numViews: state.numViews,
+      panelSizes: state.panelSizes,
     };
     return updatedConfigs;
   } else if (action.type === "DELETE_ALL_CASES") {
@@ -837,7 +939,82 @@ const configsReducer = (state, action) => {
       chromInfoPath: state.chromInfoPath,
       viewConfigs: state.viewConfigs,
       numViews: state.numViews,
+      panelSizes: state.panelSizes,
     };
+    return updatedConfigs;
+  } else if (action.type === "UPDATE_PANEL_SIZES") {
+    const { updatedPanelSizes, xyDomains } = action;
+    const updatedCases = [];
+    const updatedPositionedTracks = deepCopy(state.positionedTracks);
+    const updatedViewConfigs = {};
+    // TODO: change positionedTracks center track height if height changed (basee & zoom)
+    // then generated new viewConfigs
+    for (const prevCase of state.cases) {
+      const newCase = deepCopy(prevCase);
+      const views = newCase.views;
+      for (let i = 0; i < views.length; i++) {
+        const view = views[i];
+        view.initialXDomain = [...xyDomains[i].xDomain];
+        view.initialYDomain = [...xyDomains[i].yDomain];
+        const prevHeight = state.panelSizes.higlass.height[i];
+        const newHeight = updatedPanelSizes.higlass.height[i];
+        if (newHeight !== prevHeight) {
+          // TODO: update center track height
+          // FIXME: separate track uid for base and zoom tracks
+          const centerTrackUid = view["2d"].contents[0].uid;
+          updatedPositionedTracks[centerTrackUid].height =
+            calculateCenterHeight(newHeight, view, updatedPositionedTracks);
+        }
+      }
+      updatedCases.push(newCase);
+      updatedViewConfigs[newCase.uid] = viewsToViewConfig(
+        views,
+        updatedPositionedTracks,
+        state.chromInfoPath
+      );
+    }
+    // update new state
+    const updatedConfigs = { ...state };
+    updatedConfigs.panelSizes = updatedPanelSizes;
+    updatedConfigs.cases = updatedCases;
+    updatedConfigs.positionedTracks = updatedPositionedTracks;
+    updatedConfigs.viewConfigs = updatedViewConfigs;
+    return updatedConfigs;
+  } else if (action.type === "UPDATE_LOCATION") {
+    const { xyDomains } = action;
+    const updatedCases = [];
+    const updatedPositionedTracks = deepCopy(state.positionedTracks);
+    const updatedViewConfigs = {};
+    const updatedPanelSizes = { ...state.panelSizes };
+    for (const prevCase of state.cases) {
+      const newCase = deepCopy(prevCase);
+      const views = newCase.views;
+      for (let i = 0; i < views.length; i++) {
+        const view = views[i];
+        view.initialXDomain = [...xyDomains[i].xDomain];
+        view.initialYDomain = [...xyDomains[i].yDomain];
+        const { centerTrackHeight, totalHeight } = calculateHeight(
+          xyDomains[i],
+          updatedPanelSizes.higlass.width,
+          view,
+          updatedPositionedTracks
+        );
+        const centerTrackUid = view["2d"].contents[0].uid;
+        updatedPositionedTracks[centerTrackUid].height = centerTrackHeight;
+        updatedPanelSizes.higlass.height[i] = totalHeight;
+      }
+      updatedCases.push(newCase);
+      updatedViewConfigs[newCase.uid] = viewsToViewConfig(
+        views,
+        updatedPositionedTracks,
+        state.chromInfoPath
+      );
+    }
+    const updatedConfigs = { ...state };
+    updatedConfigs.panelSizes = updatedPanelSizes;
+    updatedConfigs.cases = updatedCases;
+    updatedConfigs.positionedTracks = updatedPositionedTracks;
+    updatedConfigs.viewConfigs = updatedViewConfigs;
     return updatedConfigs;
   }
   return defaultConfigs;
@@ -936,6 +1113,18 @@ const ConfigProvider = (props) => {
     });
   };
 
+  const updatePanelSizesHandler = (updatedPanelSizes, xyDomains) => {
+    dispatchConfigsAction({
+      type: "UPDATE_PANEL_SIZES",
+      updatedPanelSizes,
+      xyDomains,
+    });
+  };
+
+  const updateLocationHandler = (xyDomains) => {
+    dispatchConfigsAction({ type: "UPDATE_LOCATION", xyDomains });
+  };
+
   const configContext = {
     cases: configs.cases,
     pairedLocks: configs.pairedLocks,
@@ -945,6 +1134,7 @@ const ConfigProvider = (props) => {
     chromInfoPath: configs.chromInfoPath,
     viewConfigs: configs.viewConfigs,
     numViews: configs.numViews,
+    panelSizes: configs.panelSizes,
     hgcRefs: hgcRefs,
     addCase: addCaseHandler,
     addPairedCase: addPairedCaseHandler,
@@ -958,6 +1148,8 @@ const ConfigProvider = (props) => {
     loadConfig: loadConfigHandler,
     getCaseCopy: getCasesCopyHandler,
     updateThreedOptions: updateThreedOptionsHandler,
+    updatePanelSizes: updatePanelSizesHandler,
+    updateLocation: updateLocationHandler,
   };
 
   return (

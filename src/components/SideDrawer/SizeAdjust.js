@@ -18,14 +18,23 @@ const validate = (value) => {
 };
 
 const SizeAdjust = (props) => {
+  console.log(props);
   return (
     <Collapsible title="Panel Size" defaultCollapsed>
       <Formik
         enableReinitialize
         initialValues={{
-          width2d: props.panelSizes.width2d,
-          width3d: props.panelSizes.width3d,
-          height3d: props.panelSizes.height3d,
+          higlass: {
+            width: props.panelSizes.higlass.width,
+            height: props.panelSizes.higlass.height,
+          },
+          threed: {
+            width: props.panelSizes.threed.width,
+            height: props.panelSizes.threed.height,
+          },
+          // width2d: props.panelSizes.width2d,
+          // width3d: props.panelSizes.width3d,
+          // height3d: props.panelSizes.height3d,
         }}
         onSubmit={(values, { setSubmitting }) => {
           setTimeout(() => {
@@ -39,35 +48,75 @@ const SizeAdjust = (props) => {
             <div>
               <p className={classes.title}>2D Panel Size</p>
               <div className={classes.option}>
-                <label>Width: </label>
-                <Field name="width2d" type="number" validate={validate} />
+                <label>Width</label>
+                <Field name="higlass.width" type="number" validate={validate} />
                 <span className={classes.unit}>px</span>
               </div>
-              {errors.width2d && touched.width2d && (
-                <p className={classes.error}>{errors.width2d}</p>
+              {errors.higlass &&
+                errors.higlass.width &&
+                touched.higlass &&
+                touched.higlass.width && (
+                  <p className={classes.error}>{errors.higlass.width}</p>
+                )}
+              <div className={classes.option}>
+                <label>Base Height</label>
+                <Field name="higlass.height[0]" type="number" />
+                <span className={classes.unit}>px</span>
+              </div>
+              {props.hasZoomView && (
+                <div className={classes.option}>
+                  <label>Zoom Height</label>
+                  <Field name="higlass.height[1]" type="number" />
+                  <span className={classes.unit}>px</span>
+                </div>
               )}
             </div>
-            <div>
-              <p className={classes.title}>3D Panel Size</p>
-              <div className={classes.option}>
-                <label>Width: </label>
-                <Field name="width3d" type="number" validate={validate} />
-                <span className={classes.unit}>px</span>
+            {props.hasThreedView && (
+              <div>
+                <p className={classes.title}>3D Panel Size</p>
+                <div className={classes.option}>
+                  <label>Width</label>
+                  <Field
+                    name="threed.width"
+                    type="number"
+                    validate={validate}
+                  />
+                  <span className={classes.unit}>px</span>
+                </div>
+                {errors.threed &&
+                  errors.threed.width &&
+                  touched.threed &&
+                  touched.threed.width && (
+                    <p className={classes.error}>{errors.threed.width}</p>
+                  )}
+                <div className={classes.option}>
+                  <label>Base Height</label>
+                  <Field
+                    name="threed.height[0]"
+                    type="number"
+                    validate={validate}
+                  />
+                  <span className={classes.unit}>px</span>
+                </div>
+                {errors.threed &&
+                  errors.threed.height &&
+                  errors.threed.height[0] &&
+                  touched.threed &&
+                  touched.threed.height &&
+                  touched.threed.height[0] && (
+                    <p className={classes.error}>{errors.threed.height[0]}</p>
+                  )}
+                {props.hasZoomView && (
+                  <div className={classes.option}>
+                    <label>Zoom Height</label>
+                    <Field name="threed.height[1]" type="number" />
+                    <span className={classes.unit}>px</span>
+                  </div>
+                )}
               </div>
-              {errors.width3d && touched.width3d && (
-                <p className={classes.error}>{errors.width3d}</p>
-              )}
-              <div className={classes.option}>
-                <label>Height: </label>
-                <Field name="height3d" type="number" validate={validate} />
-                <span className={classes.unit}>px</span>
-              </div>
-              {errors.height3d && touched.height3d && (
-                <p className={classes.error}>{errors.height3d}</p>
-              )}
-              <div className={classes.action}>
-                <button type="submit">Update</button>
-              </div>
+            )}
+            <div className={classes.action}>
+              <button type="submit">Update</button>
             </div>
           </Form>
         )}

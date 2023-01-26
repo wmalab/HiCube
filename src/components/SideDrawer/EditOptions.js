@@ -228,10 +228,10 @@ const CaseOptions = (props) => {
         mainLocation={props.mainLocation}
         zoomLocation={props.zoomLocation}
       /> */}
-      <SizeAdjust
+      {/* <SizeAdjust
         panelSizes={props.panelSizes}
         onSizeChange={props.onSizeChange}
-      />
+      /> */}
       <DisplayOptions
         caseUid={props.caseUid}
         trackUid={props.views[0]["2d"].contents[0].uid}
@@ -239,7 +239,7 @@ const CaseOptions = (props) => {
         mainLocation={props.mainLocation}
         zoomLocation={props.zoomLocation}
       />
-      <ThreedOptions 
+      <ThreedOptions
         caseUid={props.caseUid}
         mainLocation={props.mainLocation}
         zoomLocation={props.zoomLocation}
@@ -261,9 +261,19 @@ const CaseOptions = (props) => {
 
 const EditOptions = (props) => {
   const configCtx = useContext(ConfigContext);
+  const hasZoomView = configCtx.numViews > 1;
+  const hasThreedView = configCtx.cases.some(
+    (ca) => ca.uid in configCtx.threeCases
+  );
 
   return (
     <div>
+      <SizeAdjust
+        panelSizes={props.panelSizes}
+        onSizeChange={props.onSizeChange}
+        hasZoomView={hasZoomView}
+        hasThreedView={hasThreedView}
+      />
       {configCtx.cases.map((caseConfig, index) => (
         <Collapsible key={`Case #${index + 1}`} title={`Case #${index + 1}`}>
           <CaseOptions
@@ -272,8 +282,8 @@ const EditOptions = (props) => {
             views={caseConfig.views}
             mainLocation={props.mainLocation}
             zoomLocation={props.zoomLocation}
-            panelSizes={props.panelSizes}
-            onSizeChange={props.onSizeChange}
+            // panelSizes={props.panelSizes}
+            // onSizeChange={props.onSizeChange}
           />
         </Collapsible>
       ))}

@@ -9,6 +9,7 @@ const ConfigContext = React.createContext({
   chromInfoPath: "",
   viewConfigs: {},
   numViews: 0,
+  panelSizes: {},
   hgcRefs: {},
   addCase: () => {},
   addPairedCase: () => {},
@@ -22,6 +23,8 @@ const ConfigContext = React.createContext({
   loadConfig: () => {},
   getCaseCopy: () => {},
   updateThreedOptions: () => {},
+  updatePanelSizes: () => {},
+  updateLocation: () => {},
 });
 
 export default ConfigContext;
