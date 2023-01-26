@@ -246,6 +246,15 @@ const configsReducer = (state, action) => {
     const caseUid = uid();
     const view = addView(centerHiC, tracks);
 
+    // TODO: add 2d-chromosome-grid
+    view["2d"].contents.push({
+      uid: uid(),
+      datatype: "chromsizes",
+      chromInfoPath: chromInfoPath,
+      type: "2d-chromosome-grid",
+      name: "Chromosome Grid",
+    });
+
     // generate pairedLocks --------------------
     const pairedLocks = {};
     if (action.type === "ADD_CASE_PAIRED" && state.cases.length > 0) {
@@ -255,6 +264,13 @@ const configsReducer = (state, action) => {
       const currCenterHiC = view["2d"].contents[0].uid;
       pairedLocks[pairedCenterHiC] = currCenterHiC;
       pairedLocks[currCenterHiC] = pairedCenterHiC;
+      // TODO: add 2d-chromosome-grid locks -----------------------
+      // could grid track not be the 2nd track in center contents?
+      const pairedChrGrid = state.cases[0].views[0]["2d"].contents[1].uid;
+      const currChrGrid = view["2d"].contents[1].uid;
+      pairedLocks[pairedChrGrid] = currChrGrid;
+      pairedLocks[currChrGrid] = pairedChrGrid;
+      // ----------------------------------------------------------
       // add supp track locks
       for (const track of view["1d"]) {
         // find the paired dataset
@@ -293,6 +309,21 @@ const configsReducer = (state, action) => {
     positionedTracksToCaseUid[view["2d"].contents[0].uid] = {
       caseUid: caseUid,
     };
+
+    // TODO: add 2d-chromosome-grid options ----------------------------
+    positionedTracks[view["2d"].contents[1].uid] = {
+      uid: view["2d"].contents[1].uid,
+      type: view["2d"].contents[1].type,
+      chromInfoPath: view["2d"].contents[1].chromInfoPath,
+      options: {
+        ...addDefaultOptions(view["2d"].contents[1].type),
+        name: view["2d"].contents[1].name,
+      },
+    };
+    positionedTracksToCaseUid[view["2d"].contents[1].uid] = {
+      caseUid: caseUid,
+    };
+    // -----------------------------------------------------------------
 
     let cumHeight = 0; // cumulative height of all the horizontal tracks
     let cumWidth = 0; // cumulative width of all the vertical tracks
@@ -504,7 +535,13 @@ const configsReducer = (state, action) => {
       // and delete it from positionedTracks and positionedTracksToCaseUid
       if (views.length === 2) {
         views.pop();
-        views[0]["2d"].contents.pop();
+        // FIXME: only pop track that is type of viewport-projection-center
+        // we could have other types of 2d track e.g. 2d-chromosome-grid
+        // views[0]["2d"].contents.pop();
+        // TODO: delete old viewport options from positionedTracks
+        views[0]["2d"].contents = views[0]["2d"].contents.filter(
+          (track) => track.type !== "viewport-projection-center"
+        );
       }
       views[0].initialXDomain = [...initialXYDomains.xDomain];
       views[0].initialYDomain = [...initialXYDomains.yDomain];
@@ -563,7 +600,11 @@ const configsReducer = (state, action) => {
       // TODO: check each content type
       if (views.length === 2) {
         views.pop();
-        views[0]["2d"].contents.pop();
+        // FIXME: filter by track type to remove viewport tracks
+        // views[0]["2d"].contents.pop();
+        views[0]["2d"].contents = views[0]["2d"].contents.filter(
+          (track) => track.type !== "viewport-projection-center"
+        );
         // TODO: delete trackOptions in positionedTracks
         // views[0].layout.w = 12;
       }
