@@ -7,6 +7,7 @@ import { ChromosomeInfo } from "higlass";
 import Scene from "./Scene";
 import g3dDataParser from "./g3d-data-parser";
 import { getBounds, getDataBounds } from "./get-data-bound";
+import * as THREE from "three";
 import classes from "./ThreeTrack.module.css";
 
 /*
@@ -489,9 +490,9 @@ const ThreeTrack = (props) => {
 
   const zoomPosition = getZoomPosition();
 
-  console.log("zoomPosition", zoomPosition);
-  console.log("zoomLocation", props.zoomLocation);
-  console.log("zoomSegmentData", zoomSegmentData);
+  // console.log("zoomPosition", zoomPosition);
+  // console.log("zoomLocation", props.zoomLocation);
+  // console.log("zoomSegmentData", zoomSegmentData);
 
   return (
     <>
@@ -503,7 +504,12 @@ const ThreeTrack = (props) => {
         >
           {zoomPosition && zoomSegmentData && (
             <Canvas
-              gl={{ preserveDrawingBuffer: true }}
+              gl={{
+                preserveDrawingBuffer: true,
+                toneMapping: THREE.NoToneMapping,
+              }}
+              linear
+              dpr={[1, 2]}
               // camera={{ position: zoomPosition.cameraPosition }}
             >
               <color attach="background" args={["white"]} />
@@ -541,8 +547,13 @@ const ThreeTrack = (props) => {
       >
         {position && segmentData && (
           <Canvas
-            gl={{ preserveDrawingBuffer: true }}
+            gl={{
+              preserveDrawingBuffer: true,
+              toneMapping: THREE.NoToneMapping,
+            }}
+            linear
             camera={{ position: position.cameraPosition }}
+            dpr={[1, 2]}
           >
             <color attach="background" args={["white"]} />
             <ambientLight />

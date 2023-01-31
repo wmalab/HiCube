@@ -2,11 +2,13 @@ import React, { useEffect } from "react";
 import { useThree } from "@react-three/fiber";
 import Backbone from "./Backbone";
 import OverlaysTrack from "./OverlaysTrack";
+import * as THREE from "three";
 
 // props: exportSvg, onFinishExportSvg,
 const Scene = (props) => {
   // TODO: export to svg format for downloading ------------------
-  const gl = useThree((state) => state.gl);
+  // const gl = useThree((state) => state.gl);
+  const get = useThree((state) => state.get);
   const {
     groupPosition,
     chroms, // all chromosomes
@@ -26,11 +28,20 @@ const Scene = (props) => {
 
   useEffect(() => {
     if (exportSvg) {
+      const renderer = new THREE.WebGLRenderer({ antialias: true });
+      renderer.setPixelRatio(
+        window.devicePixelRatio ? window.devicePixelRatio : 1
+      );
+      const { size, scene, camera } = get();
+      const scale = 300 / 96;
+      renderer.setSize(size.width * scale, size.height * scale);
+      renderer.render(scene, camera);
+
       const link = document.createElement("a");
       link.setAttribute("download", `${svgName}.png`);
       link.setAttribute(
         "href",
-        gl.domElement
+        renderer.domElement
           .toDataURL("image/png")
           .replace("image/png", "image/octet-stream")
       );
