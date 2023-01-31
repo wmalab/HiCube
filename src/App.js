@@ -6,9 +6,11 @@ import GenomePositionBar from "./components/GenomePositionSearch/GenomePositionB
 import { defaultOptions as options } from "./configs/default-config";
 // import GridLayout from "react-grid-layout";
 import ThreeTrack from "./components/Three/ThreeTrack";
+import ChromBoundManager from "./components/UI/ChromBoundManager";
 import { uid, strToInt, download } from "./utils";
 import { ChromosomeInfo } from "higlass";
 import ErrorBoundary from "./components/UI/ErrorBoundary";
+import useChromBound from "./hooks/use-chrombound";
 // import "../node_modules/react-grid-layout/css/styles.css";
 // import "../node_modules/react-resizable/css/styles.css";
 
@@ -355,10 +357,32 @@ export default function App() {
 
   const [genomeAssembly, setGenomeAssembly] = useState({});
 
-  const locationChangeHandler = (location, id) => {
-    console.log(id, "location change");
+  const { validateXYDomains, navChroms } = useChromBound(
+    genomeAssembly.chromInfoPath
+  );
 
-    setMainLocation({ ...location, fromId: id });
+  const locationChangeHandler = (location, id) => {
+    console.log("location changed.", "id: ", id, "location: ", location);
+    // this is the approach works mostly now
+    // but one not working is when fromId = "user_entered"
+    // to allow HiGlassCase to notify the location change back
+    // because zoomTo does not always change the internal location
+    // exactly to the x and y domains provided
+    // but if the internal location is still out of bound,
+    // it could trigger a bounce loop, so leave it to not notify back now
+    // TODO: need to make sure new location is not out of bound and update mainLocation
+    const { isUpdate, xDomain, yDomain } = validateXYDomains(
+      location,
+      configCtx.currentChroms.x,
+      configCtx.currentChroms.y
+    );
+    if (isUpdate) {
+      console.log("Out of bound. New location: x: ", xDomain, "y: ", yDomain);
+      // setMainLocation({ xDomain, yDomain, fromId: "user_entered" });
+      setMainLocation({ xDomain, yDomain, fromId: "bound" });
+    } else {
+      setMainLocation({ ...location, fromId: id });
+    }
   };
 
   const activateSelectHandler = () => {
@@ -495,7 +519,16 @@ export default function App() {
   };
 
   const rangeSelectionChangeHandler = (type, location, id) => {
-    setRangeSelection({ ...location, fromId: id, type: type });
+    const { isUpdate, xDomain, yDomain } = validateXYDomains(
+      location,
+      configCtx.currentChroms.x,
+      configCtx.currentChroms.y
+    );
+    if (isUpdate) {
+      setRangeSelection({ xDomain, yDomain, fromId: "bound", type: "UPDATE" });
+    } else {
+      setRangeSelection({ ...location, fromId: id, type: type });
+    }
   };
 
   const createOverlayHandler = (type, location, id) => {
@@ -698,9 +731,38 @@ export default function App() {
     configCtx.updateLocation([xyDomain, rangeSelection]);
   };
 
-  console.log("refs", configCtx.hgcRefs);
-  console.log("mainLocation", mainLocation);
-  console.log("rangeselection", rangeSelection);
+  // this approach didn't work well when there is 2 cases
+  // when set fromId="user_entered" it went into a infinite loop
+  // between the 2 cases one update to the new location another to old location
+  // when set fromId="bound", only the case starts with out of bound to the new location
+  // the other one stay the old location (but if scroll a bit will update that one?)
+  /*
+  useEffect(() => {
+    const { isUpdate, xDomain, yDomain, xBound, yBound } = validXYDomains(mainLocation);
+    if (isUpdate) {
+      console.log(xDomain, yDomain, xBound, yBound);
+      setMainLocation({ xDomain, yDomain, fromId: "bound" });
+    }
+  }, [mainLocation, validXYDomains]);
+  */
+
+  /*
+  useEffect(() => {
+    const { isUpdate, xDomain, yDomain } = validXYDomains(rangeSelection);
+    if (isUpdate) {
+      setRangeSelection({
+        xDomain,
+        yDomain,
+        fromId: "user_entered",
+        type: "UPDATE",
+      });
+    }
+  }, [rangeSelection, validXYDomains]);
+  */
+
+  // console.log("refs", configCtx.hgcRefs);
+  console.log("App mainLocation: ", mainLocation);
+  // console.log("App rangeSelection: ", rangeSelection);
 
   const caselist = [];
   for (const caseConfig of configCtx.cases) {
@@ -730,6 +792,7 @@ export default function App() {
             onRangeSelection={rangeSelectionChangeHandler}
             onCreateOverlay={createOverlayHandler}
             overlays={overlays}
+            // onValidXYDomains={validXYDomains}
           />
         </div>
       );
@@ -792,6 +855,13 @@ export default function App() {
       />
       <div className="main">
         <div className="genome-position-header">
+          {caselist.length > 0 && (
+            <ChromBoundManager
+              currentChroms={configCtx.currentChroms}
+              onUpdateCurrentChroms={configCtx.updateCurrentChroms}
+              onNavChroms={navChroms}
+            />
+          )}
           {caselist.length > 0 && rangeSelection && rangeSelection.xDomain && (
             <GenomePositionBar
               // onPositionChange={rangeSelectionChangeHandler.bind(

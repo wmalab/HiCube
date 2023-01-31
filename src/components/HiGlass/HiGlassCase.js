@@ -209,12 +209,12 @@ const HiGlassCase = (props, ref) => {
       },
       "aa"
     );
-    const clickId = api.on("click", (param) => {
-      console.log(param);
-    });
+    // const clickId = api.on("click", (param) => {
+    //   console.log(param);
+    // });
     return () => {
       api.off("location", listenerId, "aa");
-      api.off("click", clickId);
+      // api.off("click", clickId);
     };
   }, []);
 
@@ -224,7 +224,31 @@ const HiGlassCase = (props, ref) => {
   debounce the forward to avoid too many location updates
   */
   useEffect(() => {
-    console.log(props.id, notify.current);
+    console.log(
+      "HiGlassCase id:",
+      props.id,
+      "notify?",
+      notify.current,
+      "mainLocation:",
+      mainLocation
+    );
+
+    // this approach didn't work because internal mainLocation
+    // update too frequently and when zoom out too fast
+    // it stuck in an infinite loop and freeze
+    /*
+    const { isUpdate, xDomain, yDomain, xBound, yBound } =
+      props.onValidXYDomains(mainLocation);
+    if (isUpdate) {
+      console.log(JSON.stringify(mainLocation), xDomain, yDomain, xBound, yBound);
+      try {
+        hgcRef.current.api.zoomTo("aa", ...xDomain, ...yDomain, 1);
+      } catch (error) {
+        console.log("hgc API call zoomTo error: ", error);
+      }
+      return;
+    }
+    */
 
     if (!notify.current) {
       return;
@@ -262,7 +286,7 @@ const HiGlassCase = (props, ref) => {
       try {
         hgcRef.current.api.zoomTo("aa", ...xDomain, ...yDomain, 1);
       } catch (error) {
-        console.log(error);
+        console.log("zoomTo error:", error);
       }
       return;
     }
@@ -274,7 +298,7 @@ const HiGlassCase = (props, ref) => {
     try {
       hgcRef.current.api.zoomTo("aa", ...xDomain, ...yDomain, 1);
     } catch (error) {
-      console.log(error);
+      console.log("zoomTo error:", error);
       notify.current = true;
     }
     notifyTimer.current = setTimeout(() => {
@@ -329,7 +353,7 @@ const HiGlassCase = (props, ref) => {
   }, [props.mouseTool]);
 
   useEffect(() => {
-    console.log(props.rangeSelection);
+    // console.log(props.rangeSelection);
 
     if (!props.rangeSelection) {
       return;
@@ -356,7 +380,7 @@ const HiGlassCase = (props, ref) => {
         try {
           hgcRef.current.api.zoomTo("bb", ...xDomain, ...yDomain, 1);
         } catch (error) {
-          console.log(error);
+          console.log("zoomTo error:", error);
         }
         return;
       }
@@ -367,7 +391,7 @@ const HiGlassCase = (props, ref) => {
       try {
         hgcRef.current.api.zoomTo("bb", ...xDomain, ...yDomain, 1);
       } catch (error) {
-        console.log(error);
+        console.log("zoomTo error:", error);
         notify.current = true;
       }
       notifyTimer.current = setTimeout(() => {
@@ -437,7 +461,14 @@ const HiGlassCase = (props, ref) => {
   }, [props.viewConfig]);
 
   useEffect(() => {
-    console.log(props.id, notify.current);
+    console.log(
+      "HiGlassCase zoomLocation id:",
+      props.id,
+      "notify?",
+      notify.current,
+      "zoomLocation:",
+      zoomLocation
+    );
 
     if (!notify.current) {
       return;
@@ -484,7 +515,7 @@ const HiGlassCase = (props, ref) => {
   }, [props.exportSvg]);
   // ----------------------------------------------------------------
 
-  console.log(props.viewConfig);
+  // console.log(props.viewConfig);
 
   // FIXME: use viewConfig from context cause reloading Tileset info
   // trigger TrackRenderer -> UNSAFE_componentWillReceiveProps

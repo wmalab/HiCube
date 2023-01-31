@@ -163,6 +163,7 @@ const AddCaseForm = (props) => {
               initialYDomain.trim() || initialXDomain
             ),
             chroms: chroms,
+            currentChroms: { x: "chr1", y: "chr1" }, // TODO: calculate which init chrom
           });
           setSubmitting(false);
           props.onClose();

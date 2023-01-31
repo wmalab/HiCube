@@ -19,10 +19,12 @@ const chrToAbs = (chr, chromInfo, firstChrom = "") => {
   if (chr in chrPositions) {
     if (firstChrom) {
       // this is the second chr, pick the end position
-      ret.absPos = chrPositions[chr].pos + chromLengths[chr] - 1;
+      // ret.absPos = chrPositions[chr].pos + chromLengths[chr] - 1;
+      ret.absPos = chrPositions[chr].pos + chromLengths[chr];
     } else {
       // this is the first chr, pick the start position
-      ret.absPos = chrPositions[chr].pos;
+      // ret.absPos = chrPositions[chr].pos;
+      ret.absPos = chrPositions[chr].pos + 1;
     }
     ret.chrom = chr;
     return ret;
@@ -41,7 +43,8 @@ const chrToAbs = (chr, chromInfo, firstChrom = "") => {
     try {
       ret.chrom = splited.first;
       const pos = strToInt(splited.second);
-      if (isNaN(pos) || pos < 0 || pos >= chromLengths[ret.chrom]) {
+      // if (isNaN(pos) || pos < 0 || pos >= chromLengths[ret.chrom]) {
+      if (isNaN(pos) || pos < 0 || pos > chromLengths[ret.chrom]) {
         ret.error = `Invalid position ${splited.second}`;
         return ret;
       }
@@ -65,7 +68,8 @@ const chrToAbs = (chr, chromInfo, firstChrom = "") => {
       ret.error = `Chromosome name ${firstChrom} does not exist`;
       return ret;
     }
-    if (isNaN(pos) || pos < 0 || pos >= chromLengths[firstChrom]) {
+    // if (isNaN(pos) || pos < 0 || pos >= chromLengths[firstChrom]) {
+    if (isNaN(pos) || pos < 0 || pos > chromLengths[firstChrom]) {
       ret.error = `Invalid position ${chr}`;
       return ret;
     }
@@ -87,7 +91,8 @@ const chrToInterval = (chr, chromInfo) => {
     ret.error = `Chromosome name ${chr} does not exist`;
     return ret;
   }
-  ret.startAbsPos = chrPositions[chr].pos;
+  // ret.startAbsPos = chrPositions[chr].pos;
+  ret.startAbsPos = chrPositions[chr].pos + 1;
   ret.endAbsPos = ret.startAbsPos + chromLengths[chr] - 1;
   return ret;
 };

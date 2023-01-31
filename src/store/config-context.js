@@ -10,6 +10,7 @@ const ConfigContext = React.createContext({
   viewConfigs: {},
   numViews: 0,
   panelSizes: {},
+  currentChroms: {},
   hgcRefs: {},
   addCase: () => {},
   addPairedCase: () => {},
@@ -25,6 +26,7 @@ const ConfigContext = React.createContext({
   updateThreedOptions: () => {},
   updatePanelSizes: () => {},
   updateLocation: () => {},
+  updateCurrentChroms: () => {},
 });
 
 export default ConfigContext;

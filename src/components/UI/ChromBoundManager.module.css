@@ -1,0 +1,46 @@
+div.whole {
+  display: flex;
+  padding-left: 3px;
+}
+
+button.btnOn {
+  background-color: lightgreen;
+  font-size: 12px;
+  margin-right: 3px;
+  /* font-weight: bold; */
+  /* line-height: 1.5; */
+}
+
+button.btnOff {
+  background-color: lightgray;
+  font-size: 12px;
+  margin-right: 3px;
+  /* line-height: 1.5; */
+}
+
+button.nav {
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  border: 1px solid gray;
+  /* line-height: 1.5; */
+  border-radius: 3px;
+  margin: 3px;
+  font-size: 14px;
+  padding: 2px;
+}
+
+button.nav:hover {
+  background-color: lightgray;
+}
+
+div.chrom {
+  /* background-color: #dee1e2; */
+  margin-right: 3px;
+}
+
+.chrom span {
+  padding: 2px;
+  font-weight: bold;
+  font-size: 14px;
+}
