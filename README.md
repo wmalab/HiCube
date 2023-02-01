@@ -219,6 +219,10 @@ The following adjustments will be synchronized between cases:
 
 ![Genome position bar](docs/img/genome-position-bar.png)
 
+By default, users can navigate the entire genome-wide heatmap freely (we call it **free-roam** navigation mode). Users can turn off free-roam mode, and go into chromosome-wide mode, where HiCube will restrict the coordinates and viewing region to one chromosome per axis (displayed as the X limit / Y limit on the header), and when navigate (pan or zoom) outside of the chromosome limit, the viewing region will be bounced back to that chromosome. 
+
+![Chromosome limit](docs/img/chrom-limit.gif)
+
 #### 2.2.4 Add zoom view
 
 Switch to the **Tools** tab (3rd tab) in the sidebar, users can choose **Select Zoom Region**, then press and hold down the left mouse button to select the region on the center Hi-C track, or 1D tracks to zoom, then click **Create Zoom View** to create a zoom view for that region, or click **Cancel** to cancel your selection.
