@@ -31,6 +31,9 @@ See [docs/README.md](/docs/README.md) for how to recreate the above figure.
 		- [2.2.3 Navigation](#223-navigation)
 		- [2.2.4 Add zoom view](#224-add-zoom-view)
 		- [2.2.5 Add annotations](#225-add-annotations)
+	- [2.3 Configurate the appearance](#23-configurate-the-appearance)
+		- [2.3.1 Panel sizes](#231-panel-sizes)
+		- [2.3.2 3D genome structure tracks](#232-3d-genome-structure-tracks)
 
 ## 1 Installation
 
@@ -247,3 +250,30 @@ x-ax-chrom x-ax-start-coordinate x-ax-chrom x-ax-end-coordinate y-ax-chrom y-ax-
 > The X axis or Y axis of 2D annotation should only span within the same chromosome, although the chromosomes for X and Y axes can be different.
 
 ![Add annotations](docs/img/add-annotations.png)
+
+### 2.3 Configurate the appearance
+#### 2.3.1 Panel sizes
+Users can set the width or height of the 2D and 3D panels on the Configuration Settings tab (2nd tab) in the sidebar, by entering the specific size in px and click **Update** to apply the change.
+
+![Panel size](docs/img/panel-size.png)
+
+There are 2 other ways to adjust the width/height ratio of the 2D panels:
+
+1. When **Add A New Case** and there is no existed case, set the **Genome Positions** of **X axis** and **Y axis**, and the 2D panels width/height ratio will adjust accordingly to best fit the give length of X and Y regions (If you want a 1:1 X:Y ratio, you can enter the X axis position and leave the Y axis blank, then Y axis position will be automatically set to the same as X axis);
+
+![Initial genome positions](docs/img/genome-position-init.png)
+
+2. When there exists case already, enter the new X and/or Y genome positions to the **Genome Position Bar** at the top and click **Go**, the 2D panels will update the height to fit the new width/height ratio accordingly. Below is an exmaple: enter new postions for X axis (chr1:10000000-20000000) and Y axis (chr1:10000000-30000000) so the new X:Y ratio is 1:2.
+
+![Resize panel](docs/img/resize-panel.gif)
+
+#### 2.3.2 3D genome structure tracks
+Swith to the Configuration Settings tab (2nd tab) in the sidebar, to configurate the appearance of 3D structure, open **Case #** then **3D Genome Structure Track**.
+To set the transparency/opacity of the unvisualized chromosomes,
+users can enter any value between 0 to 1, where 0 being completely invisible, and 1 being no transparency applied, and click **Update** to apply the change.
+
+![3D opacity](docs/img/3d-opacity.png)
+
+Under **Chromosome Colormap**, for each chromosome, users can select any customized color for it by using the color picker, and click **Update** to apply the changes.
+
+![Chrom colors](docs/img/chrom-colors.png)
