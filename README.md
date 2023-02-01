@@ -223,6 +223,10 @@ By default, users can navigate the entire genome-wide heatmap freely (we call it
 
 ![Chromosome limit](docs/img/chrom-limit.gif)
 
+When turn off free-roam mode, the chromosome navigation bar on the top will appear, where users can change the chromosome limit. The button between X and Y limits can switch between link (green) and unlink (gray) X and Y limits changes. Linked change between X and Y limits can navigate intra-chromosomal regions, while unlinked change between X and Y limits can navigate inter-chromosomal regions.
+
+![Chrom nav](docs/img/chrom-nav.png)
+
 #### 2.2.4 Add zoom view
 
 Switch to the **Tools** tab (3rd tab) in the sidebar, users can choose **Select Zoom Region**, then press and hold down the left mouse button to select the region on the center Hi-C track, or 1D tracks to zoom, then click **Create Zoom View** to create a zoom view for that region, or click **Cancel** to cancel your selection.
