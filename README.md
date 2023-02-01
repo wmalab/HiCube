@@ -233,16 +233,18 @@ Switch to the **Tools** tab (3rd tab) in the sidebar, users can choose **Select 
 
 Other ways to add annotations are: enter in the textarea or upload a file contains a list of genomic intervals in the following formats:
 
-For 1D annotations:
+For 1D annotations without and with score:
 
 ```
-chrom start-coordinate chrom end-coordinate
+chrom start chrom end
+chrom start chrom end score
 ```
 
-For 2D annotations:
+For 2D annotations without and with score:
 
 ```
-x-ax-chrom x-ax-start-coordinate x-ax-chrom x-ax-end-coordinate y-ax-chrom y-ax-start-coordinate y-ax-chrom y-ax-end-coordinate
+chrom1 start1 chrom1 end1 chrom2 start2 chrom2 end2
+chrom1 start1 chrom1 end1 chrom2 start2 chrom2 end2 score
 ```
 
 > 1D annotation should only span within the same chromosome, not across multiple chromosomes.
@@ -250,6 +252,18 @@ x-ax-chrom x-ax-start-coordinate x-ax-chrom x-ax-end-coordinate y-ax-chrom y-ax-
 > The X axis or Y axis of 2D annotation should only span within the same chromosome, although the chromosomes for X and Y axes can be different.
 
 ![Add annotations](docs/img/add-annotations.png)
+
+For annotation with score, users can visualize how it distributes on the 3D structures:
+
+![3D scores](docs/img/3d-score.png)
+
+Users can choose a colormap and set its min/max value on **Annotations Global Configuration** (min/max value will be automatically set to the min/max of annotation scores available if no value provided).
+
+![Score colormap](docs/img/score-colormap.png)
+
+For annotation created from mouse selection, there is no initial score, but users can add a score later on the **Additional Fields**, and if want to visualize the annotation with score users can choose **By Score** for color.
+
+![Add score](docs/img/add-score.png)
 
 ### 2.3 Configurate the appearance
 #### 2.3.1 Panel sizes
