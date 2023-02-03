@@ -99,7 +99,7 @@ Open [http://localhost:3000](http://localhost:3000) to use HiCube in your browse
 ## 2 Usage
 ### 2.1 Prepare input datasets and API server
 
-All example datasets can be downloaded at [shared drive folder](https://drive.google.com/drive/folders/12_kfP9tELVEPKOw7ODgx8x2MVYUvi59T?usp=sharing).
+All example datasets can be downloaded at [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.7601098.svg)](https://doi.org/10.5281/zenodo.7601098)
 
 #### 2.1.1 Hi-C and 1D datasets
 
@@ -107,7 +107,7 @@ The Hi-C and other 1D datasets need to be served with [HiGlass Server](https://g
 
 To serve local datasets, the easiest way is to setup a local HiGlass API server with [Docker](https://www.docker.com/) using the [higlass-docker](https://github.com/higlass/higlass-docker) image, and the local API server can be accessed at http://localhost:8888/api/v1 for HiCube.
 
-Create a directory (e.g. `~/hg-data`) to store the datasets, example files can be downloaded from [shared drive folder](https://drive.google.com/drive/folders/12_kfP9tELVEPKOw7ODgx8x2MVYUvi59T?usp=sharing).
+Create a directory (e.g. `~/hg-data`) to store the datasets, example files can be downloaded from [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.7601098.svg)](https://doi.org/10.5281/zenodo.7601098)
 
 ```bash
 # Pull the latest image of higlass-docker
@@ -145,7 +145,7 @@ docker exec higlass-container python higlass-server/manage.py ingest_tileset \
 
 #### 2.1.2 3D genome structure datasets
 
-A tutorial at [docs/generate_3d_structure.md](/docs/generate_3d_structure.md) demonstrates examples of how to generate the 3D structure from your own data using common softwares.
+A tutorial [How to Generate 3D Structure from Your Own Data](/docs/how_to_generate_3d_structure_from_your_own_data.md) demonstrates examples of how to generate the 3D structure from your own data using common softwares.
 
 HiCube can directly read local 3D genome structure file in .g3d format. Other formats e.g. nucle3d, .3dg, PASTIS output, can be converted to .g3d format using [g3dtools](https://github.com/lidaof/g3d/tree/master/g3dtools), which can be installed with `python3` and `pip`:
 
@@ -163,7 +163,7 @@ g3dtools 3dg GSM3271351_gm12878_05.impute3.round4.clean.3dg.txt.gz \
 -s 2,3,4,5,6,7,8,9,10,25,50
 ```
 
-A processed example .g3d file can be downloaded from [shared drive folder](https://drive.google.com/drive/folders/12_kfP9tELVEPKOw7ODgx8x2MVYUvi59T?usp=sharing).
+A processed example .g3d file can be downloaded from [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.7601098.svg)](https://doi.org/10.5281/zenodo.7601098)
 
 ### 2.2 Visualize datasets in HiCube
 

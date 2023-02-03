@@ -13,7 +13,7 @@
 
 ## 1. Add datasets to API server
 
-All datasets used to create the figure can be downloaded from [shared drive folder](https://drive.google.com/drive/folders/12_kfP9tELVEPKOw7ODgx8x2MVYUvi59T?usp=sharing).
+All datasets used to create the figure can be downloaded from [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.7601098.svg)](https://doi.org/10.5281/zenodo.7601098)
 
 
 - Gene annotation track: `gene-annotations-hg19.db`
@@ -21,7 +21,6 @@ All datasets used to create the figure can be downloaded from [shared drive fold
 - Paternal Hi-C track: `GSE63525_GM12878_diploid_paternal.mcool`
 - Chromosome labels: `hg19.chrom.sizes`
 - 3D structure track: `GSM3271351_gm12878_05.impute3.round4.clean.g3d`
-- Build version of HiCube: `HiCube.zip`
 
 Move all the data files to folder `~/hg-data`, download and start docker container:
 
