@@ -14,7 +14,8 @@ input.position-bar {
   padding: 5px 5px;
   /* transition: box-shadow 100ms ease-in, border 100ms ease-in,
     background-color 100ms ease-in; */
-  border: 2px solid #dee1e2;
+  /* border: 2px solid #dee1e2; */
+  border: 1px solid gray;
   /* border: none; */
   /* color: rgb(14, 14, 16); */
   color: gray;
@@ -27,7 +28,7 @@ input.position-bar {
 
 input.position-bar:hover {
   background-color: lightgray;
-  border: 2px solid gray;
+  border: 1px solid gray;
 }
 
 input.position-bar:focus {

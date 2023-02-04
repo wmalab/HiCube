@@ -357,7 +357,7 @@ export default function App() {
 
   const [genomeAssembly, setGenomeAssembly] = useState({});
 
-  const { validateXYDomains, navChroms } = useChromBound(
+  const { validateXYDomains, navChroms, allChroms } = useChromBound(
     genomeAssembly.chromInfoPath
   );
 
@@ -731,6 +731,14 @@ export default function App() {
     configCtx.updateLocation([xyDomain, rangeSelection]);
   };
 
+  const updateChromsHandler = (newChroms) => {
+    configCtx.updateCurrentChroms(
+      newChroms,
+      [mainLocation, rangeSelection],
+      validateXYDomains
+    );
+  };
+
   // this approach didn't work well when there is 2 cases
   // when set fromId="user_entered" it went into a infinite loop
   // between the 2 cases one update to the new location another to old location
@@ -858,7 +866,8 @@ export default function App() {
           {caselist.length > 0 && (
             <ChromBoundManager
               currentChroms={configCtx.currentChroms}
-              onUpdateCurrentChroms={configCtx.updateCurrentChroms}
+              allChroms={allChroms}
+              onUpdateCurrentChroms={updateChromsHandler}
               onNavChroms={navChroms}
             />
           )}

@@ -111,8 +111,12 @@ const AddCaseForm = (props) => {
   const { assemblyName, chromInfoPath } = genomeAssembly;
   // const chromInfo = useRef();
 
-  const { validateGenomePosition, getGenomePosition, chroms } =
-    useChromInfo(chromInfoPath);
+  const {
+    validateGenomePosition,
+    getGenomePosition,
+    chromFromPosition,
+    chroms,
+  } = useChromInfo(chromInfoPath);
 
   // useEffect(() => {
   //   ChromosomeInfo(chromInfoPath, (newChromInfo) => {
@@ -155,15 +159,18 @@ const AddCaseForm = (props) => {
       }}
       onSubmit={(values, { setSubmitting }) => {
         setTimeout(() => {
-          const { initialXDomain, initialYDomain } = values;
+          const initialXDomain = getGenomePosition(values.initialXDomain);
+          const initialYDomain = getGenomePosition(
+            values.initialYDomain.trim() || values.initialXDomain
+          );
+          const xChrom = chromFromPosition(initialXDomain[0]);
+          const yChrom = chromFromPosition(initialYDomain[0]);
           props.onSubmit({
             ...values,
-            initialXDomain: getGenomePosition(initialXDomain),
-            initialYDomain: getGenomePosition(
-              initialYDomain.trim() || initialXDomain
-            ),
+            initialXDomain,
+            initialYDomain,
             chroms: chroms,
-            currentChroms: { x: "chr1", y: "chr1" }, // TODO: calculate which init chrom
+            currentChroms: { x: xChrom, y: yChrom }, // TODO: calculate which init chrom
           });
           setSubmitting(false);
           props.onClose();

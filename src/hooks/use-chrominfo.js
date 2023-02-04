@@ -244,11 +244,20 @@ const useChromInfo = (chromInfoPath) => {
     [chromInfo]
   );
 
+  const chromFromPosition = useCallback(
+    (absPos) => {
+      const [chrom, pos] = chromInfo.absToChr(absPos);
+      return chrom;
+    },
+    [chromInfo]
+  );
+
   return {
     validateGenomePosition,
     validateGenomePositionOnSameChrom,
     getGenomePosition,
     toGenomePositionString,
+    chromFromPosition,
     chroms,
   };
 };

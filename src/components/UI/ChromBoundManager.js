@@ -22,8 +22,17 @@ const ChromNavigator = (props) => {
       props.onUpdateChrom({ [props.axis]: newChrom });
     }
   }
+  function selectChangeHandler(event) {
+    const newChrom = event.target.value;
+    if (props.syncXY) {
+      props.onUpdateChrom({ x: newChrom, y: newChrom });
+    } else {
+      props.onUpdateChrom({ [props.axis]: newChrom });
+    }
+  }
   return (
     <div className={classes.chrom}>
+      <span>{`${props.axis.toUpperCase()} Limit = `}</span>
       <button
         disabled={shouldDisabled(-1)}
         onClick={() => clickHandler(-1)}
@@ -31,7 +40,13 @@ const ChromNavigator = (props) => {
       >
         <PrevIcon />
       </button>
-      <span>{`${props.axis.toUpperCase()} limit [ ${props.chrom} ]`}</span>
+      <select value={props.chrom} onChange={selectChangeHandler}>
+        {props.allChroms.map((chr) => (
+          <option key={chr} value={chr}>
+            {chr}
+          </option>
+        ))}
+      </select>
       <button
         disabled={shouldDisabled(1)}
         onClick={() => clickHandler(1)}
@@ -52,18 +67,12 @@ const ChromBoundManager = (props) => {
 
   return (
     <div className={classes.whole}>
-      <button className={classes.btnOff}>Free Roam: OFF</button>
+      {/* <button>Free Roam: OFF</button> */}
       <ChromNavigator
         chrom={props.currentChroms.x}
+        allChroms={props.allChroms}
         onUpdateChrom={props.onUpdateCurrentChroms}
         axis="x"
-        onNavChroms={props.onNavChroms}
-        syncXY={syncXY}
-      />
-      <ChromNavigator
-        chrom={props.currentChroms.y}
-        onUpdateChrom={props.onUpdateCurrentChroms}
-        axis="y"
         onNavChroms={props.onNavChroms}
         syncXY={syncXY}
       />
@@ -71,8 +80,20 @@ const ChromBoundManager = (props) => {
         onClick={syncXYClickHandler}
         className={syncXY ? classes.btnOn : classes.btnOff}
       >
-        Sync XY: {syncXY ? "ON" : "OFF"}
+        {syncXY ? (
+          <ion-icon name="link-outline"></ion-icon>
+        ) : (
+          <ion-icon name="unlink-outline"></ion-icon>
+        )}
       </button>
+      <ChromNavigator
+        chrom={props.currentChroms.y}
+        allChroms={props.allChroms}
+        onUpdateChrom={props.onUpdateCurrentChroms}
+        axis="y"
+        onNavChroms={props.onNavChroms}
+        syncXY={syncXY}
+      />
     </div>
   );
 };

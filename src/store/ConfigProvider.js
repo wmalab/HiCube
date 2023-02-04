@@ -1069,13 +1069,42 @@ const configsReducer = (state, action) => {
     updatedConfigs.viewConfigs = updatedViewConfigs;
     return updatedConfigs;
   } else if (action.type === "UPDATE_BOUND") {
-    const { updatedCurrentChroms } = action;
+    const { newChroms, xyDomains, validateXYDomains } = action;
     const currentChroms = { ...state.currentChroms };
-    for (const axis in updatedCurrentChroms) {
-      currentChroms[axis] = updatedCurrentChroms[axis];
+    for (const axis in newChroms) {
+      currentChroms[axis] = newChroms[axis];
+    }
+    const updatedCases = [];
+    const updatedViewConfigs = {};
+    for (const prevCase of state.cases) {
+      const newCase = deepCopy(prevCase);
+      const views = newCase.views;
+      for (let i = 0; i < views.length; i++) {
+        const view = views[i];
+        const { isUpdate, xDomain, yDomain } = validateXYDomains(
+          xyDomains[i],
+          currentChroms.x,
+          currentChroms.y
+        );
+        if (isUpdate) {
+          view.initialXDomain = xDomain;
+          view.initialYDomain = yDomain;
+        } else {
+          view.initialXDomain = [...xyDomains[i].xDomain];
+          view.initialYDomain = [...xyDomains[i].yDomain];
+        }
+      }
+      updatedCases.push(newCase);
+      updatedViewConfigs[newCase.uid] = viewsToViewConfig(
+        views,
+        state.positionedTracks,
+        state.chromInfoPath
+      );
     }
     const updatedConfigs = { ...state };
     updatedConfigs.currentChroms = currentChroms;
+    updatedConfigs.cases = updatedCases;
+    updatedConfigs.viewConfigs = updatedViewConfigs;
     return updatedConfigs;
   }
   return defaultConfigs;
@@ -1186,8 +1215,17 @@ const ConfigProvider = (props) => {
     dispatchConfigsAction({ type: "UPDATE_LOCATION", xyDomains });
   };
 
-  const updateCurrentChromsHandler = (updatedCurrentChroms) => {
-    dispatchConfigsAction({ type: "UPDATE_BOUND", updatedCurrentChroms });
+  const updateCurrentChromsHandler = (
+    newChroms,
+    xyDomains,
+    validateXYDomains
+  ) => {
+    dispatchConfigsAction({
+      type: "UPDATE_BOUND",
+      newChroms,
+      xyDomains,
+      validateXYDomains,
+    });
   };
 
   const configContext = {

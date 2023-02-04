@@ -46,6 +46,16 @@ const useChromBound = (chromInfoPath) => {
     [chromInfo]
   );
 
+  const getChromBound = useCallback(
+    (chrom) => chromBound(chromInfo, chrom),
+    [chromInfo]
+  );
+
+  const allChroms = useMemo(
+    () => (chromInfo ? chromInfo.cumPositions.map((el) => el.chr) : []),
+    [chromInfo]
+  );
+
   const getBounds = useCallback(
     (xChrom, yChrom) => {
       if (!chromInfo) {
@@ -158,7 +168,7 @@ const useChromBound = (chromInfoPath) => {
     [chromInfo]
   );
 
-  return { validateXYDomains, navChroms, getBounds };
+  return { validateXYDomains, navChroms, getBounds, allChroms, getChromBound };
 };
 
 export default useChromBound;

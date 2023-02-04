@@ -48,6 +48,7 @@ button, input, select {
   grid-template-columns: 450px 450px 450px 450px;
   gap: 5px; */
   margin-left: 3px;
+  gap: 3px;
 }
 
 .content-item {

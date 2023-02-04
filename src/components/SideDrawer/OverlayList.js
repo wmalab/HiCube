@@ -3,6 +3,7 @@ import { Formik, Field, Form } from "formik";
 import OverlayListItem from "./OverlayListItem";
 import Collapsible from "../UI/Collapsible";
 import Option from "../UI/Option";
+import chroma from "chroma-js";
 import GenomePositionInput from "../UI/GenomePositionInput";
 import classes from "./OverlayList.module.css";
 
@@ -130,6 +131,34 @@ const OverlayItem = (props) => {
 };
 */
 
+const Colorbar = (props) => {
+  // TODO: the domain range should be determined by vmin/vmax and smin/smax
+  let dmin = 0;
+  let dmax = 1;
+  const d = chroma.scale(props.name).domain([dmin, dmax]);
+
+  const bar = [];
+
+  for (let i = 0; i <= 100; i++) {
+    bar.push(
+      <span
+        key={i}
+        className={classes["grad-step"]}
+        style={{ backgroundColor: d(dmin + (i / 100) * (dmax - dmin)) }}
+      ></span>
+    );
+  }
+
+  return (
+    <div className={classes["gradient"]}>
+      {bar}
+      <span className={classes["domain-min"]}>{dmin}</span>
+      <span className={classes["domain-med"]}>{(dmin + dmax) * 0.5}</span>
+      <span className={classes["domain-max"]}>{dmax}</span>
+    </div>
+  );
+};
+
 const ColormapForm = (props) => {
   const colormaps = [
     "OrRd",
@@ -190,6 +219,13 @@ const ColormapForm = (props) => {
           </div>
           <Option label="vmin" name="vmin" />
           <Option label="vmax" name="vmax" />
+          <Colorbar
+            name={values.name}
+            vmin={values.vmin}
+            vmax={values.vmax}
+            smin={props.smin}
+            smax={props.smax}
+          />
           <div className={classes.action}>
             <button type="submit">Update</button>
           </div>
@@ -234,6 +270,8 @@ const OverlayList = (props) => {
               name={props.overlays.colormap1d.name}
               vmin={props.overlays.colormap1d.vmin}
               vmax={props.overlays.colormap1d.vmax}
+              smin={props.overlays.min1d}
+              smax={props.overlays.max1d}
               onSubmit={props.onUpdateOverlayCmap}
             />
           </Collapsible>
@@ -245,6 +283,8 @@ const OverlayList = (props) => {
               name={props.overlays.colormap2d.name}
               vmin={props.overlays.colormap2d.vmin}
               vmax={props.overlays.colormap2d.vmax}
+              smin={props.overlays.min2d}
+              smax={props.overlays.max2d}
               onSubmit={props.onUpdateOverlayCmap}
             />
           </Collapsible>
