@@ -11,6 +11,7 @@ const ConfigContext = React.createContext({
   numViews: 0,
   panelSizes: {},
   currentChroms: {},
+  freeRoam: true,
   hgcRefs: {},
   addCase: () => {},
   addPairedCase: () => {},
@@ -27,6 +28,7 @@ const ConfigContext = React.createContext({
   updatePanelSizes: () => {},
   updateLocation: () => {},
   updateCurrentChroms: () => {},
+  switchFreeRoam: () => {},
 });
 
 export default ConfigContext;

@@ -3,13 +3,27 @@ div.whole {
   padding-left: 3px;
 }
 
+button.freeroamOn {
+  background-color: lightgreen;
+  width: 120px;
+  height: 30px;
+}
+
+button.freeroamOff {
+  background-color: lightgray;
+  width: 120px;
+  height: 30px;
+}
+
 button.btnOn {
   display: inline-flex;
   justify-content: center;
   align-items: center;
   background-color: lightgreen;
   font-size: 18px;
-  margin: auto;
+  /* margin: auto; */
+  margin-left: 5px;
+  margin-right: 5px;
   border: 1px solid whitesmoke;
   border-radius: 6px;
   /* font-weight: bold; */
@@ -22,7 +36,9 @@ button.btnOff {
   justify-content: center;
   align-items: center;
   font-size: 18px;
-  margin: auto;
+  /* margin: auto; */
+  margin-left: 5px;
+  margin-right: 5px;
   border: 1px solid whitesmoke;
   border-radius: 6px;
   /* line-height: 1.5; */
@@ -50,8 +66,8 @@ div.chrom {
   display: inline-flex;
   justify-content: center;
   align-items: center;
-  margin-left: auto;
-  margin-right: auto;
+  margin-left: 20px;
+  margin-right: 20px;
 }
 
 .chrom span {

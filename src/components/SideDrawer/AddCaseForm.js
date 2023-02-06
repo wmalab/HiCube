@@ -39,6 +39,10 @@ const GenomePositionInput = (props) => {
           chr1-chr22
         </p>
       </div>
+      <div className={classes.checkbox}>
+        <label>Free roam mode: </label>
+        <Field type="checkbox" name="freeRoam" />
+      </div>
     </Collapsible>
   );
 };
@@ -148,6 +152,7 @@ const AddCaseForm = (props) => {
       initialValues={{
         initialXDomain: "",
         initialYDomain: "",
+        freeRoam: true,
         chromInfoPath: chromInfoPath,
         centerHiC: {},
         threed: {

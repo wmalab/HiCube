@@ -67,33 +67,42 @@ const ChromBoundManager = (props) => {
 
   return (
     <div className={classes.whole}>
-      {/* <button>Free Roam: OFF</button> */}
-      <ChromNavigator
-        chrom={props.currentChroms.x}
-        allChroms={props.allChroms}
-        onUpdateChrom={props.onUpdateCurrentChroms}
-        axis="x"
-        onNavChroms={props.onNavChroms}
-        syncXY={syncXY}
-      />
       <button
-        onClick={syncXYClickHandler}
-        className={syncXY ? classes.btnOn : classes.btnOff}
+        className={props.freeRoam ? classes.freeroamOn : classes.freeroamOff}
+        onClick={props.onFreeRoamClick}
       >
-        {syncXY ? (
-          <ion-icon name="link-outline"></ion-icon>
-        ) : (
-          <ion-icon name="unlink-outline"></ion-icon>
-        )}
+        Free Roam: {props.freeRoam ? "ON" : "OFF"}
       </button>
-      <ChromNavigator
-        chrom={props.currentChroms.y}
-        allChroms={props.allChroms}
-        onUpdateChrom={props.onUpdateCurrentChroms}
-        axis="y"
-        onNavChroms={props.onNavChroms}
-        syncXY={syncXY}
-      />
+      {!props.freeRoam && (
+        <>
+          <ChromNavigator
+            chrom={props.currentChroms.x}
+            allChroms={props.allChroms}
+            onUpdateChrom={props.onUpdateCurrentChroms}
+            axis="x"
+            onNavChroms={props.onNavChroms}
+            syncXY={syncXY}
+          />
+          <button
+            onClick={syncXYClickHandler}
+            className={syncXY ? classes.btnOn : classes.btnOff}
+          >
+            {syncXY ? (
+              <ion-icon name="link-outline"></ion-icon>
+            ) : (
+              <ion-icon name="unlink-outline"></ion-icon>
+            )}
+          </button>
+          <ChromNavigator
+            chrom={props.currentChroms.y}
+            allChroms={props.allChroms}
+            onUpdateChrom={props.onUpdateCurrentChroms}
+            axis="y"
+            onNavChroms={props.onNavChroms}
+            syncXY={syncXY}
+          />
+        </>
+      )}
     </div>
   );
 };

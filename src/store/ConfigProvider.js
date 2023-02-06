@@ -36,6 +36,7 @@ const defaultConfigs = {
   // threed => width, height => [];
   panelSizes: {},
   currentChroms: {},
+  freeRoam: true,
 };
 
 const deepCopy = (view) => JSON.parse(JSON.stringify(view));
@@ -241,7 +242,7 @@ const configsReducer = (state, action) => {
   console.log("config reduce");
   if (action.type === "ADD_CASE" || action.type === "ADD_CASE_PAIRED") {
     const { chromInfoPath, centerHiC, threed, tracks, chroms } = action.config;
-    const { currentChroms } = action.config;
+    const { currentChroms, freeRoam } = action.config;
     const initialXDomain = [...action.config.initialXDomain];
     const initialYDomain = [...action.config.initialYDomain];
 
@@ -520,6 +521,7 @@ const configsReducer = (state, action) => {
       numViews: state.numViews || 1,
       panelSizes: panelSizes,
       currentChroms: { ...state.currentChroms, ...currentChroms },
+      freeRoam: freeRoam === undefined ? state.freeRoam : freeRoam,
     };
     return updatedConfigs;
   } else if (action.type === "ADD_ZOOMVIEW") {
@@ -588,6 +590,7 @@ const configsReducer = (state, action) => {
       numViews: 2,
       panelSizes: state.panelSizes,
       currentChroms: state.currentChroms,
+      freeRoam: state.freeRoam,
     };
     return updatedConfigs;
   } else if (action.type === "REMOVE_ZOOMVIEW") {
@@ -634,6 +637,7 @@ const configsReducer = (state, action) => {
       numViews: 1,
       panelSizes: state.panelSizes,
       currentChroms: state.currentChroms,
+      freeRoam: state.freeRoam,
     };
     return updatedConfigs;
   } else if (action.type === "UPDATE_OVERLAYS") {
@@ -685,6 +689,7 @@ const configsReducer = (state, action) => {
       numViews: state.numViews,
       panelSizes: state.panelSizes,
       currentChroms: state.currentChroms,
+      freeRoam: state.freeRoam,
     };
     return updatedConfigs;
   } else if (action.type === "REMOVE_OVERLAYS") {
@@ -723,6 +728,7 @@ const configsReducer = (state, action) => {
       numViews: state.numViews,
       panelSizes: state.panelSizes,
       currentChroms: state.currentChroms,
+      freeRoam: state.freeRoam,
     };
     return updatedConfigs;
   } else if (action.type === "UPDATE_TRACKS") {
@@ -827,6 +833,7 @@ const configsReducer = (state, action) => {
       numViews: state.numViews,
       panelSizes: state.panelSizes,
       currentChroms: state.currentChroms,
+      freeRoam: state.freeRoam,
     };
     return updatedConfigs;
   } else if (action.type === "LOAD_CONFIG") {
@@ -889,6 +896,7 @@ const configsReducer = (state, action) => {
       numViews: config.numViews,
       panelSizes: config.panelSizes,
       currentChroms: config.currentChroms,
+      freeRoam: config.freeRoam,
     };
     return loadedConfigs;
   } else if (action.type === "DELETE_CASE") {
@@ -966,6 +974,7 @@ const configsReducer = (state, action) => {
       numViews: state.numViews,
       panelSizes: state.panelSizes,
       currentChroms: state.currentChroms,
+      freeRoam: state.freeRoam,
     };
     return updatedConfigs;
   } else if (action.type === "DELETE_ALL_CASES") {
@@ -992,6 +1001,7 @@ const configsReducer = (state, action) => {
       numViews: state.numViews,
       panelSizes: state.panelSizes,
       currentChroms: state.currentChroms,
+      freeRoam: state.freeRoam,
     };
     return updatedConfigs;
   } else if (action.type === "UPDATE_PANEL_SIZES") {
@@ -1068,7 +1078,16 @@ const configsReducer = (state, action) => {
     updatedConfigs.positionedTracks = updatedPositionedTracks;
     updatedConfigs.viewConfigs = updatedViewConfigs;
     return updatedConfigs;
-  } else if (action.type === "UPDATE_BOUND") {
+  } else if (
+    action.type === "UPDATE_BOUND" ||
+    action.type === "SWITCH_FREEROAM"
+  ) {
+    if (action.type === "SWITCH_FREEROAM" && !state.freeRoam) {
+      // switch on free roam mode, no need to do others
+      const updatedConfigs = { ...state };
+      updatedConfigs.freeRoam = true;
+      return updatedConfigs;
+    }
     const { newChroms, xyDomains, validateXYDomains } = action;
     const currentChroms = { ...state.currentChroms };
     for (const axis in newChroms) {
@@ -1105,6 +1124,9 @@ const configsReducer = (state, action) => {
     updatedConfigs.currentChroms = currentChroms;
     updatedConfigs.cases = updatedCases;
     updatedConfigs.viewConfigs = updatedViewConfigs;
+    if (action.type === "SWITCH_FREEROAM" && state.freeRoam) {
+      updatedConfigs.freeRoam = false;
+    }
     return updatedConfigs;
   }
   return defaultConfigs;
@@ -1228,6 +1250,15 @@ const ConfigProvider = (props) => {
     });
   };
 
+  const switchFreeRoamHandler = (newChroms, xyDomains, validateXYDomains) => {
+    dispatchConfigsAction({
+      type: "SWITCH_FREEROAM",
+      newChroms,
+      xyDomains,
+      validateXYDomains,
+    });
+  };
+
   const configContext = {
     cases: configs.cases,
     pairedLocks: configs.pairedLocks,
@@ -1239,6 +1270,7 @@ const ConfigProvider = (props) => {
     numViews: configs.numViews,
     panelSizes: configs.panelSizes,
     currentChroms: configs.currentChroms,
+    freeRoam: configs.freeRoam,
     hgcRefs: hgcRefs,
     addCase: addCaseHandler,
     addPairedCase: addPairedCaseHandler,
@@ -1255,6 +1287,7 @@ const ConfigProvider = (props) => {
     updatePanelSizes: updatePanelSizesHandler,
     updateLocation: updateLocationHandler,
     updateCurrentChroms: updateCurrentChromsHandler,
+    switchFreeRoam: switchFreeRoamHandler,
   };
 
   return (

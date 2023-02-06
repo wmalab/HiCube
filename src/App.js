@@ -357,9 +357,21 @@ export default function App() {
 
   const [genomeAssembly, setGenomeAssembly] = useState({});
 
-  const { validateXYDomains, navChroms, allChroms } = useChromBound(
-    genomeAssembly.chromInfoPath
-  );
+  const { validateXYDomains, navChroms, allChroms, chromFromPosition } =
+    useChromBound(genomeAssembly.chromInfoPath);
+
+  const freeRoam = configCtx.freeRoam;
+
+  const freeRoamClickHandler = () => {
+    configCtx.switchFreeRoam(
+      {
+        x: chromFromPosition(mainLocation.xDomain[0]),
+        y: chromFromPosition(mainLocation.yDomain[0]),
+      },
+      [mainLocation, rangeSelection],
+      validateXYDomains
+    );
+  };
 
   const locationChangeHandler = (location, id) => {
     console.log("location changed.", "id: ", id, "location: ", location);
@@ -376,7 +388,7 @@ export default function App() {
       configCtx.currentChroms.x,
       configCtx.currentChroms.y
     );
-    if (isUpdate) {
+    if (isUpdate && !freeRoam) {
       console.log("Out of bound. New location: x: ", xDomain, "y: ", yDomain);
       // setMainLocation({ xDomain, yDomain, fromId: "user_entered" });
       setMainLocation({ xDomain, yDomain, fromId: "bound" });
@@ -524,7 +536,7 @@ export default function App() {
       configCtx.currentChroms.x,
       configCtx.currentChroms.y
     );
-    if (isUpdate) {
+    if (isUpdate && !freeRoam) {
       setRangeSelection({ xDomain, yDomain, fromId: "bound", type: "UPDATE" });
     } else {
       setRangeSelection({ ...location, fromId: id, type: type });
@@ -869,6 +881,8 @@ export default function App() {
               allChroms={allChroms}
               onUpdateCurrentChroms={updateChromsHandler}
               onNavChroms={navChroms}
+              freeRoam={freeRoam}
+              onFreeRoamClick={freeRoamClickHandler}
             />
           )}
           {caselist.length > 0 && rangeSelection && rangeSelection.xDomain && (

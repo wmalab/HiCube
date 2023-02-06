@@ -168,7 +168,22 @@ const useChromBound = (chromInfoPath) => {
     [chromInfo]
   );
 
-  return { validateXYDomains, navChroms, getBounds, allChroms, getChromBound };
+  const chromFromPosition = useCallback(
+    (absPos) => {
+      const [chrom, pos] = chromInfo.absToChr(absPos);
+      return chrom;
+    },
+    [chromInfo]
+  );
+
+  return {
+    validateXYDomains,
+    navChroms,
+    getBounds,
+    allChroms,
+    getChromBound,
+    chromFromPosition,
+  };
 };
 
 export default useChromBound;

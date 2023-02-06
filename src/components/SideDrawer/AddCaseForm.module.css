@@ -32,6 +32,12 @@
   width: 200px;
 }
 
+.checkbox input {
+  width: 15px;
+  height: 15px;
+  margin-left: 5px;
+}
+
 .enterfield select {
   max-width: 200px;
   margin-left: 5px;
