@@ -737,10 +737,12 @@ export default function App() {
 
   const zoomPositionBarChangeHandler = (xyDomain) => {
     configCtx.updateLocation([mainLocation, xyDomain]);
+    setRangeSelection({ ...xyDomain, fromId: "user_entered", type: "UPDATE" });
   };
 
   const basePositionBarChangeHandler = (xyDomain) => {
     configCtx.updateLocation([xyDomain, rangeSelection]);
+    setMainLocation({ ...xyDomain, fromId: "user_entered" });
   };
 
   const updateChromsHandler = (newChroms) => {
