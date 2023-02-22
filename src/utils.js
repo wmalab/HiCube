@@ -95,3 +95,20 @@ export const download = (blob, filename) => {
     URL.revokeObjectURL(blobUrl);
   }
 };
+
+export const manualUpdateLocation = (
+  loc,
+  updateFn,
+  validateFn,
+  newChroms,
+  kwargs
+) => {
+  const { isUpdate, xDomain, yDomain } = validateFn(
+    loc,
+    newChroms.x,
+    newChroms.y
+  );
+  if (isUpdate) {
+    updateFn({ xDomain, yDomain, ...kwargs });
+  }
+};

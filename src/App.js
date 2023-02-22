@@ -7,7 +7,7 @@ import { defaultOptions as options } from "./configs/default-config";
 // import GridLayout from "react-grid-layout";
 import ThreeTrack from "./components/Three/ThreeTrack";
 import ChromBoundManager from "./components/UI/ChromBoundManager";
-import { uid, strToInt, download } from "./utils";
+import { uid, strToInt, download, manualUpdateLocation } from "./utils";
 import { ChromosomeInfo } from "higlass";
 import ErrorBoundary from "./components/UI/ErrorBoundary";
 import useChromBound from "./hooks/use-chrombound";
@@ -363,14 +363,34 @@ export default function App() {
   const freeRoam = configCtx.freeRoam;
 
   const freeRoamClickHandler = () => {
+    const newChroms = {
+      x: chromFromPosition(mainLocation.xDomain[0]),
+      y: chromFromPosition(mainLocation.yDomain[0]),
+    };
+    const manualUpdate = configCtx.freeRoam;
     configCtx.switchFreeRoam(
-      {
-        x: chromFromPosition(mainLocation.xDomain[0]),
-        y: chromFromPosition(mainLocation.yDomain[0]),
-      },
+      newChroms,
       [mainLocation, rangeSelection],
       validateXYDomains
     );
+    if (manualUpdate) {
+      manualUpdateLocation(
+        mainLocation,
+        setMainLocation,
+        validateXYDomains,
+        newChroms,
+        { fromId: "bound" }
+      );
+      if (configCtx.numViews > 1) {
+        manualUpdateLocation(
+          rangeSelection,
+          setRangeSelection,
+          validateXYDomains,
+          newChroms,
+          { fromId: "bound", type: "UPDATE" }
+        );
+      }
+    }
   };
 
   const locationChangeHandler = (location, id) => {
@@ -751,6 +771,26 @@ export default function App() {
       [mainLocation, rangeSelection],
       validateXYDomains
     );
+    // manually update locations: viewconfig change does not automatically trigger
+    manualUpdateLocation(
+      mainLocation,
+      setMainLocation,
+      validateXYDomains,
+      { ...configCtx.currentChroms, ...newChroms },
+      { fromId: "bound" }
+    );
+    if (configCtx.numViews > 1) {
+      manualUpdateLocation(
+        rangeSelection,
+        setRangeSelection,
+        validateXYDomains,
+        { ...configCtx.currentChroms, ...newChroms },
+        {
+          fromId: "bound",
+          type: "UPDATE",
+        }
+      );
+    }
   };
 
   // this approach didn't work well when there is 2 cases
