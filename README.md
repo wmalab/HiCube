@@ -147,7 +147,7 @@ docker exec higlass-container python higlass-server/manage.py ingest_tileset \
 
 A tutorial [How to Generate 3D Structure from Your Own Data](/docs/how_to_generate_3d_structure_from_your_own_data.md) demonstrates examples of how to generate the 3D structure from your own data using common softwares.
 
-HiCube can directly read local 3D genome structure file in .g3d format. Other formats e.g. nucle3d, .3dg, PASTIS output, can be converted to .g3d format using [g3dtools](https://github.com/lidaof/g3d/tree/master/g3dtools), which can be installed with `python3` and `pip`:
+HiCube can directly read local 3D genome structure file in .g3d format. Other formats e.g. nucle3d, .3dg, PASTIS output, can be converted to .g3d format using [g3dtools](https://github.com/lidaof/g3d/tree/master/g3dtools) (v0.2.3), which can be installed with `python3` and `pip`:
 
 ```bash
 pip install g3dtools
