@@ -36,3 +36,12 @@ div.option {
 .action button:hover {
   background-color: lightgray;
 }
+
+p.error {
+  font-size: 12px;
+  color: red;
+  margin-top: 1px;
+  margin-bottom: 3px;
+  margin-left: 0px;
+  font-weight: bold;
+}

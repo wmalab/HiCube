@@ -3,6 +3,16 @@ import { Formik, Form, Field } from "formik";
 import Collapsible from "./Collapsible";
 import classes from "./ThreedOptionForm.module.css";
 
+function validateOpacity(value) {
+  let error;
+  if (value < 0) {
+    error = "Opacity cannot be smaller than 0";
+  } else if (value > 1) {
+    error = "Opacity cannot be larger than 1";
+  }
+  return error;
+}
+
 const ThreedOptionForm = (props) => {
   return (
     <Formik
@@ -18,12 +28,15 @@ const ThreedOptionForm = (props) => {
         }, 400);
       }}
     >
-      {({ values }) => (
+      {({ values, errors, touched }) => (
         <Form>
           <div className={classes.option}>
             <label>Unvisualized Opacity</label>
-            <Field name="opacity" />
+            <Field name="opacity" type="number" validate={validateOpacity} />
           </div>
+          {touched.opacity && errors.opacity && (
+            <p className={classes.error}>{errors.opacity}</p>
+          )}
           <Collapsible title="Chromosome Colormap">
             {Object.keys(values.colormap).map((chrom) => (
               <div className={classes.option} key={chrom}>

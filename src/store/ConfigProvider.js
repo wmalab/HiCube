@@ -484,7 +484,7 @@ const configsReducer = (state, action) => {
     );
 
     let colormap = {};
-    let opacity = 0.1;
+    let opacity = 0.05;
     if (state.cases.length > 0 && state.cases[0].uid in state.threeCases) {
       // if already have a case, inherit its color and opacity setting
       colormap = state.threeCases[state.cases[0].uid].colormap;
