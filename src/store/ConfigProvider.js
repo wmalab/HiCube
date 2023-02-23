@@ -405,10 +405,10 @@ const configsReducer = (state, action) => {
     // totalHeight / totalWidth ~= yDomain / xDomain
     // totalWidth is determined by panelSizes.width2d
     // totalHeight is determined by eq. (1) dynamically
-    if (cumHeight > 250 || cumWidth > 250) {
-      // TODO: dynamically change canvas size
-      throw new Error("Too many tracks");
-    }
+    // if (cumHeight > 250 || cumWidth > 250) {
+    //   // TODO: dynamically change canvas size
+    //   throw new Error("Too many tracks");
+    // }
     let centerTrackHeight;
     const panelSizes = { ...state.panelSizes };
     if (state.cases.length > 0) {
@@ -416,12 +416,26 @@ const configsReducer = (state, action) => {
       const existedTrackUid = state.cases[0].views[0]["2d"].contents[0].uid;
       centerTrackHeight = state.positionedTracks[existedTrackUid].height;
     } else {
-      const width = DEFAULT_PANEL_WIDTH;
-      const centerWidth = width - 2 * VIEW_PADDING - cumWidth;
+      // TODO: need to maintain minimum center track width and height
+      let width = DEFAULT_PANEL_WIDTH;
+      let centerWidth = width - 2 * VIEW_PADDING - cumWidth;
+      // !!! seems the minimum center height is 200
+      if (centerWidth < 200) {
+        centerWidth = 200;
+        width = centerWidth + 2 * VIEW_PADDING + cumWidth;
+      }
+      // --------------------------------------------------
       const ratio =
         (initialYDomain[1] - initialYDomain[0]) /
         (initialXDomain[1] - initialXDomain[0]);
-      const centerHeight = Math.floor(centerWidth * ratio);
+      let centerHeight = Math.floor(centerWidth * ratio);
+      // update center height is smaller than 200
+      if (centerHeight < 200) {
+        centerHeight = 200;
+        centerWidth = Math.ceil(centerHeight / ratio);
+        width = centerWidth + 2 * VIEW_PADDING + cumWidth;
+      }
+      // --------------------------------------------------
       centerTrackHeight = centerHeight;
       if (hasVerticalTrack) {
         centerTrackHeight -= DEFAULT_CENTER_HEIGHT;
@@ -432,7 +446,7 @@ const configsReducer = (state, action) => {
         height: [totalHeight, totalHeight],
       };
       panelSizes.threed = {
-        width: width,
+        width: DEFAULT_PANEL_WIDTH,
         height: [DEFAULT_PANEL_HEIGHT, DEFAULT_PANEL_HEIGHT],
       };
     }
