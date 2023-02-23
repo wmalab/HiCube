@@ -678,16 +678,19 @@ export default function App() {
       zoomYDomain: rangeSelection.yDomain,
       trackSourceServers: trackSourceServers,
       panelSizes: panelSizes,
+      currentChroms: configCtx.currentChroms,
+      freeRoam: freeRoam,
     };
     // export as JSON file for downloading
     const blob = new Blob([JSON.stringify(config, null, 2)], {
       type: "application/json",
     });
-    const blobUrl = URL.createObjectURL(blob);
-    const link = document.createElement("a");
-    link.href = blobUrl;
-    link.download = "config.json";
-    link.click();
+    download(blob, "config.json");
+    // const blobUrl = URL.createObjectURL(blob);
+    // const link = document.createElement("a");
+    // link.href = blobUrl;
+    // link.download = "config.json";
+    // link.click();
   };
 
   const loadConfigHandler = (configBlob, g3dBlobs) => {
