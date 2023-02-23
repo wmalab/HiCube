@@ -132,9 +132,20 @@ const OverlayItem = (props) => {
 */
 
 const Colorbar = (props) => {
-  // TODO: the domain range should be determined by vmin/vmax and smin/smax
-  let dmin = 0;
-  let dmax = 1;
+  // the domain range should be determined by vmin/vmax and smin/smax
+  const min = props.vmin === "" ? props.smin : props.vmin;
+  const max = props.vmax === "" ? props.smax : props.vmax;
+  const useDefault = min >= max;
+  let dmin, dmax;
+  if (useDefault) {
+    dmin = 0;
+    dmax = 1;
+  } else {
+    dmin = min;
+    dmax = max;
+  }
+  // let dmin = 0;
+  // let dmax = 1;
   const d = chroma.scale(props.name).domain([dmin, dmax]);
 
   const bar = [];
@@ -152,11 +163,31 @@ const Colorbar = (props) => {
   return (
     <div className={classes["gradient"]}>
       {bar}
-      <span className={classes["domain-min"]}>{dmin}</span>
-      <span className={classes["domain-med"]}>{(dmin + dmax) * 0.5}</span>
-      <span className={classes["domain-max"]}>{dmax}</span>
+      {!useDefault && (
+        <>
+          <span className={classes["domain-min"]}>{dmin}</span>
+          <span className={classes["domain-med"]}>{(dmin + dmax) * 0.5}</span>
+          <span className={classes["domain-max"]}>{dmax}</span>
+        </>
+      )}
     </div>
   );
+};
+
+const validateColormap = (values) => {
+  const errors = {};
+  const min = values.vmin === "" ? values.smin : values.vmin;
+  const max = values.vmax === "" ? values.smax : values.vmax;
+  if (values.vmin !== "" && values.vmin >= max) {
+    errors.vmin = `vmin must be smaller than vmax or maximum score ${values.smax}`;
+  }
+  if (values.vmax !== "" && values.vmax <= min) {
+    errors.vmax = `vmax must be larger than vmin or minimum score ${values.smin}`;
+  }
+  if (values.vmax === "" && values.vmin === "" && min >= max) {
+    errors.vmax = `not valid range ${min}-${max}`;
+  }
+  return errors;
 };
 
 const ColormapForm = (props) => {
@@ -193,19 +224,27 @@ const ColormapForm = (props) => {
   return (
     <Formik
       enableReinitialize
+      validateOnBlur
       initialValues={{
         name: props.name,
-        vmin: props.vmin,
-        vmax: props.vmax,
+        vmin: props.vmin === null ? "" : props.vmin,
+        vmax: props.vmax === null ? "" : props.vmax,
+        smin: props.smin,
+        smax: props.smax,
       }}
+      validate={validateColormap}
       onSubmit={(values, { setSubmitting }) => {
         setTimeout(() => {
-          props.onSubmit(props.colormapKey, values);
+          props.onSubmit(props.colormapKey, {
+            name: values.name,
+            vmin: values.vmin === "" ? null : values.vmin,
+            vmax: values.vmax === "" ? null : values.vmax,
+          });
           setSubmitting(false);
         }, 400);
       }}
     >
-      {({ values }) => (
+      {({ values, touched, errors }) => (
         <Form>
           <div className={classes.option}>
             <label>Colormap</label>
@@ -217,8 +256,14 @@ const ColormapForm = (props) => {
               ))}
             </Field>
           </div>
-          <Option label="vmin" name="vmin" />
-          <Option label="vmax" name="vmax" />
+          <Option label="vmin" name="vmin" type="number" />
+          {touched.vmin && errors.vmin && (
+            <p className={classes.error}>{errors.vmin}</p>
+          )}
+          <Option label="vmax" name="vmax" type="number" />
+          {touched.vmax && errors.vmax && (
+            <p className={classes.error}>{errors.vmax}</p>
+          )}
           <Colorbar
             name={values.name}
             vmin={values.vmin}

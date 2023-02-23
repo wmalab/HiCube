@@ -281,6 +281,14 @@ const overlaysReducer = (state, action) => {
       updatedOverlays[dataK] = [...state[dataK]];
       updatedOverlays[dataK][overlayIndex] = updatedOverlay;
       // update min and max score if need
+      // if the old score is max or min, we need to delete it
+      if (overlay.score === state[minK]) {
+        updatedOverlays[minK] = findNewMin(updatedOverlays[dataK]);
+      }
+      if (overlay.score === state[maxK]) {
+        updatedOverlays[maxK] = findNewMax(updatedOverlays[dataK]);
+      }
+      // otherwise only need to compare current max and min
       if (score !== null && score > state[maxK]) {
         updatedOverlays[maxK] = score;
       }
