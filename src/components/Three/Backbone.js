@@ -20,7 +20,7 @@ const Backbone = (props) => {
   // TODO: maybe change the gray to white? but whhich value rep white?
 
   const color = color2rgb(props.color);
-  const color2 = color2rgb("white"); // for regions that is not visible
+  const color2 = color2rgb("lightgray"); // for regions that is not visible
   const transparent = !visible;
   const opacity = transparent ? props.opacity : 1; // TODO make it changeable
   // TODO: fill invisible chromsome with its chosen color instead of gray
@@ -36,19 +36,19 @@ const Backbone = (props) => {
     }
 
     for (const binRange of binRanges) {
-      console.log(binRange);
+      // console.log(binRange);
 
       const startBin = binRange[0];
       const startSegment = binToSegment[startBin];
       const endBin = binRange[1] - 1;
       const endSegment = binToSegment[endBin];
 
-      console.log("startBin=", startBin, "endBin=", endBin);
-      console.log("startSegment=", startSegment, segments[startSegment]);
-      console.log("endSegment=", endSegment, segments[endSegment]);
+      // console.log("startBin=", startBin, "endBin=", endBin);
+      // console.log("startSegment=", startSegment, segments[startSegment]);
+      // console.log("endSegment=", endSegment, segments[endSegment]);
 
       for (let i = startSegment + 1; i < endSegment; i++) {
-        console.log("fill segment");
+        // console.log("fill segment");
         if (!showViewRangeOnly) {
           segmentColors[i].fill(color);
         } else {
@@ -136,10 +136,10 @@ const Backbone = (props) => {
             }
           } else {
             const segment = segments[endSegment];
-            console.log(
-              "fill endSegment",
-              segment.points.length - segment.end + endBin
-            );
+            // console.log(
+            //   "fill endSegment",
+            //   segment.points.length - segment.end + endBin
+            // );
             if (!showViewRangeOnly) {
               segmentColors[endSegment].fill(
                 color,
