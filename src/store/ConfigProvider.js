@@ -141,9 +141,10 @@ const viewsToViewConfig = (views, positionedTracks, chromInfoPath) => {
     newView.tracks.center.push({
       uid: view["2d"].uid, // FIXED: undefined cause re-generate uid
       type: "combined",
-      contents: view["2d"].contents.map(
-        (content) => positionedTracks[content.uid]
-      ),
+      contents: view["2d"].contents.map((content) => ({
+        ...positionedTracks[content.uid],
+        height: view["2d"].height,
+      })),
     });
     for (const track of view["1d"]) {
       for (const position in track.positions) {
@@ -236,6 +237,23 @@ function calculateHeight(xyDomain, width, view, positionedTracks) {
   }
   const totalHeight = centerHeight + cumHeight + 2 * VIEW_PADDING;
   return { centerTrackHeight, totalHeight };
+}
+
+function getCumulativeSize(dim, view, positionedTracks) {
+  let size = 0;
+  for (const track of view["1d"]) {
+    for (const position in track.positions) {
+      const orient = positionToOrientation(position);
+      if (orient === "horizontal" && dim === 1) {
+        const trackUid = track.positions[position];
+        size += positionedTracks[trackUid].height;
+      } else if (orient === "vertical" && dim === 0) {
+        const trackUid = track.positions[position];
+        size += positionedTracks[trackUid].width;
+      }
+    }
+  }
+  return size + 2 * VIEW_PADDING;
 }
 
 const configsReducer = (state, action) => {
@@ -413,8 +431,9 @@ const configsReducer = (state, action) => {
     const panelSizes = { ...state.panelSizes };
     if (state.cases.length > 0) {
       // TODO: copy height from existed case
-      const existedTrackUid = state.cases[0].views[0]["2d"].contents[0].uid;
-      centerTrackHeight = state.positionedTracks[existedTrackUid].height;
+      // const existedTrackUid = state.cases[0].views[0]["2d"].contents[0].uid;
+      // centerTrackHeight = state.positionedTracks[existedTrackUid].height;
+      centerTrackHeight = state.cases[0].views[0]["2d"].height;
     } else {
       // TODO: need to maintain minimum center track width and height
       let width = DEFAULT_PANEL_WIDTH;
@@ -450,7 +469,8 @@ const configsReducer = (state, action) => {
         height: [DEFAULT_PANEL_HEIGHT, DEFAULT_PANEL_HEIGHT],
       };
     }
-    positionedTracks[view["2d"].contents[0].uid].height = centerTrackHeight;
+    // positionedTracks[view["2d"].contents[0].uid].height = centerTrackHeight;
+    view["2d"].height = centerTrackHeight;
     console.log("centerTrackHeight", centerTrackHeight);
     // ---------------------------------------------------------------------
 
@@ -474,6 +494,7 @@ const configsReducer = (state, action) => {
       newView.uid = "bb";
       newView.initialXDomain = [...action.config.zoomXDomain];
       newView.initialYDomain = [...action.config.zoomYDomain];
+      newView["2d"].height = state.cases[0].views[1]["2d"].height;
       views.push(newView);
       const viewportUid = uid();
       const viewportType = "viewport-projection-center";
@@ -593,6 +614,10 @@ const configsReducer = (state, action) => {
       );
       updatedViewConfigs[newCase.uid] = viewConfig;
     }
+    // TODO: make the zoom view panel size same as base view
+    const updatedPanelSizes = { ...state.panelSizes };
+    updatedPanelSizes.higlass.height[1] = updatedPanelSizes.higlass.height[0];
+    updatedPanelSizes.threed.height[1] = updatedPanelSizes.threed.height[0];
     const updatedConfigs = {
       cases: updatedCases,
       pairedLocks: state.pairedLocks,
@@ -602,7 +627,7 @@ const configsReducer = (state, action) => {
       chromInfoPath: chromInfoPath,
       viewConfigs: updatedViewConfigs,
       numViews: 2,
-      panelSizes: state.panelSizes,
+      panelSizes: updatedPanelSizes,
       currentChroms: state.currentChroms,
       freeRoam: state.freeRoam,
     };
@@ -1037,9 +1062,14 @@ const configsReducer = (state, action) => {
         if (newHeight !== prevHeight) {
           // TODO: update center track height
           // FIXME: separate track uid for base and zoom tracks
-          const centerTrackUid = view["2d"].contents[0].uid;
-          updatedPositionedTracks[centerTrackUid].height =
-            calculateCenterHeight(newHeight, view, updatedPositionedTracks);
+          view["2d"].height = calculateCenterHeight(
+            newHeight,
+            view,
+            updatedPositionedTracks
+          );
+          // const centerTrackUid = view["2d"].contents[0].uid;
+          // updatedPositionedTracks[centerTrackUid].height =
+          //   calculateCenterHeight(newHeight, view, updatedPositionedTracks);
         }
       }
       updatedCases.push(newCase);
@@ -1075,8 +1105,9 @@ const configsReducer = (state, action) => {
           view,
           updatedPositionedTracks
         );
-        const centerTrackUid = view["2d"].contents[0].uid;
-        updatedPositionedTracks[centerTrackUid].height = centerTrackHeight;
+        view["2d"].height = centerTrackHeight;
+        // const centerTrackUid = view["2d"].contents[0].uid;
+        // updatedPositionedTracks[centerTrackUid].height = centerTrackHeight;
         updatedPanelSizes.higlass.height[i] = totalHeight;
       }
       updatedCases.push(newCase);
@@ -1273,6 +1304,27 @@ const ConfigProvider = (props) => {
     });
   };
 
+  const getViewSizeHandler = (dim, view = 0) => {
+    if (view !== 1) {
+      // get cumulative width (vertical tracks) dim = 0
+      // or height (horizontal tracks) dim = 1
+      return getCumulativeSize(
+        dim,
+        configs.cases[0].views[0],
+        configs.positionedTracks
+      );
+    }
+    // zoom view
+    if (configs.numViews > 1 && configs.cases[0].views.length > 1) {
+      return getCumulativeSize(
+        dim,
+        configs.cases[0].views[1],
+        configs.positionedTracks
+      );
+    }
+    return 0;
+  };
+
   const configContext = {
     cases: configs.cases,
     pairedLocks: configs.pairedLocks,
@@ -1302,6 +1354,7 @@ const ConfigProvider = (props) => {
     updateLocation: updateLocationHandler,
     updateCurrentChroms: updateCurrentChromsHandler,
     switchFreeRoam: switchFreeRoamHandler,
+    getViewSize: getViewSizeHandler,
   };
 
   return (

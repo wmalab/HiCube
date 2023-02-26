@@ -29,6 +29,7 @@ const ConfigContext = React.createContext({
   updateLocation: () => {},
   updateCurrentChroms: () => {},
   switchFreeRoam: () => {},
+  getViewSize: () => {},
 });
 
 export default ConfigContext;
