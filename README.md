@@ -14,6 +14,10 @@ See [docs/README.md](/docs/README.md) for how to recreate the above figure.
 
 [Demo site](https://hicube-86906.web.app/)
 
+**Citation**
+
+Tiantian Ye, Yangyang Hu, Sydney Pun, Wenxiu Ma, HiCube: Interactive visualization of multiscale and multimodal Hi-C and 3D genome data, Bioinformatics, 2023;, btad154, https://doi.org/10.1093/bioinformatics/btad154
+
 ## Table of contents
 
 - [1 Installation](#1-installation)
