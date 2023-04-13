@@ -16,7 +16,7 @@ See [docs/README.md](/docs/README.md) for how to recreate the above figure.
 
 **Citation**
 
-Tiantian Ye, Yangyang Hu, Sydney Pun, Wenxiu Ma, HiCube: Interactive visualization of multiscale and multimodal Hi-C and 3D genome data, Bioinformatics, 2023;, btad154, https://doi.org/10.1093/bioinformatics/btad154
+Tiantian Ye, Yangyang Hu, Sydney Pun, Wenxiu Ma, HiCube: interactive visualization of multiscale and multimodal Hi-C and 3D genome data, Bioinformatics, Volume 39, Issue 4, April 2023, btad154, https://doi.org/10.1093/bioinformatics/btad154
 
 ## Table of contents
 
